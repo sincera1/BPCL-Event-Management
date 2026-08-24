@@ -1,0 +1,678 @@
+:global(#workbenchPageContent),
+:global(.CanvasZone),
+:global(.ControlZone),
+:global(.CanvasSection),
+:global(.Canvas),
+:global(.CanvasZoneSectionContainer) {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: #f4f8fb !important;
+
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+//----- PARTICIPANT HEADER--------
+
+.participantHeader {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // padding: 0 14px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+/* =========================
+   LEFT SIDE
+========================= */
+
+.participantTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.count {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  color: #0054AD;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* =========================
+   RIGHT SIDE
+========================= */
+
+.actionSection {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* =========================
+   SEARCH BOX
+========================= */
+
+.searchBox {
+  width: 252px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d5d5d5;
+  border-radius: 5px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.searchIcon {
+  font-size: 21px;
+  color: #0054AD;
+  margin-left: 13px;
+  margin-right: 10px;
+}
+
+.searchInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #555;
+  background: transparent;
+}
+
+.searchInput::placeholder {
+  color: #b5b5b5;
+}
+
+/* =========================
+   SEND EMAIL BUTTON
+========================= */
+
+.sendEmailButton {
+  width: 172px;
+  height: 38px;
+  border: none;
+  border-radius: 9px;
+  background: #0054AD;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sendEmailButton:hover {
+  background: #004a9f;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .participantHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .actionSection {
+    width: 100%;
+  }
+
+  .searchBox {
+    flex: 1;
+    width: auto;
+  }
+
+  .sendEmailButton {
+    width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .participantTitle {
+    justify-content: flex-start;
+  }
+
+  .actionSection {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchBox {
+    width: 100%;
+  }
+
+  .sendEmailButton {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.tableWrapper {
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   RESPONSIVE WRAPPER
+========================================================= */
+
+:global(.table-responsive) {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   MAIN TABLE
+========================================================= */
+
+.listTable {
+  width: 100%;
+  margin-bottom: 0;
+  background: #ffffff;
+  border: 1px solid #e1e5ea;
+  border-radius: 10px;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.listTable thead tr {
+  background: #0054ad !important;
+}
+
+
+.listTable thead th {
+  height: 55px;
+  padding: 0 16px;
+  background: #0054ad !important;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: none !important;
+}
+
+
+/* =========================================================
+   FIRST HEADER
+========================================================= */
+
+.listTable thead th:first-child {
+  border-top-left-radius: 9px;
+}
+
+
+/* =========================================================
+   LAST HEADER
+========================================================= */
+
+.listTable thead th:last-child {
+  border-top-right-radius: 9px;
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.listTable tbody tr {
+  background: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+
+/* =========================================================
+   TABLE BODY CELLS
+========================================================= */
+
+.listTable tbody td {
+  height: 55px;
+  padding: 7px 16px;
+  color: #30343b;
+  font-size: 11px;
+  font-weight: 400;
+  vertical-align: middle;
+  white-space: nowrap;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5ea;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.listTable tbody tr:hover td {
+  background: #f7faff !important;
+}
+
+
+/* =========================================================
+   LAST ROW
+========================================================= */
+
+.listTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =========================================================
+   SELECT COLUMN
+========================================================= */
+
+.selectColumn {
+  width: 60px;
+  min-width: 60px;
+  text-align: center !important;
+}
+
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.customCheckbox {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  accent-color: #009ee2;
+  vertical-align: middle;
+}
+
+
+/* =========================================================
+   STAGE BADGES - COMMON
+========================================================= */
+
+.stageCount,
+.stageCountZero,
+.stageCountGreen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  padding: 4px 8px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   STAGE - 4 / 10
+========================================================= */
+
+.stageCount {
+  background: #d9edf7;
+  color: #356477;
+}
+
+
+/* =========================================================
+   STAGE - 0 / 10
+========================================================= */
+
+.stageCountZero {
+  background: #fff2d5;
+  color: #66592f;
+}
+
+
+/* =========================================================
+   STAGE - 8 / 10
+========================================================= */
+
+.stageCountGreen {
+  background: #d4f5df;
+  color: #25804a;
+}
+
+
+/* =========================================================
+   STATUS BADGES - COMMON
+========================================================= */
+
+.registeredBadge,
+.progressBadge,
+.notQualifiedBadge,
+.qualifiedBadge,
+.resultsPendingBadge,
+.winnerBadge,
+.defaultStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 11px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   REGISTERED
+========================================================= */
+
+.registeredBadge {
+  background: #c9ebfc;
+  color: #2381b9;
+}
+
+
+/* =========================================================
+   STAGE IN PROGRESS
+========================================================= */
+
+.progressBadge {
+  background: #d5edff;
+  color: #1477b9;
+}
+
+
+/* =========================================================
+   NOT QUALIFIED
+========================================================= */
+
+.notQualifiedBadge {
+  background: #ffdede;
+  color: #f04444;
+}
+
+
+/* =========================================================
+   QUALIFIED
+========================================================= */
+
+.qualifiedBadge {
+  background: #d1f7dd;
+  color: #27a259;
+}
+
+
+/* =========================================================
+   RESULTS PENDING
+========================================================= */
+
+.resultsPendingBadge {
+  background: #fff0c5;
+  color: #d69d00;
+}
+
+
+/* =========================================================
+   WINNER
+========================================================= */
+
+.winnerBadge {
+  background: #14c957;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   DEFAULT STATUS
+========================================================= */
+
+.defaultStatusBadge {
+  background: #eeeeee;
+  color: #666666;
+}
+
+
+/* =========================================================
+   DOC SUBMITTED
+========================================================= */
+
+.docSubmitted {
+  color: #222222 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+
+/* =========================================================
+   ACTION COLUMN
+========================================================= */
+
+.actionColumn {
+  width: 60px;
+  min-width: 60px;
+  text-align: center !important;
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.viewButton {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   EYE ICON
+========================================================= */
+
+.viewButton i {
+  font-size: 14px;
+  color: #0054ad;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* =========================================================
+   EYE HOVER
+========================================================= */
+
+.viewButton:hover i {
+  color: #00458f;
+  transform: scale(1.1);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .listTable {
+    min-width: 950px;
+  }
+
+
+  .listTable thead th {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 10px;
+  }
+
+
+  .listTable tbody td {
+    height: 35px;
+    padding: 7px 12px;
+    font-size: 9px;
+  }
+
+
+  .registeredBadge,
+  .progressBadge,
+  .notQualifiedBadge,
+  .qualifiedBadge,
+  .resultsPendingBadge,
+  .winnerBadge {
+    padding: 4px 8px;
+    font-size: 8px;
+  }
+
+
+  .stageCount,
+  .stageCountZero,
+  .stageCountGreen {
+    padding: 4px 7px;
+    font-size: 8px;
+  }
+
+
+  .customCheckbox {
+    width: 13px;
+    height: 13px;
+  }
+
+
+  .viewButton {
+    width: 26px;
+    height: 26px;
+  }
+
+
+  .viewButton i {
+    font-size: 13px;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .listTable {
+    min-width: 900px;
+  }
+
+}
+
+/*--------- Pagination -------------*/
+
+.paginationSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.leftPagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageSize {
+  width: 140px;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #495057;
+  white-space: nowrap;
+}
+
+:global(.pagination .page-item.active .page-link) {
+  background: #014abc !important;
+  border-color: #014abc !important;
+  color: #fff !important;
+}
+
+:global(.pagination .page-link) {
+  color: #434975 !important;
+}
+
+:global(.pagination .page-link:hover) {
+  background: #eef5fb !important;
+  color: #014abc !important;
+}
+
+.pageSize {
+  width: 150px;
+  border-radius: 8px;
+}
+
+
+/* Responsive */
+
+@media(max-width:768px) {
+
+  .paginationSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .leftPagination {
+    width: 100%;
+  }
+
+  :global(.pagination) {
+    flex-wrap: wrap;
+  }
+
+  :global(.pagination .page-link) {
+    padding: .35rem .65rem;
+  }
+}

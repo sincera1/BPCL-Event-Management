@@ -1,0 +1,599 @@
+:global(#workbenchPageContent),
+:global(.CanvasZone),
+:global(.ControlZone),
+:global(.CanvasSection),
+:global(.Canvas),
+:global(.CanvasZoneSectionContainer) {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #f4f8fb !important;
+
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+/* ---------------- Main Section ---------------- */
+
+.commonSectionstyle {
+  // padding: 20px;
+  background: #f4f8fb;
+}
+
+/* ---------------- Banner ---------------- */
+
+.bannerContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.bannerImage {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  border-bottom-left-radius: 28px;
+  border-bottom-right-radius: 28px;
+}
+
+/* Overlay */
+
+.bannerOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 42px;
+}
+
+/* Back Button */
+
+.backBtn {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  background: #ffffff29;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  i {
+    font-size: 22px;
+    line-height: 1;
+  }
+}
+
+/* Banner Text */
+
+.bannerContent {
+  color: #fff;
+
+  h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 10px 0 0;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* ---------------- Form ---------------- */
+.required {
+  color: red;
+}
+
+.inputGroup {
+  // margin-bottom: 1rem;
+  margin-bottom: 20px;
+}
+
+.inputGroupRadio {
+  margin-bottom: 37px;
+}
+
+.inputLabel {
+  display: block;
+  margin-bottom: 6px !important;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3a58;
+}
+
+.inputField {
+  height: 42px;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-size: 14px;
+
+  &:focus {
+    border-color: #0054ad !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 84, 173, 0.15) !important;
+  }
+}
+.inputField[type="file"] {
+  height: 42px;
+  padding: 0 0px !important;
+  line-height: 42px;
+
+  &::file-selector-button {
+    height: 40px;
+    margin: 0 10px 0 0;
+    padding: 0 12px;
+    border: 0;
+    background: #f5f5f5 !important;
+    // border-radius: 4px;
+    line-height: 42px;
+  }
+}
+/* ---------------- Button ---------------- */
+
+.primaryBtn {
+  min-width: 140px;
+  padding: 10px 30px !important;
+  border: 1px solid #0054ad !important;
+  border-radius: 25px !important;
+  background: #0054ad !important;
+  font-weight: 600;
+
+  &:hover {
+    background: #003d80 !important;
+    border-color: #003d80 !important;
+  }
+}
+.eventOutlineBtn {
+  // min-width: 140px;
+  // padding: 10px 30px !important;
+  border: 1px solid #0669f8 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  color: #0669f8 !important;
+  font-weight: 600;
+}
+/* ---------------- Radio ---------------- */
+
+.radioBtn {
+  :global(.form-check-input) {
+    &:checked {
+      background-color: #009ee9;
+      border-color: #009ee9;
+    }
+
+    &:focus {
+      border-color: #009ee9;
+      box-shadow: 0 0 0 0.2rem rgba(0, 158, 233, 0.25);
+    }
+  }
+}
+
+/* ---------------- Heading ---------------- */
+
+.subheading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0669f8;
+}
+
+/* ---------------- Tablet ---------------- */
+
+@media (max-width: 991px) {
+  .commonSectionstyle {
+    padding: 18px;
+  }
+
+  .bannerImage {
+    height: 170px;
+  }
+
+  .bannerOverlay {
+    padding: 0 24px;
+  }
+
+  .backButton {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    margin-right: 18px;
+
+    i {
+      font-size: 20px;
+    }
+  }
+
+  .bannerContent {
+    h1 {
+      font-size: 2.2rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* ---------------- Mobile ---------------- */
+
+@media (max-width: 768px) {
+  .commonSectionstyle {
+    padding: 15px;
+  }
+
+  .bannerImage {
+    height: 150px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+  }
+
+  .bannerOverlay {
+    padding: 0 18px;
+  }
+
+  .backButton {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    margin-right: 14px;
+
+    i {
+      font-size: 18px;
+    }
+  }
+
+  .bannerContent {
+    h1 {
+      font-size: 1.7rem;
+    }
+
+    p {
+      margin-top: 5px;
+      font-size: 0.9rem;
+    }
+  }
+
+  .primaryBtn {
+    width: 100%;
+  }
+}
+
+/* ---------------- Small Mobile ---------------- */
+
+@media (max-width: 480px) {
+  .bannerImage {
+    height: 130px;
+  }
+
+  .bannerContent {
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    p {
+      font-size: 0.75rem;
+    }
+  }
+
+  .inputField {
+    height: 40px;
+  }
+}
+
+.eventCard {
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  border: none !important;
+  padding: 40px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 25px;
+}
+
+.sectionTitle::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #fdcf3f;
+  margin-left: 12px;
+}
+textarea.inputField {
+  height: auto !important;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.submitBtn,
+.homeBtn {
+  background: #0054ad !important;
+  border: 1px solid #0054ad !important;
+  padding: 10px 30px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  border-radius: 8px !important;
+  color: #fff;
+}
+.cancelBtn {
+  padding: 10px 30px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border: 1px solid #0054ad !important;
+  border-radius: 8px !important;
+  color: #0054ad !important;
+  background: #fff !important;
+}
+
+/* ===================================
+   FOOTER
+=================================== */
+
+.footerSection {
+  // background: #d0a100;
+  background: #0047b1;
+  padding: 14px 20px;
+  // margin-top: 40px;
+  width: 100%;
+}
+
+.footerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footerLeft {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.footerRight {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.footerRight a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px !important;
+  transition: 0.3s ease;
+}
+
+.footerRight a:hover {
+  text-decoration: underline;
+}
+
+/* Footer Mobile */
+
+@media (max-width: 768px) {
+  .footerContent {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .footerRight {
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+.successContainer {
+  width: 100%;
+  padding: 70px 40px;
+  text-align: center;
+}
+
+.successCircle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  margin: auto;
+  margin-bottom: 30px;
+  background: #32c04c;
+  color: #fff;
+  font-size: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 0 18px rgba(50, 192, 76, 0.12);
+}
+
+.successContainer h2 {
+  font-size: 46px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.successContainer h5 {
+  color: #32c04c;
+  margin-bottom: 35px;
+  font-weight: 600;
+}
+
+.successDivider {
+  width: 320px;
+  margin: 30px auto;
+  border-top: 1px solid #ddd;
+  position: relative;
+}
+
+.successDivider span {
+  position: absolute;
+  left: 50%;
+  top: -16px;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 0 18px;
+  color: #4b86f7;
+  font-size: 26px;
+}
+
+.successContainer h4 {
+  color: #013396;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.successContainer p {
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 35px;
+}
+
+.errorMessage {
+  margin-top: 20px;
+  margin-bottom: 15px;
+  padding: 12px 18px;
+  background: #fdeaea;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.successMessage {
+  margin-top: 20px;
+  padding: 12px 18px;
+  background: #eaf7ea;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.filePreview {
+  margin-top: 15px;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px;
+  background: #fff;
+}
+
+.fileIcon {
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  background: #d0e7f3;
+  border: 1px solid #90cce9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i {
+    font-size: 12px;
+    color: #003180;
+  }
+}
+
+.fileName {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 400;
+  color: #1a1a1a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// .removeFileBtn {
+// width: 12px;
+// height: 12px;
+// border-radius: 50%;
+// border: none;
+// color: #ff2828;
+// color: white;
+// display: flex;
+// align-items: center;
+// justify-content: center;
+// cursor: pointer;
+// flex-shrink: 0;
+
+//   i {
+//     font-size: 15px;
+//     color: #ff2828;
+
+//     line-height: 1;
+//   }
+// }
+.removeFileBtn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+
+  :global(.bi-x-circle-fill) {
+    font-size: 15px;
+    color: #ff2828;
+  }
+}
+
+
+//delete icon start css
+.deleteSubEventBtn {
+  border: none;
+  background: transparent;
+  color: #dc3545;
+  font-size: 16px;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteSubEventBtn:hover {
+  color: #b02a37;
+  background-color: #f8d7da;
+  border-radius: 4px;
+}
+
+.deleteSubEventBtn:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+//delete icon end css
+
+.validationError {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 5px;
+  font-weight: 500;
+}

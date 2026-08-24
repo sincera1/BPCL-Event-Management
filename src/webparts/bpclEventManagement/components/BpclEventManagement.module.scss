@@ -1,0 +1,653 @@
+:global(body) {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:global(#workbenchPageContent),
+:global(.CanvasZone),
+:global(.ControlZone),
+:global(.CanvasSection),
+:global(.Canvas) {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: #ffffff !important;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+:global(h1),
+:global(h2),
+:global(h3),
+:global(h4),
+:global(h5),
+:global(h6),
+:global(p),
+:global(div),
+:global(span),
+:global(button),
+:global(table),
+:global(a) {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ==========================================
+   Main Page
+========================================== */
+
+.pageContainer {
+  width: 100%;
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 36px;
+}
+
+/* ==========================================
+   Banner
+========================================== */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+
+  background: linear-gradient(
+    90deg,
+    #0b3d9e 0%,
+    #1d4faf 35%,
+    #6b7473 65%,
+    #c9a62a 85%,
+    #ffc400 100%
+  );
+
+  color: #ffffff;
+
+  padding: 18px 24px;
+
+  border-radius: 0 0 20px 20px;
+
+  min-height: 96px;
+}
+
+.bannerIcon {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+}
+
+.banner h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.banner p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  opacity: 0.9;
+  color: #ffffff;
+}
+
+/* ==========================================
+   Create Event Button
+========================================== */
+
+.createEventBtn {
+  margin-left: auto;
+
+  background-color: #ffffff !important;
+  border: 1px solid #0052cc !important;
+
+  color: #0052cc !important;
+
+  font-weight: 600;
+  font-size: 14px;
+
+  padding: 9px 18px;
+
+  border-radius: 6px;
+
+  white-space: nowrap;
+
+  transition: all 0.2s ease;
+}
+
+.createEventBtn:hover {
+  background-color: #0052cc !important;
+  color: #ffffff !important;
+  border-color: #0052cc !important;
+}
+
+.createEventBtn:focus {
+  box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.2) !important;
+}
+
+.createEventBtn:active {
+  transform: translateY(1px);
+}
+
+/* ==========================================
+   Summary Section
+========================================== */
+
+.summarySection {
+  padding: 0 20px;
+  margin: 18px 0;
+}
+
+/* ==========================================
+   Summary Cards
+========================================== */
+
+.summaryCard {
+  height: 100%;
+
+  border: 1px solid #edf2f7 !important;
+  border-radius: 12px !important;
+
+  background: #ffffff;
+
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+  transition: all 0.25s ease;
+
+  cursor: pointer;
+}
+
+.summaryCard:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+
+  border-color: #d6e4ff !important;
+}
+
+.summaryCard :global(.card-body) {
+  padding: 12px 14px;
+}
+
+/* ==========================================
+   Summary Card Header
+========================================== */
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+}
+
+.iconCircle {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-right: 12px;
+}
+
+.iconCircle i {
+  color: #ffffff;
+  font-size: 17px;
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardContent h2 {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  line-height: 1;
+
+  color: #1e3a8a;
+}
+
+.cardContent h3 {
+  margin: 0;
+
+  font-size: 20px;
+  font-weight: 600;
+
+  line-height: 1;
+
+  color: #1e3a8a;
+}
+
+.cardContent span {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  color: #64748b;
+}
+
+/* ==========================================
+   Summary Icon Colors
+========================================== */
+
+.primaryIcon {
+  background: #2563eb;
+}
+
+.secondaryIcon {
+  background: #64748b;
+}
+
+.successIcon {
+  background: #22c55e;
+}
+
+.warningIcon {
+  background: #f59e0b;
+}
+
+.infoIcon {
+  background: #06b6d4;
+}
+
+.darkIcon {
+  background: #475569;
+}
+
+.dangerIcon {
+  background: #dc3545;
+}
+
+/* ==========================================
+   Event List Card
+========================================== */
+
+.listCard {
+  border: none !important;
+
+  border-radius: 18px !important;
+
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+  background: #ffffff;
+}
+
+/* ==========================================
+   Search
+========================================== */
+
+:global(.form-control) {
+  border-radius: 10px;
+  border: 1px solid #d9dee7;
+  min-height: 38px;
+}
+
+:global(.form-control:focus) {
+  border-color: #014abc;
+  box-shadow: 0 0 0 0.2rem rgba(1, 74, 188, 0.12);
+}
+
+/* ==========================================
+   Table
+========================================== */
+
+:global(.table-responsive) {
+  overflow-x: auto;
+}
+
+.listTable {
+  min-width: 900px;
+
+  border-collapse: separate !important;
+  border-spacing: 0;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  overflow: hidden;
+
+  font-size: 14px;
+
+  margin-bottom: 0 !important;
+}
+
+.listTable thead tr {
+  background: #eef5fb;
+}
+
+.listTable thead th {
+  background: #eef5fb !important;
+
+  border-bottom: 1px solid #dbe4ee;
+
+  color: #334155;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  padding: 12px 16px;
+}
+
+.listTable tbody tr {
+  background: #ffffff;
+}
+
+.listTable tbody td {
+  border-bottom: 1px solid #eef2f6;
+
+  padding: 10px 16px;
+
+  vertical-align: middle;
+
+  color: #374151;
+}
+
+.listTable tbody tr:hover {
+  background: #f4f7fb !important;
+}
+
+.listTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.listTable tbody td:first-child {
+  color: #1f2937;
+}
+
+.listTable tbody td a {
+  text-decoration: none;
+  color: #012f7c;
+  font-weight: 500;
+}
+
+/* ==========================================
+   Table Action Buttons
+========================================== */
+
+.listTable :global(.btn-light) {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 6px;
+
+  background: #ffffff;
+}
+
+.listTable :global(.btn-light):hover {
+  background: #f4f7fb;
+  border-color: #d1d5db;
+}
+
+/* ==========================================
+   Status Badge
+========================================== */
+
+.listTable :global(.badge) {
+  padding: 6px 9px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  border-radius: 6px;
+
+  white-space: nowrap;
+}
+
+/* ==========================================
+   Pagination
+========================================== */
+
+.paginationSection {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 15px;
+
+  flex-wrap: wrap;
+
+  margin-top: 20px;
+}
+
+.leftPagination {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.pageSize {
+  width: 150px;
+
+  border-radius: 8px;
+
+  min-height: 36px;
+}
+
+.pageInfo {
+  font-size: 14px;
+
+  color: #495057;
+
+  white-space: nowrap;
+}
+
+:global(.pagination) {
+  margin-bottom: 0 !important;
+}
+
+:global(.pagination .page-item.active .page-link) {
+  background: #014abc !important;
+
+  border-color: #014abc !important;
+
+  color: #ffffff !important;
+}
+
+:global(.pagination .page-link) {
+  color: #434975 !important;
+
+  border-radius: 6px;
+}
+
+:global(.pagination .page-link:hover) {
+  background: #eef5fb !important;
+
+  color: #014abc !important;
+}
+
+/* ==========================================
+   Modal
+========================================== */
+
+:global(.modal-content) {
+  border: none;
+
+  border-radius: 12px;
+
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+:global(.modal-header) {
+  border-bottom: 1px solid #eef2f6;
+}
+
+:global(.modal-footer) {
+  border-top: 1px solid #eef2f6;
+}
+
+:global(.modal-title) {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ==========================================
+   Responsive - Tablet
+========================================== */
+
+@media (max-width: 992px) {
+  .summarySection {
+    padding: 0 15px;
+  }
+
+  .listTable {
+    min-width: 850px;
+  }
+}
+
+/* ==========================================
+   Responsive - Mobile
+========================================== */
+
+@media (max-width: 768px) {
+  .banner {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    padding: 18px;
+
+    border-radius: 0 0 16px 16px;
+  }
+
+  .bannerIcon {
+    width: 50px;
+    height: 50px;
+
+    min-width: 50px;
+
+    font-size: 22px;
+  }
+
+  .banner h3 {
+    font-size: 22px;
+  }
+
+  .banner p {
+    font-size: 13px;
+  }
+
+  .createEventBtn {
+    margin-left: 0;
+
+    margin-top: 8px;
+
+    align-self: flex-end;
+  }
+
+  .summarySection {
+    padding: 0 10px;
+  }
+
+  .summaryCard :global(.card-body) {
+    padding: 12px;
+  }
+
+  .iconCircle {
+    width: 34px;
+    height: 34px;
+
+    min-width: 34px;
+  }
+
+  .iconCircle i {
+    font-size: 15px;
+  }
+
+  .cardContent h2 {
+    font-size: 20px;
+  }
+
+  .cardContent h3 {
+    font-size: 18px;
+  }
+
+  .cardContent span {
+    font-size: 10px;
+  }
+
+  .paginationSection {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .leftPagination {
+    width: 100%;
+  }
+
+  :global(.pagination) {
+    flex-wrap: wrap;
+  }
+
+  :global(.pagination .page-link) {
+    padding: 0.35rem 0.65rem;
+  }
+}
+
+/* ==========================================
+   Responsive - Small Mobile
+========================================== */
+
+@media (max-width: 576px) {
+  .pageContainer {
+    padding-bottom: 20px;
+  }
+
+  .summarySection {
+    padding: 0 8px;
+  }
+
+  .listCard {
+    border-radius: 12px !important;
+  }
+
+  .createEventBtn {
+    width: 100%;
+
+    margin-top: 10px;
+
+    align-self: stretch;
+  }
+
+  .leftPagination {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .pageSize {
+    width: 100%;
+  }
+}

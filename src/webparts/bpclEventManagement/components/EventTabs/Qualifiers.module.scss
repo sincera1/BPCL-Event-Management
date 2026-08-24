@@ -1,0 +1,1079 @@
+:global(#workbenchPageContent),
+:global(.CanvasZone),
+:global(.ControlZone),
+:global(.CanvasSection),
+:global(.Canvas),
+:global(.CanvasZoneSectionContainer) {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: #f4f8fb !important;
+
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+/* =========================================================
+   STAGE NAVIGATION
+========================================================= */
+
+.stageNavigation {
+  width: 100%;
+  min-height: 78px;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
+
+/* =========================================================
+   SUB EVENT
+========================================================= */
+
+.subEventWrapper {
+  position: relative;
+  width: 192px;
+  flex-shrink: 0;
+}
+
+
+.subEventSelect {
+  width: 100%;
+  height: 45px;
+  padding: 0 40px 0 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #ffffff;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  color: #003b7a;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+
+.subEventSelect:focus {
+  border-color: #075caf;
+}
+
+
+.dropdownArrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #004a91;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   STAGE BUTTONS
+========================================================= */
+
+.stageWrapper {
+  display: flex;
+  width: 470px;
+  height: 45px;
+  border: 1px solid #d7d7d7;
+  border-radius: 8px;
+  overflow: hidden;
+  flex: 1;
+  max-width: 470px;
+  min-width: 0;
+}
+
+
+.stageButton {
+  flex: 1;
+  height: 45px;
+  border: none;
+  border-right: 1px solid #d7d7d7;
+  background: #ffffff;
+  color: #0755a0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+
+.stageButton:last-child {
+  border-right: none;
+}
+
+
+.stageButton:hover {
+  background: #f1f6fb;
+}
+
+
+.activeStage {
+  background: #075caf !important;
+  color: #ffffff !important;
+}
+
+
+/* =========================================================
+   STATUS BADGE
+========================================================= */
+
+// .statusWrapper {
+//   width: 158px;
+//   flex-shrink: 0;
+//   display: flex;
+//   justify-content: flex-end;
+// }
+
+
+.statusBadge {
+  // width: 155px;
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background: linear-gradient(
+    90deg,
+    #075caf 0%,
+    #075caf 45%,
+    #e5b800 100%
+  );
+
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+   1200px and above
+========================================================= */
+
+@media (min-width: 1200px) {
+
+  .stageNavigation {
+    padding: 14px 24px;
+    gap: 25px;
+  }
+
+  .subEventWrapper {
+    width: 192px;
+  }
+
+  .stageWrapper {
+    width: 470px;
+    max-width: 470px;
+  }
+
+  .statusWrapper {
+    width: 158px;
+  }
+}
+
+
+/* =========================================================
+   DESKTOP / TABLET
+   992px - 1199px
+========================================================= */
+
+@media (min-width: 992px) and (max-width: 1199px) {
+
+  .stageNavigation {
+    padding: 14px 18px;
+    gap: 15px;
+  }
+
+  .subEventWrapper {
+    width: 175px;
+  }
+
+  .stageWrapper {
+    width: auto;
+    max-width: 420px;
+    flex: 1;
+  }
+
+  .stageButton {
+    font-size: 14px;
+  }
+
+  .statusWrapper {
+    width: 145px;
+  }
+
+  .statusBadge {
+    // width: 145px;
+    font-size: 11px;
+  }
+}
+
+
+/* =========================================================
+   TABLET
+   768px - 991px
+========================================================= */
+
+@media (min-width: 768px) and (max-width: 991px) {
+
+  .stageNavigation {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .subEventWrapper {
+    width: 160px;
+  }
+
+  .subEventSelect {
+    font-size: 12px;
+    padding-left: 10px;
+    padding-right: 32px;
+  }
+
+  .dropdownArrow {
+    right: 10px;
+    font-size: 14px;
+  }
+
+  .stageWrapper {
+    flex: 1;
+    width: auto;
+    max-width: none;
+    min-width: 300px;
+  }
+
+  .stageButton {
+    font-size: 13px;
+  }
+
+  .statusWrapper {
+    width: 135px;
+  }
+
+  .statusBadge {
+    // width: 135px;
+    min-height: 42px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+   Below 768px
+========================================================= */
+
+@media (max-width: 767px) {
+
+  .stageNavigation {
+    width: 100%;
+    min-height: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 14px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+  }
+
+
+  /* -------------------------
+     SUB EVENT
+  ------------------------- */
+
+  .subEventWrapper {
+    width: 100%;
+    flex-shrink: 1;
+  }
+
+
+  .subEventSelect {
+    width: 100%;
+    height: 44px;
+    font-size: 13px;
+    padding-left: 12px;
+    padding-right: 40px;
+  }
+
+
+  .dropdownArrow {
+    right: 14px;
+    font-size: 15px;
+  }
+
+
+  /* -------------------------
+     STAGE BUTTONS
+  ------------------------- */
+
+  .stageWrapper {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    height: 44px;
+    flex: none;
+  }
+
+
+  .stageButton {
+    width: 33.333%;
+    height: 44px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+
+  /* -------------------------
+     STATUS
+  ------------------------- */
+
+  .statusWrapper {
+    width: 100%;
+    flex-shrink: 1;
+    display: flex;
+    justify-content: stretch;
+  }
+
+
+  .statusBadge {
+    width: 100%;
+    min-height: 42px;
+    font-size: 12px;
+    padding: 0 12px;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   Below 480px
+========================================================= */
+
+@media (max-width: 479px) {
+
+  .stageNavigation {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 8px;
+  }
+
+
+  .subEventSelect {
+    height: 42px;
+    font-size: 12px;
+  }
+
+
+  .stageWrapper {
+    height: 42px;
+    border-radius: 7px;
+  }
+
+
+  .stageButton {
+    height: 42px;
+    font-size: 12px;
+  }
+
+
+  .statusBadge {
+    min-height: 40px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   Below 360px
+========================================================= */
+
+@media (max-width: 359px) {
+
+  .stageNavigation {
+    padding: 10px;
+    gap: 10px;
+  }
+
+
+  .subEventSelect {
+    height: 40px;
+    font-size: 11px;
+  }
+
+
+  .dropdownArrow {
+    right: 12px;
+    font-size: 13px;
+  }
+
+
+  .stageWrapper {
+    height: 40px;
+  }
+
+
+  .stageButton {
+    height: 40px;
+    font-size: 11px;
+  }
+
+
+  .statusBadge {
+    min-height: 38px;
+    font-size: 10px;
+  }
+}
+
+
+//----- qualifiers HEADER--------
+
+.qualifiersHeader {
+  width: 100%;
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // padding: 0 14px;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+/* =========================
+   LEFT SIDE
+========================= */
+
+.qualifiersTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.count {
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  color: #0054AD;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #666;
+}
+
+/* =========================
+   RIGHT SIDE
+========================= */
+
+.actionSection {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+
+.QualifiedWrapper {
+  position: relative;
+  width: 192px;
+  flex-shrink: 0;
+}
+
+
+.QualifiedSelect {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: #ffffff;
+  border: 1px solid #d8d8d8;
+  border-radius: 5px;
+  color: #003b7a;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+
+.QualifiedSelect:focus {
+  border-color: #075caf;
+}
+
+.QualifieddropdownArrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #004a91;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+
+/* =========================
+   SEARCH BOX
+========================= */
+
+.searchBox {
+  width: 252px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d5d5d5;
+  border-radius: 5px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.searchIcon {
+  font-size: 21px;
+  color: #0054AD;
+  margin-left: 13px;
+  margin-right: 10px;
+}
+
+.searchInput {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  color: #555;
+  background: transparent;
+}
+
+.searchInput::placeholder {
+  color: #b5b5b5;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  .qualifiersHeader {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .actionSection {
+    width: 100%;
+  }
+
+  .searchBox {
+    flex: 1;
+    width: auto;
+  }
+
+  .sendEmailButton {
+    width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .qualifiersTitle {
+    justify-content: flex-start;
+  }
+
+  .actionSection {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .searchBox {
+    width: 100%;
+  }
+
+  .sendEmailButton {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.tableWrapper {
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+
+/* =========================================================
+   RESPONSIVE WRAPPER
+========================================================= */
+
+:global(.table-responsive) {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+
+/* =========================================================
+   MAIN TABLE
+========================================================= */
+
+.listTable {
+  width: 100%;
+  margin-bottom: 0;
+  background: #ffffff;
+  border: 1px solid #e1e5ea;
+  border-radius: 10px;
+  border-collapse: separate !important;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.listTable thead tr {
+  background: #0054ad !important;
+}
+
+
+.listTable thead th {
+  height: 55px;
+  padding: 0 16px;
+  background: #0054ad !important;
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  border: none !important;
+}
+
+
+/* =========================================================
+   FIRST HEADER
+========================================================= */
+
+.listTable thead th:first-child {
+  border-top-left-radius: 9px;
+}
+
+
+/* =========================================================
+   LAST HEADER
+========================================================= */
+
+.listTable thead th:last-child {
+  border-top-right-radius: 9px;
+}
+
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.listTable tbody tr {
+  background: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+
+/* =========================================================
+   TABLE BODY CELLS
+========================================================= */
+
+.listTable tbody td {
+  height: 55px;
+  padding: 7px 16px;
+  color: #30343b;
+  font-size: 11px;
+  font-weight: 400;
+  vertical-align: middle;
+  white-space: nowrap;
+  background: #ffffff;
+  border-bottom: 1px solid #e1e5ea;
+}
+
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.listTable tbody tr:hover td {
+  background: #f7faff !important;
+}
+
+
+/* =========================================================
+   LAST ROW
+========================================================= */
+
+.listTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* =========================================================
+   SELECT COLUMN
+========================================================= */
+
+.selectColumn {
+  width: 60px;
+  min-width: 60px;
+  text-align: center !important;
+}
+
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.customCheckbox {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  accent-color: #009ee2;
+  vertical-align: middle;
+}
+
+
+/* =========================================================
+   STATUS BADGES - COMMON
+========================================================= */
+
+.registeredBadge,
+.progressBadge,
+.notQualifiedBadge,
+.qualifiedBadge,
+.resultsPendingBadge,
+.winnerBadge,
+.defaultStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 11px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   REGISTERED
+========================================================= */
+
+.registeredBadge {
+  background: #c9ebfc;
+  color: #2381b9;
+}
+
+
+/* =========================================================
+   STAGE IN PROGRESS
+========================================================= */
+
+.progressBadge {
+  background: #d5edff;
+  color: #1477b9;
+}
+
+
+/* =========================================================
+   NOT QUALIFIED
+========================================================= */
+
+.notQualifiedBadge {
+  background: #ffdede;
+  color: #f04444;
+}
+
+
+/* =========================================================
+   QUALIFIED
+========================================================= */
+
+.qualifiedBadge {
+  background: #d1f7dd;
+  color: #27a259;
+}
+
+
+/* =========================================================
+   RESULTS PENDING
+========================================================= */
+
+.resultsPendingBadge {
+  background: #fff0c5;
+  color: #d69d00;
+}
+
+
+/* =========================================================
+   WINNER
+========================================================= */
+
+.winnerBadge {
+  background: #14c957;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+
+/* =========================================================
+   DEFAULT STATUS
+========================================================= */
+
+.defaultStatusBadge {
+  background: #eeeeee;
+  color: #666666;
+}
+
+
+/* =========================================================
+   DOC SUBMITTED
+========================================================= */
+
+.Documents {
+  color: #222222 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+
+/* =========================================================
+   ACTION COLUMN
+========================================================= */
+
+.actionColumn {
+  width: 60px;
+  min-width: 60px;
+  text-align: center !important;
+}
+
+
+/* =========================================================
+   VIEW BUTTON
+========================================================= */
+
+.viewButton {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   EYE ICON
+========================================================= */
+
+.viewButton i {
+  font-size: 14px;
+  color: #0054ad;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+
+/* =========================================================
+   EYE HOVER
+========================================================= */
+
+.viewButton:hover i {
+  color: #00458f;
+  transform: scale(1.1);
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .listTable {
+    min-width: 950px;
+  }
+
+
+  .listTable thead th {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 10px;
+  }
+
+
+  .listTable tbody td {
+    height: 35px;
+    padding: 7px 12px;
+    font-size: 9px;
+  }
+
+
+  .registeredBadge,
+  .progressBadge,
+  .notQualifiedBadge,
+  .qualifiedBadge,
+  .resultsPendingBadge,
+  .winnerBadge {
+    padding: 4px 8px;
+    font-size: 8px;
+  }
+
+
+
+  .customCheckbox {
+    width: 13px;
+    height: 13px;
+  }
+
+
+  .viewButton {
+    width: 26px;
+    height: 26px;
+  }
+
+
+  .viewButton i {
+    font-size: 13px;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL DEVICES
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .listTable {
+    min-width: 900px;
+  }
+
+}
+
+/*--------- Pagination -------------*/
+
+.paginationSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.leftPagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageSize {
+  width: 140px;
+}
+
+.pageInfo {
+  font-size: 14px;
+  color: #495057;
+  white-space: nowrap;
+}
+
+:global(.pagination .page-item.active .page-link) {
+  background: #014abc !important;
+  border-color: #014abc !important;
+  color: #fff !important;
+}
+
+:global(.pagination .page-link) {
+  color: #434975 !important;
+}
+
+:global(.pagination .page-link:hover) {
+  background: #eef5fb !important;
+  color: #014abc !important;
+}
+
+.pageSize {
+  width: 150px;
+  border-radius: 8px;
+}
+
+
+/* Responsive */
+
+@media(max-width:768px) {
+
+  .paginationSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .leftPagination {
+    width: 100%;
+  }
+
+  :global(.pagination) {
+    flex-wrap: wrap;
+  }
+
+  :global(.pagination .page-link) {
+    padding: .35rem .65rem;
+  }
+}

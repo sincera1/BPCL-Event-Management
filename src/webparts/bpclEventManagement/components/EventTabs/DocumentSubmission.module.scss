@@ -1,0 +1,139 @@
+:global(#workbenchPageContent),
+:global(.CanvasZone),
+:global(.ControlZone),
+:global(.CanvasSection),
+:global(.Canvas),
+:global(.CanvasZoneSectionContainer) {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  background: #f4f8fb !important;
+
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  margin-top: 30px;
+  margin-bottom: 25px;
+}
+
+.sectionTitle::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #fdcf3f;
+  margin-left: 12px;
+}
+
+/* ---------------- Heading ---------------- */
+
+.subheading {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0669f8;
+}
+
+.eventOutlineBtn {
+  border: 1px solid #0669f8 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  color: #0669f8 !important;
+  font-weight: 600;
+}
+
+.required {
+  color: red;
+}
+
+.inputGroup {
+  // margin-bottom: 1rem;
+  margin-bottom: 20px;
+}
+
+.inputLabel {
+  display: block;
+  margin-bottom: 6px !important;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3a58;
+}
+
+.inputField {
+  height: 42px;
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-size: 14px;
+
+  &:focus {
+    border-color: #0054ad !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 84, 173, 0.15) !important;
+  }
+}
+
+.stageNameCol {
+  padding-left: 0 !important;
+  padding-right: 8px !important;
+  align-items: center;
+  display: flex;
+}
+
+.stageName {
+  color: #0669f8;
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 8px;
+  white-space: nowrap;
+}
+
+/* Active checkbox column */
+.activeCol {
+  padding-left: 5px !important;
+  padding-right: 0 !important;
+}
+
+.checkboxWrapper {
+  height: 35px;
+  display: flex;
+  align-items: center;
+}
+
+.activeCheckbox {
+  margin: 0 !important;
+  padding: 0 !important;
+
+  :global(.form-check-input) {
+    width: 22px !important;
+    height: 22px !important;
+
+    margin: 0 !important;
+
+    border: 1px solid #cfd6df !important;
+    border-radius: 3px !important;
+
+    cursor: pointer;
+
+    &:checked {
+      background-color: #009EE9 !important;
+      border-color: #009EE9 !important;
+    }
+
+    &:focus {
+      box-shadow: none !important;
+      outline: none !important;
+    }
+  }
+}
