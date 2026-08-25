@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "../EventTabs/Winners.module.scss";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import winnerbanner from "../../assets/winnerbanner 1.png";
+import winnerbanner from "../../assets/winnerbanner1.png";
 
 import {
   Form,
