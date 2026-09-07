@@ -424,3 +424,186 @@
   // margin-bottom: 24px;
 }
 /***** End event details *****/
+/* =========================================================
+   SHARE EVENT - SHAREPOINT STYLE MODAL
+   ========================================================= */
+
+.shareModal {
+
+  :global(.modal-dialog) {
+    max-width: 520px;
+  }
+
+  :global(.modal-content) {
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+.shareModalHeader {
+  border-bottom: 1px solid #edebe9;
+  padding: 18px 22px;
+  background: #ffffff;
+}
+
+.shareModalTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #323130;
+}
+
+/* =========================
+   HEADING
+   ========================= */
+
+.shareHeading {
+  font-size: 16px;
+  font-weight: 600;
+  color: #323130;
+
+  margin-bottom: 6px;
+}
+
+/* =========================
+   SHARE ICON
+   ========================= */
+
+   .shareHeaderIcon {
+  color: #0078d4;
+  font-size: 22px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+/* =========================
+   DESCRIPTION
+   ========================= */
+
+.shareDescription {
+  font-size: 14px;
+  line-height: 20px;
+
+  color: #605e5c;
+
+  margin-bottom: 18px;
+}
+
+
+/* =========================
+   LINK CONTAINER
+   ========================= */
+
+.shareLinkContainer {
+  display: flex;
+  align-items: stretch;
+
+  width: 100%;
+
+  border: 1px solid #8a8886;
+  border-radius: 4px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+}
+
+
+/* =========================
+   LINK INPUT
+   ========================= */
+
+.shareLinkInput {
+  flex: 1;
+
+  min-width: 0;
+
+  border: none;
+  outline: none;
+
+  padding: 10px 12px;
+
+  font-family: "Inter", "Segoe UI", sans-serif;
+  font-size: 13px;
+
+  color: #323130;
+
+  background: #ffffff;
+
+  text-overflow: ellipsis;
+}
+
+.shareLinkInput:focus {
+  outline: none;
+}
+
+
+/* =========================
+   COPY BUTTON
+   ========================= */
+
+.copyLinkButton {
+  border: none !important;
+  border-radius: 0 !important;
+
+  background: #0078d4 !important;
+  color: #ffffff !important;
+
+  padding: 0 18px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.copyLinkButton:hover {
+  background: #106ebe !important;
+}
+
+.copyLinkButton:active {
+  background: #005a9e !important;
+}
+
+.copyLinkButton:focus {
+  box-shadow: inset 0 0 0 2px #ffffff !important;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 576px) {
+
+  .shareModal {
+
+    :global(.modal-dialog) {
+      margin: 12px;
+    }
+  }
+
+  .shareModalBody {
+    padding: 20px;
+  }
+
+  .shareLinkContainer {
+    flex-direction: column;
+  }
+
+  .shareLinkInput {
+    width: 100%;
+    padding: 12px;
+    border-bottom: 1px solid #edebe9;
+  }
+
+  .copyLinkButton {
+    width: 100%;
+    min-height: 42px;
+  }
+}

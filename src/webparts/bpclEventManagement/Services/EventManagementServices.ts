@@ -11,6 +11,8 @@ import "@pnp/sp/attachments";
 export interface IEventItem {
     id: number;
     eventName: string;
+    hasSubEvents: boolean;
+    hasStages: boolean;
     subEvents: number;
     eventOwner: string;
     eventFromDate: string;
@@ -76,7 +78,8 @@ export default class EventService {
 
                             eventName:
                                 item.EventTitle || "",
-
+                            hasSubEvents: item.HasSubEvents === true,
+                            hasStages: item.HasStages === true,
                             // Sub event count will be added later.
                             subEvents:
                                 0,

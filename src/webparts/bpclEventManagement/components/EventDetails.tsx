@@ -24,12 +24,15 @@ import "@fontsource/inter/700.css";
 
 interface IEventDetailsProps {
     eventId?: number;
+    eventTitle: string;
+    hasSubEvents: boolean;
+    hasStages: boolean;
     context: any;
     onBack: () => void;
 }
 
 
-const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, context, onBack }) => {
+const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSubEvents, hasStages, context, onBack }) => {
 
     const tabs = [
         "About",
@@ -66,8 +69,8 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, context, onBack }
                                     </button>
 
                                     <div className={styles.bannerContent}>
-                                        <h1>Event Detail</h1>
-                                        <p>Tech & Innovation Expo</p>
+                                        <h1>Event Details</h1>
+                                        <p>{eventTitle}</p>
                                     </div>
 
                                 </div>
@@ -104,7 +107,7 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, context, onBack }
                 <Col xs={12}>
                     <div className={styles.tabContainer}>
 
-                        {activeTab === "About" && <About />}
+                        {activeTab === "About" && <About eventId={eventId} />}
 
                         {activeTab === "Rules & Regulations" && (
                             <RulesRegulations
@@ -114,19 +117,31 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, context, onBack }
                         )}
 
                         {activeTab === "Participants" && (
-                           <Participants eventId={eventId} />
+                            <Participants eventId={eventId} />
                         )}
 
                         {activeTab === "Document Submission" && (
-                            <DocumentSubmission />
+                            <DocumentSubmission
+                                eventId={eventId}
+                                context={context} />
                         )}
 
                         {activeTab === "Qualifiers" && (
-                            <Qualifiers />
+                            <Qualifiers
+                                eventId={eventId}
+                                hasSubEvents={hasSubEvents}
+                                hasStages={hasStages}
+                                context={context}
+                            />
                         )}
 
                         {activeTab === "Winners" && (
-                            <Winners />
+                            <Winners
+                                eventId={eventId}
+                                hasSubEvents={hasSubEvents}
+                                hasStages={hasStages}
+                                context={context}
+                            />
                         )}
 
                     </div>

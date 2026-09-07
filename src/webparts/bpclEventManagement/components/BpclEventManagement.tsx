@@ -35,6 +35,9 @@ interface IBpclEventManagementState {
   searchText: string;
   selectedEvent: IEventItem | null;
   selectedEventId: number | null;
+  selectedEventTitle: string;
+  selectedEventHasSubEvents: boolean;
+  selectedEventHasStages: boolean;
   eventList: IEventItem[];
   isLoading: boolean;
   isCancelling: boolean;
@@ -64,6 +67,9 @@ export default class BpclEventManagement
       searchText: '',
       selectedEvent: null,
       selectedEventId: null,
+      selectedEventTitle: '',
+      selectedEventHasSubEvents: false,
+      selectedEventHasStages: false,
       eventList: [],
       isLoading: true,
       isCancelling: false,
@@ -124,7 +130,8 @@ export default class BpclEventManagement
   private handleCreateEvent = (): void => {
 
     this.setState({
-      showCreateEvent: true
+      showCreateEvent: true,
+      selectedEventId: null
     });
 
   };
@@ -144,7 +151,11 @@ export default class BpclEventManagement
 
     this.setState({
       showEventDetails: true,
-      selectedEventId: event.id
+      selectedEventId: event.id,
+      selectedEventTitle: event.eventName,
+
+      selectedEventHasSubEvents: event.hasSubEvents,
+      selectedEventHasStages: event.hasStages
     });
 
   };
@@ -153,16 +164,17 @@ export default class BpclEventManagement
 
     this.setState({
       showCreateEvent: false,
-      showEventDetails: false
+      showEventDetails: false,
+
+      selectedEventId: null,
+      selectedEventTitle: '',
+
+      selectedEventHasSubEvents: false,
+      selectedEventHasStages: false
     });
 
-    /*
-     * Reload events after coming back from Create Event.
-     */
     this.loadEvents();
-
   };
-
   private handleOpenCancel = (
     event: IEventItem
   ): void => {
@@ -363,6 +375,9 @@ export default class BpclEventManagement
       return (
         <EventDetails
           eventId={this.state.selectedEventId || undefined}
+          eventTitle={this.state.selectedEventTitle}
+          hasSubEvents={this.state.selectedEventHasSubEvents}
+          hasStages={this.state.selectedEventHasStages}
           context={this.props.context}
           onBack={this.handleBack}
         />
