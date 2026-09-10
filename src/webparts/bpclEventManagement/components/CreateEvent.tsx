@@ -369,6 +369,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
         HasSubEvents:
           hasSubEvents,
+        NoofSubEvents: hasSubEvents ? subEvents.length : 0,
 
         EventBannerImage:
           eventBannerImage,
@@ -658,6 +659,11 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
         // ------------------------------------------
         // CREATE MAIN EVENT
         // ------------------------------------------
+
+        eventData.NoofSubEvents =
+          hasSubEvents
+            ? subEvents.length
+            : 0;
 
         savedEventId =
           await eventService.createEvent(
@@ -2014,7 +2020,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       <Form.Group className={styles.inputGroup}>
 
                         <Form.Label className={styles.inputLabel}>
-                          Registration Start Date
+                          Registration Start Date{" "}
+                          <span className={styles.required}>*</span>
                         </Form.Label>
 
                         <Form.Control
@@ -2051,7 +2058,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       <Form.Group className={styles.inputGroup}>
 
                         <Form.Label className={styles.inputLabel}>
-                          Registration End Date
+                          Registration End Date{" "}
+                          <span className={styles.required}>*</span>
                         </Form.Label>
 
                         <Form.Control
@@ -2084,79 +2092,66 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                     </Col>
 
-                    <Col xs={12} md={3}>
+                    {participantType === "Team" && (
+                      <>
 
-                      <Form.Group className={styles.inputGroup}>
+                        <Col xs={12} md={3}>
+                          <Form.Group className={styles.inputGroup}>
 
-                        <Form.Label className={styles.inputLabel}>
-                          Maximum Members Per Team
-                        </Form.Label>
+                            <Form.Label className={styles.inputLabel}>
+                              Maximum Members Per Team{" "}
+                              <span className={styles.required}>*</span>
+                            </Form.Label>
 
-                        <Form.Control
-                          type="number"
-                          min={0}
-                          placeholder="Enter maximum members per team"
-                          className={styles.inputField}
-                          value={maxTeamMembers}
-                          onChange={(e) => {
+                            <Form.Control
+                              type="number"
+                              placeholder="Enter maximum members"
+                              className={styles.inputField}
+                              value={maxTeamMembers}
+                              onChange={(e) =>
+                                setMaxTeamMembers(Number(e.target.value))
+                              }
+                            />
 
-                            const value = Number(e.target.value);
+                            {validationErrors.maxTeamMembers && (
+                              <div className={styles.validationError}>
+                                {validationErrors.maxTeamMembers}
+                              </div>
+                            )}
 
-                            setMaxTeamMembers(value);
+                          </Form.Group>
+                        </Col>
 
-                            if (value > 0) {
-                              clearValidationError("maxTeamMembers");
-                            }
 
-                          }}
-                        />
+                        <Col xs={12} md={3}>
+                          <Form.Group className={styles.inputGroup}>
 
-                        {validationErrors.maxTeamMembers && (
-                          <div className={styles.validationError}>
-                            {validationErrors.maxTeamMembers}
-                          </div>
-                        )}
+                            <Form.Label className={styles.inputLabel}>
+                              Minimum Members Required{" "}
+                              <span className={styles.required}>*</span>
+                            </Form.Label>
 
-                      </Form.Group>
+                            <Form.Control
+                              type="number"
+                              placeholder="Enter minimum members"
+                              className={styles.inputField}
+                              value={mandatoryMember}
+                              onChange={(e) =>
+                                setMandatoryMember(Number(e.target.value))
+                              }
+                            />
 
-                    </Col>
+                            {validationErrors.mandatoryMember && (
+                              <div className={styles.validationError}>
+                                {validationErrors.mandatoryMember}
+                              </div>
+                            )}
 
-                    <Col xs={12} md={3}>
+                          </Form.Group>
+                        </Col>
 
-                      <Form.Group className={styles.inputGroup}>
-
-                        <Form.Label className={styles.inputLabel}>
-                          Minimum Members Required
-                        </Form.Label>
-
-                        <Form.Control
-                          type="number"
-                          min={0}
-                          placeholder="Enter minimum members required"
-                          className={styles.inputField}
-                          value={mandatoryMember}
-                          onChange={(e) => {
-
-                            const value = Number(e.target.value);
-
-                            setMandatoryMember(value);
-
-                            if (value > 0) {
-                              clearValidationError("mandatoryMember");
-                            }
-
-                          }}
-                        />
-
-                        {validationErrors.mandatoryMember && (
-                          <div className={styles.validationError}>
-                            {validationErrors.mandatoryMember}
-                          </div>
-                        )}
-
-                      </Form.Group>
-
-                    </Col>
+                      </>
+                    )}
 
                   </Row>
 
@@ -2177,7 +2172,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       <Form.Group className={styles.inputGroup}>
 
                         <Form.Label className={styles.inputLabel}>
-                          Event Owner
+                          Event Owner{" "}
+                          <span className={styles.required}>*</span>
                         </Form.Label>
 
                         <PeoplePicker
@@ -2353,7 +2349,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       <Form.Group className={styles.inputGroup}>
 
                         <Form.Label className={styles.inputLabel}>
-                          Department
+                          Department{" "}
+                          <span className={styles.required}>*</span>
                         </Form.Label>
 
                         <Form.Control
@@ -2366,6 +2363,14 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                           }
                         />
 
+                        {validationErrors.eventOrganizerDepartment && (
+                          <div className={styles.validationError}>
+                            {validationErrors.eventOrganizerDepartment}
+                          </div>
+                        )}
+
+
+
                       </Form.Group>
 
                     </Col>
@@ -2375,7 +2380,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       <Form.Group className={styles.inputGroup}>
 
                         <Form.Label className={styles.inputLabel}>
-                          Email
+                          Email{" "}
+                          <span className={styles.required}>*</span>
                         </Form.Label>
 
                         <Form.Control
@@ -2390,6 +2396,12 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                           }
                         />
 
+                        {validationErrors.eventOrganizerEmail && (
+                          <div className={styles.validationError}>
+                            {validationErrors.eventOrganizerEmail}
+                          </div>
+                        )}
+
                       </Form.Group>
 
                     </Col>
@@ -2399,7 +2411,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       <Form.Group className={styles.inputGroup}>
 
                         <Form.Label className={styles.inputLabel}>
-                          Phone number
+                          Phone number {" "}
+                          <span className={styles.required}>*</span>
                         </Form.Label>
 
                         <Form.Control
@@ -2413,6 +2426,12 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                             )
                           }
                         />
+
+                        {validationErrors.eventOrganizerPhoneNumber && (
+                          <div className={styles.validationError}>
+                            {validationErrors.eventOrganizerPhoneNumber}
+                          </div>
+                        )}
 
                       </Form.Group>
 
@@ -2557,31 +2576,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
       </Container>
 
-      {/* ================= FOOTER ================= */}
-
-      <div className={`${styles.footerSection} mt-5`}>
-
-        <div className={styles.footerContent}>
-
-          <div className={styles.footerLeft}>
-            © {new Date().getFullYear()} Bharat Petroleum Corporation Limited
-          </div>
-
-          <div className={styles.footerRight}>
-
-            <a href="#">
-              Privacy Policy
-            </a>
-
-            <a href="#">
-              Terms of Use
-            </a>
-
-          </div>
-
-        </div>
-
-      </div>
+      
 
     </section >
   );

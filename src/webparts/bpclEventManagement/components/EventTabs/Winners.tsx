@@ -67,22 +67,15 @@ const Winners: React.FC<IWinnersProps> = ({
   const [currentPage, setCurrentPage] = React.useState<number>(1);
 
 
-  const [
-    pageSize,
-    setPageSize
-  ] = React.useState<number>(10);
+  const [pageSize, setPageSize] = React.useState<number>(10);
+  const [winnerFilter, setWinnerFilter] = React.useState<string>("All");
 
 
-  const [
-    isLoading,
-    setIsLoading
-  ] = React.useState<boolean>(true);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [isDeclaring, setIsDeclaring] = React.useState<boolean>(false);
 
 
-  const [
-    isDeclaring,
-    setIsDeclaring
-  ] = React.useState<boolean>(false);
+
 
 
 
@@ -227,15 +220,43 @@ const Winners: React.FC<IWinnersProps> = ({
         participant: IWinnerRow
       ): boolean => {
 
+        /* ================================
+           STATUS FILTER
+        ================================= */
+
+        const participantStatus:
+          string =
+          (
+            participant.ParticipantOrTeamStatus ||
+            ""
+          )
+            .trim()
+            .toLowerCase();
+
+        const selectedFilter:
+          string =
+          winnerFilter
+            .trim()
+            .toLowerCase();
+
+        const statusMatches:
+          boolean =
+          selectedFilter === "all" ||
+          participantStatus === selectedFilter;
+
+
+        /* ================================
+           SEARCH FILTER
+        ================================= */
+
         const search:
           string =
           searchText
             .trim()
             .toLowerCase();
 
-
         if (!search) {
-          return true;
+          return statusMatches;
         }
 
 
@@ -245,12 +266,10 @@ const Winners: React.FC<IWinnersProps> = ({
             participant.TeamId || ""
           );
 
-
         const teamLeader:
           string =
           participant.TeamLeader?.Title ||
           "";
-
 
         const participantNames:
           string =
@@ -264,13 +283,8 @@ const Winners: React.FC<IWinnersProps> = ({
             .join(" ");
 
 
-        const status:
-          string =
-          participant.ParticipantOrTeamStatus ||
-          "";
-
-
-        return (
+        const searchMatches:
+          boolean =
           teamId
             .toLowerCase()
             .includes(search) ||
@@ -283,11 +297,14 @@ const Winners: React.FC<IWinnersProps> = ({
             .toLowerCase()
             .includes(search) ||
 
-          status
-            .toLowerCase()
-            .includes(search)
-        );
+          participantStatus
+            .includes(search);
 
+
+        return (
+          statusMatches &&
+          searchMatches
+        );
       }
     );
 
@@ -490,101 +507,13 @@ const Winners: React.FC<IWinnersProps> = ({
      CHECK ALL
   ======================================================= */
 
-  const handleSelectAll =
-    (
-      checked: boolean
-    ): void => {
-
-      if (
-        winnersData?.IsFinalized
-      ) {
-        return;
-      }
 
 
-      const selectableIds:
-        number[] =
-        paginatedParticipants
-          .filter(
-            (
-              participant
-            ) =>
-              participant.CanSelect
-          )
-          .map(
-            (
-              participant
-            ) =>
-              participant.Id
-          );
 
 
-      if (checked) {
-
-        setSelectedIds(
-          (
-            previousIds
-          ) => {
-
-            const merged:
-              number[] =
-              Array.from(
-                new Set([
-                  ...previousIds,
-                  ...selectableIds
-                ])
-              );
-
-            return merged;
-          }
-        );
-
-      } else {
-
-        setSelectedIds(
-          (
-            previousIds
-          ) =>
-            previousIds.filter(
-              (
-                id
-              ) =>
-                selectableIds.indexOf(
-                  id
-                ) === -1
-            )
-        );
-
-      }
-
-    };
 
 
-  /* =======================================================
-     CHECK WHETHER ALL CURRENT PAGE ROWS ARE SELECTED
-  ======================================================= */
 
-  const selectableCurrentPage:
-    IWinnerRow[] =
-    paginatedParticipants.filter(
-      (
-        participant
-      ) =>
-        participant.CanSelect
-    );
-
-
-  const allCurrentPageSelected:
-    boolean =
-    selectableCurrentPage.length > 0 &&
-    selectableCurrentPage.every(
-      (
-        participant
-      ) =>
-        selectedIds.indexOf(
-          participant.Id
-        ) !== -1
-    );
 
 
   /* =======================================================
@@ -768,7 +697,7 @@ const Winners: React.FC<IWinnersProps> = ({
        */
 
       return (
-        <span>
+        <span className={styles.failedIcon}>
           x
         </span>
       );
@@ -896,30 +825,29 @@ const Winners: React.FC<IWinnersProps> = ({
           TOP NAVIGATION
       =================================================== */}
 
-      <div
-        className={
-          styles.stageNavigation
-        }
-      >
 
-        <div>
 
-          <h2
+      {
+        winnersData?.CanDeclareWinner &&
+        !winnersData.IsFinalized && (
+
+          <div
             className={
-              styles.subheading
+              styles.stageNavigation
             }
           >
-            Select a qualified participant or team and confirm them as the event winner.
-          </h2>
 
-        </div>
+            <div>
 
+              <h2
+                className={
+                  styles.subheading
+                }
+              >
+                Select a qualified participant or team and confirm them as the event winner.
+              </h2>
 
-        {/* DECLARE BUTTON */}
-
-        {
-          winnersData?.CanDeclareWinner &&
-          !winnersData.IsFinalized && (
+            </div>
 
             <div>
 
@@ -935,21 +863,19 @@ const Winners: React.FC<IWinnersProps> = ({
                   handleDeclareWinner
                 }
               >
-
                 {
                   isDeclaring
                     ? "DECLARING..."
                     : "DECLARE AS WINNER"
                 }
-
               </Button>
 
             </div>
 
-          )
-        }
+          </div>
 
-      </div>
+        )
+      }
 
 
       {/* ===================================================
@@ -1015,13 +941,32 @@ const Winners: React.FC<IWinnersProps> = ({
                 className={
                   styles.WinnersSelect
                 }
-                defaultValue="Winners"
-              >
+                value={winnerFilter}
+                onChange={(
+                  event:
+                    React.ChangeEvent<HTMLSelectElement>
+                ): void => {
 
-                <option value="Winners">
-                  Winners
+                  setWinnerFilter(
+                    event.target.value
+                  );
+
+                  setCurrentPage(1);
+
+                  setSelectedIds([]);
+                }}
+              >
+                <option value="All">
+                  All
                 </option>
 
+                <option value="Winner">
+                  Winner
+                </option>
+
+                <option value="Not Qualified">
+                  Not Qualified
+                </option>
               </select>
 
 

@@ -467,4 +467,35 @@ export default class DocumentSubmissionService {
 
   }
 
+  /* ============================================
+   UPDATE EVENT HAS STAGES
+============================================ */
+
+  public async updateEventHasStages(
+    eventId: number
+  ): Promise<void> {
+
+    try {
+
+      await sp.web.lists
+        .getByTitle("Corp_SL_EventManagement")
+        .items
+        .getById(eventId)
+        .update({
+          HasStages: true
+        });
+
+    } catch (error) {
+
+      console.error(
+        "Error updating Event HasStages:",
+        error
+      );
+
+      throw error;
+
+    }
+
+  }
+
 }

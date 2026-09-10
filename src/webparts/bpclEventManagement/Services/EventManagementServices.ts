@@ -15,6 +15,7 @@ export interface IEventItem {
     hasStages: boolean;
     subEvents: number;
     eventOwner: string;
+    authorEmail: string;
     eventFromDate: string;
     eventToDate: string;
     registrationFromDate: string;
@@ -48,12 +49,17 @@ export default class EventService {
                         "EventEndDate",
                         "RegistrationStartDate",
                         "RegistrationEndDate",
+                        "HasSubEvents",
+                        "HasStages",
+                        "NoofSubEvents",
                         "EventOrganiser/Title",
                         "EventOrganiser/EMail",
+                        "Author/EMail",
                         "OverAllEventStatus"
                     )
                     .expand(
-                        "EventOrganiser"
+                        "EventOrganiser",
+                        "Author"
                     )
                     .orderBy(
                         "Created",
@@ -81,12 +87,14 @@ export default class EventService {
                             hasSubEvents: item.HasSubEvents === true,
                             hasStages: item.HasStages === true,
                             // Sub event count will be added later.
-                            subEvents:
-                                0,
+                            subEvents: item.NoofSubEvents || 0,
+
 
                             eventOwner:
                                 item.EventOrganiser?.Title ||
                                 "",
+                            authorEmail:
+                                item.Author?.EMail || "",
 
                             eventFromDate:
                                 this.formatDisplayDate(
@@ -207,6 +215,37 @@ export default class EventService {
 
             console.error(
                 "Error cancelling event:",
+                error
+            );
+
+            throw error;
+        }
+    }
+
+    public async deleteEvent(eventId: number): Promise<void> {
+
+        try {
+
+            console.log(
+                "Deleting event. Event ID:",
+                eventId
+            );
+
+            await sp.web.lists
+                .getByTitle(this.listTitle)
+                .items
+                .getById(eventId)
+                .delete();
+
+            console.log(
+                "Event deleted successfully. Event ID:",
+                eventId
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Error deleting event:",
                 error
             );
 

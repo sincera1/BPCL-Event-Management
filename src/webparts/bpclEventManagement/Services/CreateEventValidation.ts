@@ -136,22 +136,65 @@ export const validateCreateEvent = (
     }
 
 
+   
+
+
+    
+
+
+    // =========================================================
+    //2. EVENT ORGANIZER EMAIL
+    // =========================================================
+
     if (!data.eventOrganizerEmail.trim()) {
 
         errors.eventOrganizerEmail =
             'Please fill the "Email"';
-    }
 
+    } else {
+
+        const emailRegex =
+            /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (
+            !emailRegex.test(
+                data.eventOrganizerEmail.trim()
+            )
+        ) {
+
+            errors.eventOrganizerEmail =
+                "Please enter a valid Email ID.";
+        }
+    }
+    // =========================================================
+    // 3.EVENT ORGANIZER PHONE NUMBER
+    // =========================================================
 
     if (!data.eventOrganizerPhoneNumber.trim()) {
 
         errors.eventOrganizerPhoneNumber =
             'Please fill the "Phone Number"';
+
+    } else {
+
+        const phoneRegex =
+            /^[6-9]\d{9}$/;
+
+        const phoneNumber =
+            data.eventOrganizerPhoneNumber
+                .trim()
+                .replace(/\s+/g, "");
+
+        if (!phoneRegex.test(phoneNumber)) {
+
+            errors.eventOrganizerPhoneNumber =
+                "Please enter a valid 10-digit Phone Number.";
+        }
     }
 
 
     // =========================================================
-    // 2. EVENT START DATE
+    // 4. EVENT START DATE
     // =========================================================
 
     if (data.eventStartDate) {
@@ -182,7 +225,7 @@ export const validateCreateEvent = (
 
 
     // =========================================================
-    // 3. EVENT END DATE
+    // 5. EVENT END DATE
     // =========================================================
 
     if (
@@ -212,88 +255,59 @@ export const validateCreateEvent = (
 
 
     // =========================================================
-    // 4. REGISTRATION START DATE
+    // 6. REGISTRATION START DATE
     // =========================================================
 
     if (
         data.eventStartDate &&
-        data.eventEndDate &&
         data.registrationStartDate
     ) {
-
         const eventStartDate = new Date(
             `${data.eventStartDate}T00:00:00`
-        );
-
-        const eventEndDate = new Date(
-            `${data.eventEndDate}T00:00:00`
         );
 
         const registrationStartDate = new Date(
             `${data.registrationStartDate}T00:00:00`
         );
 
-        /*
-         * Registration Start Date must be
-         * within Event Start Date and Event End Date.
-         */
-        if (
-            registrationStartDate < eventStartDate ||
-            registrationStartDate > eventEndDate
-        ) {
-
+        if (registrationStartDate >= eventStartDate) {
             errors.registrationStartDate =
-                "Registration Start Date must be within the Event Start Date and Event End Date.";
+                "Registration Start Date must be before Event Start Date.";
         }
     }
 
 
     // =========================================================
-    // 5. REGISTRATION END DATE
+    // 7. REGISTRATION END DATE
     // =========================================================
 
     if (
         data.eventStartDate &&
-        data.eventEndDate &&
         data.registrationEndDate
     ) {
-
         const eventStartDate = new Date(
             `${data.eventStartDate}T00:00:00`
-        );
-
-        const eventEndDate = new Date(
-            `${data.eventEndDate}T00:00:00`
         );
 
         const registrationEndDate = new Date(
             `${data.registrationEndDate}T00:00:00`
         );
 
-        /*
-         * Registration End Date must be
-         * within Event Start Date and Event End Date.
-         */
-        if (
-            registrationEndDate < eventStartDate ||
-            registrationEndDate > eventEndDate
-        ) {
-
+        if (registrationEndDate >= eventStartDate) {
             errors.registrationEndDate =
-                "Registration End Date must be within the Event Start Date and Event End Date.";
+                "Registration End Date must be before Event Start Date.";
         }
     }
 
 
     // =========================================================
-    // 6. REGISTRATION START / END COMPARISON
+    // 8. REGISTRATION START / END COMPARISON
     // =========================================================
 
     if (
         data.registrationStartDate &&
         data.registrationEndDate
     ) {
-
         const registrationStartDate = new Date(
             `${data.registrationStartDate}T00:00:00`
         );
@@ -302,12 +316,7 @@ export const validateCreateEvent = (
             `${data.registrationEndDate}T00:00:00`
         );
 
-        /*
-         * Registration End Date must be greater
-         * than Registration Start Date.
-         */
         if (registrationEndDate <= registrationStartDate) {
-
             errors.registrationEndDate =
                 "Registration End Date must be greater than Registration Start Date.";
         }
@@ -315,7 +324,7 @@ export const validateCreateEvent = (
 
 
     // =========================================================
-    // 7. RULES & REGULATIONS
+    // 9. RULES & REGULATIONS
     // =========================================================
 
     if (data.rulesType === "Image") {
@@ -346,7 +355,7 @@ export const validateCreateEvent = (
 
 
     // =========================================================
-    // 8. SUB-EVENT VALIDATION
+    // 10. SUB-EVENT VALIDATION
     // =========================================================
 
     if (data.hasSubEvents) {
@@ -403,7 +412,7 @@ export const validateCreateEvent = (
 
 
     // =========================================================
-    // 9. TEAM PARTICIPANT TYPE
+    // 11. TEAM PARTICIPANT TYPE
     // =========================================================
 
     if (data.participantType === "Team") {
@@ -443,8 +452,10 @@ export const validateCreateEvent = (
     }
 
 
+
+
     // =========================================================
-    // 10. RETURN ALL VALIDATION ERRORS
+    // 12. RETURN ALL VALIDATION ERRORS
     // =========================================================
 
     return errors;

@@ -1063,9 +1063,7 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
               }
             >
 
-              <option value="">
-                Select Sub Event
-              </option>
+              
 
               {subEvents.map(
                 (subEvent) => (
@@ -1245,9 +1243,6 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
                 Not Qualified
               </option>
 
-              <option value="Results Pending">
-                Results Pending
-              </option>
 
             </select>
 

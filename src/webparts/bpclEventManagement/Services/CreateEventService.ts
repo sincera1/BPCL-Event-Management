@@ -38,7 +38,7 @@ export interface ICreateEvent {
 
     EventParticipantType: string;
     HasSubEvents: boolean;
-
+    NoofSubEvents?: number;
     EventBannerImage?: File;
 
     RulesAndRegualtionType: string;
@@ -60,6 +60,7 @@ export interface ICreateEvent {
     Attachments?: File[];
 
     OverAllEventStatus: "Draft" | "Created";
+
 }
 
 
@@ -194,6 +195,9 @@ export default class CreateEventService {
                     EventDescription:
                         eventData.EventDescription,
 
+
+
+
                     EventStartDate:
                         this.formatSharePointDate(
                             eventData.EventStartDate
@@ -204,11 +208,14 @@ export default class CreateEventService {
                             eventData.EventEndDate
                         ),
 
+
                     EventParticipantType:
                         eventData.EventParticipantType,
 
                     HasSubEvents:
                         eventData.HasSubEvents,
+                    NoofSubEvents:
+                        eventData.NoofSubEvents,
 
                     RulesAndRegualtionType:
                         eventData.RulesAndRegualtionType,
@@ -225,6 +232,7 @@ export default class CreateEventService {
                         this.formatSharePointDate(
                             eventData.RegistrationEndDate
                         ),
+
 
                     MaxTeamMembers:
                         eventData.MaxTeamMembers,
@@ -722,11 +730,14 @@ export default class CreateEventService {
                             eventData.EventEndDate
                         ),
 
+
                     EventParticipantType:
                         eventData.EventParticipantType,
 
                     HasSubEvents:
                         eventData.HasSubEvents,
+                    NoofSubEvents:
+                        eventData.NoofSubEvents,
 
                     RulesAndRegualtionType:
                         eventData.RulesAndRegualtionType,
@@ -739,10 +750,12 @@ export default class CreateEventService {
                             eventData.RegistrationStartDate
                         ),
 
+
                     RegistrationEndDate:
                         this.formatSharePointDate(
                             eventData.RegistrationEndDate
                         ),
+
 
                     MaxTeamMembers:
                         eventData.MaxTeamMembers,
@@ -1480,44 +1493,24 @@ export default class CreateEventService {
 
 
 
-
     private formatSharePointDate(
         dateValue?: string | null
     ): string | null {
 
         if (!dateValue) {
-
             return null;
-
         }
 
+        const [year, month, day] = dateValue.split("-");
 
-        const date =
-            new Date(dateValue);
-
-
-        if (
-            isNaN(
-                date.getTime()
-            )
-        ) {
-
-            console.error(
-                "Invalid date:",
-                dateValue
-            );
-
+        if (!year || !month || !day) {
             return null;
-
         }
 
-
-        return date.toISOString();
-
+        return `${year}-${month}-${day}`;
     }
 
 
-   
     private formatDateForInput(
         dateValue?: string | null
     ): string {
@@ -1526,46 +1519,13 @@ export default class CreateEventService {
             return "";
         }
 
-        try {
+        const date = new Date(dateValue);
 
-            const date = new Date(dateValue);
-
-            if (isNaN(date.getTime())) {
-                return "";
-            }
-
-            const year =
-                date.getFullYear();
-
-            const month =
-                date.getMonth() + 1;
-
-            const day =
-                date.getDate();
-
-            const monthString =
-                month < 10
-                    ? "0" + month
-                    : month.toString();
-
-            const dayString =
-                day < 10
-                    ? "0" + day
-                    : day.toString();
-
-            return (
-                year +
-                "-" +
-                monthString +
-                "-" +
-                dayString
-            );
-
-        } catch {
-
-            return "";
-
-        }
+        return `${date.getUTCFullYear()}-${String(
+            date.getUTCMonth() + 1
+        ).padStart(2, "0")}-${String(
+            date.getUTCDate()
+        ).padStart(2, "0")}`;
     }
 
 }

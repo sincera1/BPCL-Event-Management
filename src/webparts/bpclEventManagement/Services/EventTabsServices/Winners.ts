@@ -1317,6 +1317,451 @@ export default class WinnersService {
      WITH STAGES
   ======================================================= */
 
+  // public async getWinnersWithSubEventsAndStages(
+  //   eventId: number
+  // ): Promise<IWinnersResponse> {
+
+  //   const eventParticipantType:
+  //     string =
+  //     await this.getEventParticipantType(
+  //       eventId
+  //     );
+
+
+  //   const participants:
+  //     IWinnerParticipant[] =
+  //     await this.getEventParticipants(
+  //       eventId
+  //     );
+
+
+  //   const subEvents:
+  //     IWinnerSubEvent[] =
+  //     await this.getSubEvents(
+  //       eventId
+  //     );
+
+
+  //   const stages:
+  //     IWinnerStage[] =
+  //     await this.getEventStages(
+  //       eventId
+  //     );
+
+
+  //   /*
+  //    * Keep FinalStage for the response.
+  //    * Actual final stage checking is now
+  //    * done separately for each SubEvent.
+  //    */
+  //   const finalStage:
+  //     string | null =
+  //     this.getFinalStage(
+  //       stages
+  //     );
+
+
+  //   if (
+  //     !finalStage ||
+  //     subEvents.length === 0
+  //   ) {
+
+  //     return {
+
+  //       EventParticipantType:
+  //         eventParticipantType,
+
+  //       Participants: [],
+
+  //       SubEvents:
+  //         subEvents,
+
+  //       FinalStage:
+  //         null,
+
+  //       CanDeclareWinner:
+  //         false,
+
+  //       IsFinalized:
+  //         false
+  //     };
+  //   }
+
+
+  //   /*
+  //    * Check whether the event has already
+  //    * been finalized.
+  //    */
+  //   const finalized:
+  //     boolean =
+  //     participants.some(
+  //       (
+  //         participant:
+  //           IWinnerParticipant
+  //       ) =>
+  //         participant.ParticipantOrTeamStatus ===
+  //         "Winner"
+  //     );
+
+
+  //   /*
+  //    * Build Winner rows.
+  //    *
+  //    * IMPORTANT:
+  //    * Final stage is calculated separately
+  //    * for every SubEvent.
+  //    */
+  //   const rows:
+  //     IWinnerRow[] =
+  //     await Promise.all(
+
+  //       participants.map(
+  //         async (
+  //           participant:
+  //             IWinnerParticipant
+  //         ): Promise<IWinnerRow> => {
+
+  //           const subEventResults:
+  //             IWinnerSubEventResult[] =
+  //             await Promise.all(
+
+  //               subEvents.map(
+  //                 async (
+  //                   subEvent:
+  //                     IWinnerSubEvent
+  //                 ): Promise<IWinnerSubEventResult> => {
+
+  //                   /*
+  //                    * Find stages belonging ONLY
+  //                    * to this SubEvent.
+  //                    */
+
+
+  //                   const finalStageForSubEvent:
+  //                     string | null =
+  //                     this.getFinalStageForSubEvent(
+  //                       stages,
+  //                       subEvent.Id
+  //                     );
+
+
+  //                   /*
+  //                    * If no stage is configured
+  //                    * for this SubEvent, show X.
+  //                    */
+  //                   if (!finalStageForSubEvent) {
+
+  //                     return {
+
+  //                       subEventId:
+  //                         subEvent.Id,
+
+  //                       subEventTitle:
+  //                         subEvent.SubEventTitle,
+
+  //                       status:
+  //                         "",
+
+  //                       displayStatus:
+  //                         "missing"
+  //                     };
+  //                   }
+
+
+  //                   /*
+  //                    * Get status only for:
+  //                    *
+  //                    * Event
+  //                    * + SubEvent
+  //                    * + Final Stage
+  //                    */
+  //                   const stageStatuses:
+  //                     IWinnerStageStatus[] =
+  //                     await this.getFinalStageStatuses(
+  //                       eventId,
+  //                       finalStageForSubEvent
+  //                     );
+
+
+  //                   /*
+  //                    * Find participant/team status
+  //                    * for this particular SubEvent.
+  //                    */
+  //                   const statusRecord:
+  //                     IWinnerStageStatus | undefined =
+  //                     stageStatuses.find(
+  //                       (
+  //                         record:
+  //                           IWinnerStageStatus
+  //                       ) =>
+  //                         record.TeamIDId ===
+  //                         participant.Id &&
+  //                         record.SubEventIDId ===
+  //                         subEvent.Id
+  //                     );
+
+
+  //                   /*
+  //                    * Participant/team did not reach
+  //                    * final stage.
+  //                    *
+  //                    * Display X.
+  //                    */
+  //                   if (!statusRecord) {
+
+  //                     return {
+
+  //                       subEventId:
+  //                         subEvent.Id,
+
+  //                       subEventTitle:
+  //                         subEvent.SubEventTitle,
+
+  //                       status:
+  //                         "Not Qualified",
+
+  //                       displayStatus:
+  //                         "not-qualified"
+  //                     };
+  //                   }
+
+
+  //                   /*
+  //                    * Final stage Qualified
+  //                    */
+  //                   if (
+  //                     statusRecord.Status ===
+  //                     "Qualified"
+  //                   ) {
+
+  //                     return {
+
+  //                       subEventId:
+  //                         subEvent.Id,
+
+  //                       subEventTitle:
+  //                         subEvent.SubEventTitle,
+
+  //                       status:
+  //                         "Qualified",
+
+  //                       displayStatus:
+  //                         "qualified"
+  //                     };
+  //                   }
+
+
+  //                   /*
+  //                    * Final stage Not Qualified
+  //                    */
+  //                   if (
+  //                     statusRecord.Status ===
+  //                     "Not Qualified"
+  //                   ) {
+
+  //                     return {
+
+  //                       subEventId:
+  //                         subEvent.Id,
+
+  //                       subEventTitle:
+  //                         subEvent.SubEventTitle,
+
+  //                       status:
+  //                         "Not Qualified",
+
+  //                       displayStatus:
+  //                         "not-qualified"
+  //                     };
+  //                   }
+
+
+  //                   /*
+  //                    * Any other status
+  //                    * should be treated as missing.
+  //                    */
+  //                   return {
+
+  //                     subEventId:
+  //                       subEvent.Id,
+
+  //                     subEventTitle:
+  //                       subEvent.SubEventTitle,
+
+  //                     status:
+  //                       statusRecord.Status || "",
+
+  //                     displayStatus:
+  //                       "missing"
+  //                   };
+
+  //                 }
+  //               )
+  //             );
+
+
+  //           /*
+  //            * Every SubEvent must have either
+  //            * Qualified or Not Qualified.
+  //            */
+  //           const allSubEventsAvailable:
+  //             boolean =
+  //             subEventResults.length > 0 &&
+  //             subEventResults.every(
+  //               (
+  //                 result:
+  //                   IWinnerSubEventResult
+  //               ) =>
+  //                 result.displayStatus ===
+  //                 "qualified" ||
+  //                 result.displayStatus ===
+  //                 "not-qualified"
+  //             );
+
+
+  //           return {
+
+  //             Id:
+  //               participant.Id,
+
+  //             EventParticipantType:
+  //               participant.EventParticipantType,
+
+  //             /*
+  //              * Team ID is the EventParticipants
+  //              * Item ID in this scenario.
+  //              */
+  //             TeamId:
+  //               participant.Id,
+
+  //             TeamLeader:
+  //               participant.TeamLeader,
+
+  //             Participant:
+  //               participant.Participant,
+
+  //             ParticipantOrTeamStatus:
+  //               participant.ParticipantOrTeamStatus,
+
+  //             Created:
+  //               participant.Created,
+
+  //             SubEvents:
+  //               subEventResults,
+
+  //             /*
+  //              * Selection is allowed only when
+  //              * every SubEvent has final-stage
+  //              * information.
+  //              */
+  //             CanSelect:
+  //               allSubEventsAvailable &&
+  //               !finalized
+  //           };
+
+  //         }
+  //       )
+  //     );
+
+
+  //   /*
+  //    * Check whether any participant/team has
+  //    * missing final-stage information.
+  //    */
+  //   const hasMissingFinalStageData:
+  //     boolean =
+  //     rows.some(
+  //       (
+  //         row:
+  //           IWinnerRow
+  //       ) =>
+  //         row.SubEvents.some(
+  //           (
+  //             result:
+  //               IWinnerSubEventResult
+  //           ) =>
+  //             result.displayStatus ===
+  //             "missing"
+  //         )
+  //     );
+
+
+  //   /*
+  //    * There must be at least one actual
+  //    * final-stage result.
+  //    */
+  //   const hasFinalStageData:
+  //     boolean =
+  //     rows.some(
+  //       (
+  //         row:
+  //           IWinnerRow
+  //       ) =>
+  //         row.SubEvents.some(
+  //           (
+  //             result:
+  //               IWinnerSubEventResult
+  //           ) =>
+  //             result.displayStatus ===
+  //             "qualified" ||
+  //             result.displayStatus ===
+  //             "not-qualified"
+  //         )
+  //     );
+
+
+  //   /*
+  //    * Declare Winner is enabled only when:
+  //    *
+  //    * 1. Final-stage data exists
+  //    * 2. No participant/team has missing data
+  //    * 3. Event is not already finalized
+  //    * 4. At least one row can be selected
+  //    */
+  //   const canDeclare:
+  //     boolean =
+  //     hasFinalStageData &&
+  //     !hasMissingFinalStageData &&
+  //     !finalized &&
+  //     rows.some(
+  //       (
+  //         row:
+  //           IWinnerRow
+  //       ) =>
+  //         row.CanSelect
+  //     );
+
+
+  //   return {
+
+  //     EventParticipantType:
+  //       eventParticipantType,
+
+  //     Participants:
+  //       rows,
+
+  //     SubEvents:
+  //       subEvents,
+
+  //     /*
+  //      * This value is retained for compatibility
+  //      * with the existing interface/UI.
+  //      *
+  //      * Actual final stage is determined per
+  //      * SubEvent above.
+  //      */
+  //     FinalStage:
+  //       finalStage,
+
+  //     CanDeclareWinner:
+  //       canDeclare,
+
+  //     IsFinalized:
+  //       finalized
+  //   };
+  // }
+
+
   public async getWinnersWithSubEventsAndStages(
     eventId: number
   ): Promise<IWinnersResponse> {
@@ -1350,9 +1795,10 @@ export default class WinnersService {
 
 
     /*
-     * Keep FinalStage for the response.
-     * Actual final stage checking is now
-     * done separately for each SubEvent.
+     * Keep FinalStage for compatibility.
+     *
+     * Actual final stage is calculated separately
+     * for every SubEvent.
      */
     const finalStage:
       string | null =
@@ -1389,8 +1835,134 @@ export default class WinnersService {
 
 
     /*
-     * Check whether the event has already
-     * been finalized.
+     * ============================================================
+     * GET FINAL STAGE STATUS FOR EACH SUB EVENT
+     * ============================================================
+     *
+     * IMPORTANT:
+     *
+     * We need to know whether there is ANY final-stage
+     * data for the event.
+     *
+     * If ALL SubEvents have zero final-stage records,
+     * Winners page must show "No Data to display".
+     *
+     * If at least one SubEvent has final-stage records,
+     * we continue building the rows.
+     */
+    const subEventStageStatuses:
+      {
+        subEventId: number;
+        finalStage: string | null;
+        statuses: IWinnerStageStatus[];
+      }[] =
+      await Promise.all(
+
+        subEvents.map(
+          async (
+            subEvent:
+              IWinnerSubEvent
+          ) => {
+
+            const finalStageForSubEvent:
+              string | null =
+              this.getFinalStageForSubEvent(
+                stages,
+                subEvent.Id
+              );
+
+
+            if (!finalStageForSubEvent) {
+
+              return {
+
+                subEventId:
+                  subEvent.Id,
+
+                finalStage:
+                  null,
+
+                statuses:
+                  []
+              };
+            }
+
+
+            const statuses:
+              IWinnerStageStatus[] =
+              await this.getFinalStageStatuses(
+                eventId,
+                finalStageForSubEvent
+              );
+
+
+            return {
+
+              subEventId:
+                subEvent.Id,
+
+              finalStage:
+                finalStageForSubEvent,
+
+              statuses:
+                statuses
+            };
+          }
+        )
+      );
+
+
+    /*
+     * ============================================================
+     * CHECK WHETHER ANY FINAL STAGE DATA EXISTS
+     * ============================================================
+     *
+     * If there are ZERO records for ALL SubEvents,
+     * don't display registered EventParticipants.
+     */
+    const hasAnyFinalStageData:
+      boolean =
+      subEventStageStatuses.some(
+        (
+          subEventStatus
+        ) =>
+          subEventStatus.statuses.length > 0
+      );
+
+
+    /*
+     * NO FINAL STAGE DATA AT ALL
+     *
+     * This is the Admin-missed-update scenario.
+     */
+    if (!hasAnyFinalStageData) {
+
+      return {
+
+        EventParticipantType:
+          eventParticipantType,
+
+        Participants: [],
+
+        SubEvents:
+          subEvents,
+
+        FinalStage:
+          finalStage,
+
+        CanDeclareWinner:
+          false,
+
+        IsFinalized:
+          false
+      };
+    }
+
+
+    /*
+     * ============================================================
+     * CHECK WHETHER EVENT IS ALREADY FINALIZED
+     * ============================================================
      */
     const finalized:
       boolean =
@@ -1405,11 +1977,9 @@ export default class WinnersService {
 
 
     /*
-     * Build Winner rows.
-     *
-     * IMPORTANT:
-     * Final stage is calculated separately
-     * for every SubEvent.
+     * ============================================================
+     * BUILD WINNER ROWS
+     * ============================================================
      */
     const rows:
       IWinnerRow[] =
@@ -1423,163 +1993,38 @@ export default class WinnersService {
 
             const subEventResults:
               IWinnerSubEventResult[] =
-              await Promise.all(
+              subEvents.map(
+                (
+                  subEvent:
+                    IWinnerSubEvent
+                ): IWinnerSubEventResult => {
 
-                subEvents.map(
-                  async (
-                    subEvent:
-                      IWinnerSubEvent
-                  ): Promise<IWinnerSubEventResult> => {
-
-                    /*
-                     * Find stages belonging ONLY
-                     * to this SubEvent.
-                     */
-                    
-
-                    const finalStageForSubEvent:
-                      string | null =
-                      this.getFinalStageForSubEvent(
-                        stages,
+                  /*
+                   * Find the final-stage data that was
+                   * already loaded for this SubEvent.
+                   */
+                  const subEventStatusData =
+                    subEventStageStatuses.find(
+                      (
+                        item
+                      ) =>
+                        item.subEventId ===
                         subEvent.Id
-                      );
+                    );
 
 
-                    /*
-                     * If no stage is configured
-                     * for this SubEvent, show X.
-                     */
-                    if (!finalStageForSubEvent) {
+                  /*
+                   * No stage configured for this
+                   * SubEvent.
+                   *
+                   * Treat as Not Qualified so that
+                   * it displays X.
+                   */
+                  if (
+                    !subEventStatusData ||
+                    !subEventStatusData.finalStage
+                  ) {
 
-                      return {
-
-                        subEventId:
-                          subEvent.Id,
-
-                        subEventTitle:
-                          subEvent.SubEventTitle,
-
-                        status:
-                          "",
-
-                        displayStatus:
-                          "missing"
-                      };
-                    }
-
-
-                    /*
-                     * Get status only for:
-                     *
-                     * Event
-                     * + SubEvent
-                     * + Final Stage
-                     */
-                    const stageStatuses:
-                      IWinnerStageStatus[] =
-                      await this.getFinalStageStatuses(
-                        eventId,
-                        finalStageForSubEvent
-                      );
-
-
-                    /*
-                     * Find participant/team status
-                     * for this particular SubEvent.
-                     */
-                    const statusRecord:
-                      IWinnerStageStatus | undefined =
-                      stageStatuses.find(
-                        (
-                          record:
-                            IWinnerStageStatus
-                        ) =>
-                          record.TeamIDId ===
-                          participant.Id &&
-                          record.SubEventIDId ===
-                          subEvent.Id
-                      );
-
-
-                    /*
-                     * Participant/team did not reach
-                     * final stage.
-                     *
-                     * Display X.
-                     */
-                    if (!statusRecord) {
-
-                      return {
-
-                        subEventId:
-                          subEvent.Id,
-
-                        subEventTitle:
-                          subEvent.SubEventTitle,
-
-                        status:
-                          "",
-
-                        displayStatus:
-                          "missing"
-                      };
-                    }
-
-
-                    /*
-                     * Final stage Qualified
-                     */
-                    if (
-                      statusRecord.Status ===
-                      "Qualified"
-                    ) {
-
-                      return {
-
-                        subEventId:
-                          subEvent.Id,
-
-                        subEventTitle:
-                          subEvent.SubEventTitle,
-
-                        status:
-                          "Qualified",
-
-                        displayStatus:
-                          "qualified"
-                      };
-                    }
-
-
-                    /*
-                     * Final stage Not Qualified
-                     */
-                    if (
-                      statusRecord.Status ===
-                      "Not Qualified"
-                    ) {
-
-                      return {
-
-                        subEventId:
-                          subEvent.Id,
-
-                        subEventTitle:
-                          subEvent.SubEventTitle,
-
-                        status:
-                          "Not Qualified",
-
-                        displayStatus:
-                          "not-qualified"
-                      };
-                    }
-
-
-                    /*
-                     * Any other status
-                     * should be treated as missing.
-                     */
                     return {
 
                       subEventId:
@@ -1589,14 +2034,133 @@ export default class WinnersService {
                         subEvent.SubEventTitle,
 
                       status:
-                        statusRecord.Status || "",
+                        "Not Qualified",
 
                       displayStatus:
-                        "missing"
+                        "not-qualified"
                     };
-
                   }
-                )
+
+
+                  const stageStatuses:
+                    IWinnerStageStatus[] =
+                    subEventStatusData.statuses;
+
+
+                  /*
+                   * Find participant/team in the
+                   * final stage for this SubEvent.
+                   */
+                  const statusRecord:
+                    IWinnerStageStatus | undefined =
+                    stageStatuses.find(
+                      (
+                        record:
+                          IWinnerStageStatus
+                      ) =>
+                        record.TeamIDId ===
+                        participant.Id &&
+                        record.SubEventIDId ===
+                        subEvent.Id
+                    );
+
+
+                  /*
+                   * Participant/team did not reach
+                   * the final stage.
+                   *
+                   * Display X.
+                   */
+                  if (!statusRecord) {
+
+                    return {
+
+                      subEventId:
+                        subEvent.Id,
+
+                      subEventTitle:
+                        subEvent.SubEventTitle,
+
+                      status:
+                        "Not Qualified",
+
+                      displayStatus:
+                        "not-qualified"
+                    };
+                  }
+
+
+                  /*
+                   * Final stage Qualified
+                   */
+                  if (
+                    statusRecord.Status ===
+                    "Qualified"
+                  ) {
+
+                    return {
+
+                      subEventId:
+                        subEvent.Id,
+
+                      subEventTitle:
+                        subEvent.SubEventTitle,
+
+                      status:
+                        "Qualified",
+
+                      displayStatus:
+                        "qualified"
+                    };
+                  }
+
+
+                  /*
+                   * Final stage Not Qualified
+                   */
+                  if (
+                    statusRecord.Status ===
+                    "Not Qualified"
+                  ) {
+
+                    return {
+
+                      subEventId:
+                        subEvent.Id,
+
+                      subEventTitle:
+                        subEvent.SubEventTitle,
+
+                      status:
+                        "Not Qualified",
+
+                      displayStatus:
+                        "not-qualified"
+                    };
+                  }
+
+
+                  /*
+                   * Any other status
+                   *
+                   * Treat as Not Qualified.
+                   */
+                  return {
+
+                    subEventId:
+                      subEvent.Id,
+
+                    subEventTitle:
+                      subEvent.SubEventTitle,
+
+                    status:
+                      "Not Qualified",
+
+                    displayStatus:
+                      "not-qualified"
+                  };
+
+                }
               );
 
 
@@ -1650,9 +2214,8 @@ export default class WinnersService {
                 subEventResults,
 
               /*
-               * Selection is allowed only when
-               * every SubEvent has final-stage
-               * information.
+               * Selection is allowed when every
+               * SubEvent has a usable status.
                */
               CanSelect:
                 allSubEventsAvailable &&
@@ -1665,63 +2228,13 @@ export default class WinnersService {
 
 
     /*
-     * Check whether any participant/team has
-     * missing final-stage information.
-     */
-    const hasMissingFinalStageData:
-      boolean =
-      rows.some(
-        (
-          row:
-            IWinnerRow
-        ) =>
-          row.SubEvents.some(
-            (
-              result:
-                IWinnerSubEventResult
-            ) =>
-              result.displayStatus ===
-              "missing"
-          )
-      );
-
-
-    /*
-     * There must be at least one actual
-     * final-stage result.
-     */
-    const hasFinalStageData:
-      boolean =
-      rows.some(
-        (
-          row:
-            IWinnerRow
-        ) =>
-          row.SubEvents.some(
-            (
-              result:
-                IWinnerSubEventResult
-            ) =>
-              result.displayStatus ===
-              "qualified" ||
-              result.displayStatus ===
-              "not-qualified"
-          )
-      );
-
-
-    /*
-     * Declare Winner is enabled only when:
-     *
-     * 1. Final-stage data exists
-     * 2. No participant/team has missing data
-     * 3. Event is not already finalized
-     * 4. At least one row can be selected
+     * ============================================================
+     * CHECK WHETHER ANY PARTICIPANT CAN BE SELECTED
+     * ============================================================
      */
     const canDeclare:
       boolean =
-      hasFinalStageData &&
-      !hasMissingFinalStageData &&
+      hasAnyFinalStageData &&
       !finalized &&
       rows.some(
         (
@@ -1732,6 +2245,11 @@ export default class WinnersService {
       );
 
 
+    /*
+     * ============================================================
+     * RETURN
+     * ============================================================
+     */
     return {
 
       EventParticipantType:
@@ -1743,13 +2261,6 @@ export default class WinnersService {
       SubEvents:
         subEvents,
 
-      /*
-       * This value is retained for compatibility
-       * with the existing interface/UI.
-       *
-       * Actual final stage is determined per
-       * SubEvent above.
-       */
       FinalStage:
         finalStage,
 

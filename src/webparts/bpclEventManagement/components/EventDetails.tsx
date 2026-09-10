@@ -29,10 +29,11 @@ interface IEventDetailsProps {
     hasStages: boolean;
     context: any;
     onBack: () => void;
+    onEdit: () => void;
 }
 
 
-const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSubEvents, hasStages, context, onBack }) => {
+const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSubEvents, hasStages, context, onBack,onEdit }) => {
 
     const tabs = [
         "About",
@@ -75,7 +76,7 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
 
                                 </div>
 
-                                <button className={styles.editBtn}>
+                                <button className={styles.editBtn}  onClick={onEdit}>
                                     <i className="bi bi-pencil-square" />
                                     Edit Event
                                 </button>

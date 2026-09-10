@@ -4,6 +4,7 @@ import type { IBpclEventManagementProps } from './IBpclEventManagementProps';
 import CreateEvent from './CreateEvent';
 import CancelEvent from './CancelEvent';
 import EventDetails from './EventDetails';
+import DocumentSubmission from './EventDocSubmission';
 
 import EventService, { IEventItem } from '../Services/EventManagementServices';
 
@@ -38,11 +39,13 @@ interface IBpclEventManagementState {
   selectedEventTitle: string;
   selectedEventHasSubEvents: boolean;
   selectedEventHasStages: boolean;
+  showDocumentSubmission: boolean;
   eventList: IEventItem[];
   isLoading: boolean;
   isCancelling: boolean;
   pageSize: number;
   currentPage: number;
+
 }
 
 
@@ -70,6 +73,7 @@ export default class BpclEventManagement
       selectedEventTitle: '',
       selectedEventHasSubEvents: false,
       selectedEventHasStages: false,
+      showDocumentSubmission: false,
       eventList: [],
       isLoading: true,
       isCancelling: false,
@@ -147,6 +151,46 @@ export default class BpclEventManagement
 
   };
 
+  private handleEditEventFromDetails = (): void => {
+    if (!this.state.selectedEventId) {
+      return;
+    }
+
+    this.setState({
+      showEventDetails: false,
+      showCreateEvent: true
+    });
+  };
+
+  private handleViewEventClick = (
+    event: IEventItem
+  ): void => {
+
+    const loggedInUserEmail: string =
+      this.props.context.pageContext.user.email.toLowerCase();
+
+    const authorEmail: string =
+      event.authorEmail?.toLowerCase() || "";
+
+    // Author → open Event Details inside the application
+    if (authorEmail === loggedInUserEmail) {
+
+      this.handleViewEvent(event);
+
+      return;
+    }
+
+    // Other users → open Event Registration in new tab
+    const registrationUrl =
+      `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${event.id}`;
+
+    window.open(
+      registrationUrl,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
   private handleViewEvent = (event: IEventItem): void => {
 
     this.setState({
@@ -159,6 +203,8 @@ export default class BpclEventManagement
     });
 
   };
+
+
 
   private handleBack = (): void => {
 
@@ -261,6 +307,69 @@ export default class BpclEventManagement
 
   };
 
+  private handleDeleteEvent = async (
+    event: IEventItem
+  ): Promise<void> => {
+
+    const confirmed: boolean = window.confirm(
+      `Are you sure you want to delete "${event.eventName}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+
+      this.setState({
+        isCancelling: true
+      });
+
+      await this.eventService.deleteEvent(
+        event.id
+      );
+
+      // Remove deleted event from current list
+      this.setState((prevState) => ({
+        eventList: prevState.eventList.filter(
+          (item: IEventItem): boolean =>
+            item.id !== event.id
+        ),
+        isCancelling: false
+      }));
+
+      console.log(
+        "Event deleted successfully:",
+        event.id
+      );
+
+    } catch (error) {
+
+      console.error(
+        "Error deleting event:",
+        error
+      );
+
+      this.setState({
+        isCancelling: false
+      });
+
+      window.alert(
+        "Unable to delete the event. Please try again."
+      );
+    }
+  };
+
+  private handleDocumentSubmission = (
+    event: IEventItem
+  ): void => {
+
+    this.setState({
+      showDocumentSubmission: true,
+      selectedEventId: event.id
+    });
+
+  };
 
   private getStatusClass = (
     status: string
@@ -380,8 +489,20 @@ export default class BpclEventManagement
           hasStages={this.state.selectedEventHasStages}
           context={this.props.context}
           onBack={this.handleBack}
+          onEdit={this.handleEditEventFromDetails}
         />
       );
+    }
+
+    if (this.state.showDocumentSubmission) {
+      return (
+        <DocumentSubmission
+          eventId={this.state.selectedEventId || undefined}
+          context={this.props.context}
+          onBack={this.handleBack}
+        />
+      );
+
     }
 
 
@@ -391,16 +512,35 @@ export default class BpclEventManagement
      * FILTER EVENTS
      * ---------------------------------------------------------
      */
+    const loggedInUserEmail: string =
+      this.props.context.pageContext.user.email.toLowerCase();
+
+    const searchText: string =
+      this.state.searchText.trim().toLowerCase();
+
     const filteredEvents: IEventItem[] =
       this.state.eventList.filter(
         (event: IEventItem): boolean => {
 
-          return event.eventName
-            .toLowerCase()
-            .indexOf(
-              this.state.searchText.toLowerCase()
-            ) !== -1;
+          // Draft events are visible only to the Author
+          if (
+            event.status === "Draft" &&
+            event.authorEmail?.toLowerCase() !== loggedInUserEmail
+          ) {
+            return false;
+          }
 
+          // Search by Event Name
+          if (
+            searchText &&
+            !event.eventName
+              .toLowerCase()
+              .includes(searchText)
+          ) {
+            return false;
+          }
+
+          return true;
         }
       );
 
@@ -965,86 +1105,104 @@ export default class BpclEventManagement
 
                             {/* Actions */}
 
+                            {/* Actions */}
+
                             <td>
 
-                              <div className="d-flex justify-content-center gap-1">
+                              <div className="d-flex justify-content-start gap-1">
 
-                                {/* Edit/Draft */}
-                                <Button
-                                  variant="light"
-                                  size="sm"
-                                  title="Edit Event"
-                                  onClick={() => this.handleEditEvent(event)}
-                                >
+                                {/* DRAFT - AUTHOR ONLY */}
+                                {event.status === "Draft" &&
+                                  event.authorEmail?.toLowerCase() === loggedInUserEmail && (
 
-                                  <i className="bi bi-pencil text-primary" />
+                                    <>
+                                      {/* Edit */}
+                                      <Button
+                                        variant="light"
+                                        size="sm"
+                                        title="Edit Event"
+                                        onClick={() => this.handleEditEvent(event)}
+                                      >
+                                        <i className="bi bi-pencil text-primary" />
+                                      </Button>
 
-                                </Button>
-
-                                {/* View */}
-
-                                <Button
-                                  variant="light"
-                                  size="sm"
-                                  title="View Event"
-                                  onClick={() => this.handleViewEvent(event)}
-                                >
-
-                                  <i className="bi bi-eye-fill text-primary" />
-
-                                </Button>
-
-
-
-                                {/* Participant View */}
-
-                                <Button
-                                  variant="light"
-                                  size="sm"
-                                  title="Participant View"
-                                >
-
-                                  <i className="bi bi-people-fill text-secondary" />
-
-                                </Button>
-
-
-                                {/* Cancel */}
-
-                                {event.status !== 'Completed' &&
-                                  event.status !== 'Canceled' &&
-                                  event.status !== 'Cancelled' && (
-
-                                    <Button
-                                      variant="light"
-                                      size="sm"
-                                      title="Cancel Event"
-                                      onClick={
-                                        (): void =>
-                                          this.handleOpenCancel(
-                                            event
-                                          )
-                                      }
-                                    >
-
-                                      <i className="bi bi-x-circle-fill text-danger" />
-
-                                    </Button>
+                                      {/* Delete */}
+                                      <Button
+                                        variant="light"
+                                        size="sm"
+                                        title="Delete Event"
+                                        onClick={() => this.handleDeleteEvent(event)}
+                                      >
+                                        <i className="bi bi-trash text-danger" />
+                                      </Button>
+                                    </>
 
                                   )}
 
+                                {/* NON-DRAFT EVENTS */}
+                                {event.status !== "Draft" && (
 
-                                {/* Document Submission */}
+                                  <>
 
-                                <Button
-                                  variant="light"
-                                  size="sm"
-                                  title="Document Submission"
-                                >
+                                    {/* View */}
+                                    <Button
+                                      variant="light"
+                                      size="sm"
+                                      title="View Event"
+                                      onClick={() => this.handleViewEventClick(event)}
+                                    >
+                                      <i className="bi bi-eye-fill text-primary" />
+                                    </Button>
 
-                                  <i className="bi bi-file-earmark-text-fill text-success" />
+                                    {/* Participant View */}
+                                    <Button
+                                      variant="light"
+                                      size="sm"
+                                      title="Participant View"
+                                    >
+                                      <i className="bi bi-people-fill text-secondary" />
+                                    </Button>
 
-                                </Button>
+                                    {/* Cancel */}
+
+                                    {event.status !== "Draft" &&
+                                      event.status !== "Cancelled" &&
+                                      event.status !== "Completed" &&
+                                      event.authorEmail?.toLowerCase() === loggedInUserEmail && (
+
+                                        <Button
+                                          variant="light"
+                                          size="sm"
+                                          title="Cancel Event"
+                                          onClick={() => this.handleOpenCancel(event)}
+                                        >
+                                          <i className="bi bi-x-circle-fill text-danger" />
+                                        </Button>
+
+                                      )}
+
+                                    {/* Document Submission */}
+                                    {/* Document Submission */}
+
+                                    {event.hasStages &&
+                                      event.status !== "Draft" &&
+                                      event.status !== "Completed" &&
+                                      event.status !== "Cancelled" && (
+
+                                        <Button
+                                          variant="light"
+                                          size="sm"
+                                          title="Document Submission"
+                                          onClick={() => this.handleDocumentSubmission(event)}
+                                        >
+                                          <i className="bi bi-file-earmark-text-fill text-success" />
+                                        </Button>
+
+                                      )}
+
+                                  </>
+
+                                )}
 
                               </div>
 

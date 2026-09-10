@@ -295,25 +295,81 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
   }, [eventId]);
 
 
-  function formatDateTimeForInput(dateValue: string): string {
+  function formatDateTimeForInput(dateValue?: string | null): string {
+    if (!dateValue) {
+      return "";
+    }
 
-    if (!dateValue) { return ""; }
     const date = new Date(dateValue);
 
-    if (isNaN(date.getTime())) { return ""; }
-    const year = date.getFullYear();
-    const month = ("0" + String(date.getMonth() + 1)).slice(-2);
+    if (isNaN(date.getTime())) {
+      return "";
+    }
 
-    const day = ("0" + String(date.getDate())).slice(-2);
-
-
-    return (
-      `${year}-${month}-${day}`
-
-    );
-
+    return `${date.getUTCFullYear()}-${String(
+      date.getUTCMonth() + 1
+    ).padStart(2, "0")}-${String(
+      date.getUTCDate()
+    ).padStart(2, "0")}`;
   }
 
+  function formatSharePointDate(
+    dateValue?: string | null
+  ): string | null {
+
+    if (!dateValue) {
+      return null;
+    }
+
+    const [year, month, day] = dateValue.split("-");
+
+    if (!year || !month || !day) {
+      return null;
+    }
+
+    return `${year}-${month}-${day}`;
+  }
+
+
+  const getDateBefore = (dateValue: string): string => {
+    if (!dateValue) {
+      return "";
+    }
+
+    const [year, month, day] = dateValue.split("-").map(Number);
+
+    if (!year || !month || !day) {
+      return "";
+    }
+
+    const date = new Date(Date.UTC(year, month - 1, day - 1));
+
+    return `${date.getUTCFullYear()}-${String(
+      date.getUTCMonth() + 1
+    ).padStart(2, "0")}-${String(
+      date.getUTCDate()
+    ).padStart(2, "0")}`;
+  };
+
+  const getDateAfter = (dateValue: string): string => {
+    if (!dateValue) {
+      return "";
+    }
+
+    const [year, month, day] = dateValue.split("-").map(Number);
+
+    if (!year || !month || !day) {
+      return "";
+    }
+
+    const date = new Date(Date.UTC(year, month - 1, day + 1));
+
+    return `${date.getUTCFullYear()}-${String(
+      date.getUTCMonth() + 1
+    ).padStart(2, "0")}-${String(
+      date.getUTCDate()
+    ).padStart(2, "0")}`;
+  };
 
   /* ============================================
      UPDATE STAGE FIELD
@@ -669,15 +725,17 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
 
 
   /* ============================================
-     VALIDATE STAGE
-  ============================================ */
+   VALIDATE STAGE
+============================================ */
 
   const validateStage = (
     stage: IStageFormData
   ): string => {
 
 
-    /* Mandatory Fields */
+    /* ============================================
+       MANDATORY FIELDS
+    ============================================ */
 
     if (
       !stage.StageStartDate ||
@@ -693,6 +751,10 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
 
     }
 
+
+    /* ============================================
+       STAGE DATE VALIDATION
+    ============================================ */
 
     const stageStartDate =
       new Date(
@@ -723,7 +785,9 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
     }
 
 
-    /* Stage End should be after Stage Start */
+    /* ============================================
+       STAGE END MUST BE AFTER STAGE START
+    ============================================ */
 
     if (
       stageEndDate <=
@@ -738,6 +802,10 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
     }
 
 
+    /* ============================================
+       EVENT DETAILS
+    ============================================ */
+
     if (!eventDetails) {
 
       return "Event details are not available.";
@@ -751,61 +819,57 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
       );
 
 
-    const eventEndDate =
-      new Date(
-        eventDetails.EventEndDate
+    if (
+      isNaN(
+        eventStartDate.getTime()
+      )
+    ) {
+
+      return (
+        `${stage.Stages}: ` +
+        "Invalid Event Start Date."
       );
 
+    }
 
-    /* Stage should be within Event Date Range */
+
+    /* ============================================
+       DOCUMENT SUBMISSION MUST BE COMPLETED
+       BEFORE EVENT START DATE
+    ============================================ */
 
     if (
-      stageStartDate <
+      stageStartDate >=
       eventStartDate
     ) {
 
       return (
         `${stage.Stages}: ` +
-        "Stage Start Date cannot be before Event Start Date."
+        "Stage Start Date must be before Event Start Date."
       );
 
     }
 
 
     if (
-      stageEndDate >
-      eventEndDate
+      stageEndDate >=
+      eventStartDate
     ) {
 
       return (
         `${stage.Stages}: ` +
-        "Stage End Date cannot be after Event End Date."
+        "Stage End Date must be before Event Start Date."
       );
 
     }
 
 
-    /* Expired stage cannot be active */
-
-    const currentDate =
-      new Date();
 
 
-    if (
-      stage.IsActive &&
-      stageEndDate <
-      currentDate
-    ) {
 
-      return (
-        `${stage.Stages}: ` +
-        "An expired stage cannot be active."
-      );
-
-    }
-
-
-    /* Number Validation */
+    /* ============================================
+       NUMBER VALIDATION
+    ============================================ */
 
     if (
       Number(stage.MaxFileSize) <= 0
@@ -871,215 +935,371 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
 
 
   /* ============================================
+     VALIDATE STAGE DATE SEQUENCE
+  ============================================ */
+
+  const validateStageDateSequence = (
+    stages: IStageFormData[]
+  ): string => {
+
+    const stagesWithDates =
+      stages.filter(
+        (stage: IStageFormData) =>
+          !!stage.StageStartDate &&
+          !!stage.StageEndDate
+      );
+
+
+    for (
+      let i = 0;
+      i < stagesWithDates.length - 1;
+      i++
+    ) {
+
+      const currentStage =
+        stagesWithDates[i];
+
+      const nextStage =
+        stagesWithDates[i + 1];
+
+
+      const currentEnd =
+        new Date(
+          currentStage.StageEndDate
+        );
+
+      const nextStart =
+        new Date(
+          nextStage.StageStartDate
+        );
+
+
+      /* ============================================
+         NEXT STAGE MUST START AFTER
+         PREVIOUS STAGE END DATE
+  
+         Stage 1: 01-Sep → 05-Sep
+         Stage 2: 06-Sep → 10-Sep   ✅
+  
+         Stage 1: 01-Sep → 05-Sep
+         Stage 2: 05-Sep → 10-Sep   ❌
+  
+         Stage 1: 01-Sep → 05-Sep
+         Stage 2: 04-Sep → 10-Sep   ❌
+      ============================================ */
+
+      if (
+        nextStart <= currentEnd
+      ) {
+
+        return (
+          `${nextStage.Stages}: ` +
+          "Start Date must be after " +
+          `${currentStage.Stages} End Date.`
+        );
+
+      }
+
+    }
+
+
+    return "";
+
+  };
+
+
+
+  /* ============================================
      SAVE / UPDATE SECTION
   ============================================ */
 
-  const handleSaveUpdate = async (
-    sectionIndex: number
-  ): Promise<void> => {
+const handleSaveUpdate = async (
+  sectionIndex: number
+): Promise<void> => {
+
+  if (!eventId) {
+
+    setErrorMessage(
+      "Event ID is not available."
+    );
+
+    return;
+
+  }
 
 
-    if (!eventId) {
+  const section =
+    stageSections[sectionIndex];
+
+
+  setErrorMessage("");
+  setSuccessMessage("");
+
+
+  /* ============================================
+     VALIDATE ACTIVE STAGES
+  ============================================ */
+
+  const activeValidation =
+    validateActiveStages(
+      section.Stages
+    );
+
+  if (activeValidation) {
+
+    setErrorMessage(
+      activeValidation
+    );
+
+    return;
+
+  }
+
+
+  /* ============================================
+     VALIDATE STAGE DATE SEQUENCE
+  ============================================ */
+
+  const stageSequenceValidation =
+    validateStageDateSequence(
+      section.Stages
+    );
+
+  if (stageSequenceValidation) {
+
+    setErrorMessage(
+      stageSequenceValidation
+    );
+
+    return;
+
+  }
+
+
+  /* ============================================
+     VALIDATE ALL STAGES
+  ============================================ */
+
+  for (
+    const stage of section.Stages
+  ) {
+
+    const validationMessage =
+      validateStage(stage);
+
+    if (validationMessage) {
 
       setErrorMessage(
-        "Event ID is not available."
+        validationMessage
       );
 
       return;
 
     }
 
-
-    const section =
-      stageSections[sectionIndex];
+  }
 
 
-    setErrorMessage("");
+  try {
 
-    setSuccessMessage("");
+    setIsSaving(true);
 
 
     /* ============================================
-       VALIDATE ACTIVE STAGES
+       CHECK IF NEW STAGE1 IS BEING SAVED
     ============================================ */
 
-    const activeValidation =
-      validateActiveStages(
-        section.Stages
+    const isNewStage1 =
+      section.Stages.some(
+        (
+          stage: IStageFormData
+        ): boolean =>
+          stage.Stages === "Stage1" &&
+          !stage.Id
       );
-
-
-    if (activeValidation) {
-
-      setErrorMessage(
-        activeValidation
-      );
-
-      return;
-
-    }
 
 
     /* ============================================
-       VALIDATE ALL STAGES
+       SAVE OR UPDATE EVERY STAGE
     ============================================ */
 
     for (
       const stage of section.Stages
     ) {
 
-      const validationMessage =
-        validateStage(stage);
+      const stageData:
+        IStageSaveData = {
+
+        Id:
+          stage.Id,
+
+        EventID:
+          eventId,
+
+        SubEventID:
+          section.SubEventID || null,
+
+        Stages:
+          stage.Stages,
+
+        StageStartDate:
+          formatSharePointDate(
+            stage.StageStartDate
+          ) || "",
+
+        StageEndDate:
+          formatSharePointDate(
+            stage.StageEndDate
+          ) || "",
+
+        MaxFileSize:
+          Number(
+            stage.MaxFileSize
+          ),
+
+        UploadLimit:
+          Number(
+            stage.UploadLimit
+          ),
+
+        IsActive:
+          stage.IsActive
+
+      };
 
 
-      if (validationMessage) {
+      /* ============================================
+         UPDATE EXISTING STAGE
+      ============================================ */
 
-        setErrorMessage(
-          validationMessage
-        );
+      if (stage.Id) {
 
-        return;
+        await documentSubmissionService
+          .updateStage(
+            stageData
+          );
+
+      }
+
+
+      /* ============================================
+         SAVE NEW STAGE
+      ============================================ */
+
+      else {
+
+        await documentSubmissionService
+          .saveStage(
+            stageData
+          );
 
       }
 
     }
 
 
-    try {
+    /* ============================================
+       UPDATE EVENT HAS STAGES
+       
+       ONLY WHEN NEW STAGE1 WAS SAVED
+    ============================================ */
+
+    if (isNewStage1) {
+
+      await documentSubmissionService
+        .updateEventHasStages(
+          eventId
+        );
+
+    }
 
 
-      setIsSaving(true);
+    /* ============================================
+       SUCCESS MESSAGE
+    ============================================ */
+
+    setSuccessMessage(
+      "Document submission stages saved successfully."
+    );
 
 
-      /* ============================================
-         SAVE OR UPDATE EVERY STAGE
-      ============================================ */
+    /* ============================================
+       RELOAD DATA
+    ============================================ */
 
-      for (
-        const stage of section.Stages
-      ) {
-
-
-        const stageData:
-          IStageSaveData = {
-
-          Id:
-            stage.Id,
-
-          EventID:
-            eventId,
-
-          SubEventID:
-            section.SubEventID || null,
-
-          Stages:
-            stage.Stages,
-
-          StageStartDate:
-            new Date(
-              stage.StageStartDate
-            ).toISOString(),
-
-          StageEndDate:
-            new Date(
-              stage.StageEndDate
-            ).toISOString(),
-
-          MaxFileSize:
-            Number(
-              stage.MaxFileSize
-            ),
-
-          UploadLimit:
-            Number(
-              stage.UploadLimit
-            ),
-
-          IsActive:
-            stage.IsActive
-
-        };
-
-
-        if (stage.Id) {
-
-
-          await documentSubmissionService
-            .updateStage(
-              stageData
-            );
-
-
-        } else {
-
-
-          await documentSubmissionService
-            .saveStage(
-              stageData
-            );
-
-        }
-
-      }
-
-
-      setSuccessMessage(
-        "Document submission stages saved successfully."
-      );
-
-
-      /* ============================================
-         RELOAD DATA
-      ============================================ */
-
-      const response =
-        await documentSubmissionService
-          .getDocumentSubmission(
-            eventId
-          );
-
-
-      const updatedSections =
-        buildStageSections(
-          response.Event,
-          response.SubEvents,
-          response.EventStages,
+    const response =
+      await documentSubmissionService
+        .getDocumentSubmission(
           eventId
         );
 
 
-      setEventDetails(
-        response.Event
+    const updatedSections =
+      buildStageSections(
+        response.Event,
+        response.SubEvents,
+        response.EventStages,
+        eventId
       );
 
 
-      setStageSections(
-        updatedSections
-      );
+    setEventDetails(
+      response.Event
+    );
 
 
-    } catch (error) {
+    /* ============================================
+       UPDATE ONLY THE CURRENT SECTION
+
+       Keep other sections as they are in the UI.
+    ============================================ */
+
+    setStageSections(
+      (previousSections) => {
+
+        return previousSections.map(
+          (
+            existingSection,
+            index
+          ) => {
+
+            if (
+              index === sectionIndex &&
+              updatedSections[index]
+            ) {
+
+              return updatedSections[index];
+
+            }
+
+            return existingSection;
+
+          }
+        );
+
+      }
+    );
 
 
-      console.error(
-        "Error saving document stages:",
-        error
-      );
+  } catch (error) {
+
+    console.error(
+      "Error saving document stages:",
+      error
+    );
+
+    setErrorMessage(
+      "Unable to save document submission stages."
+    );
 
 
-      setErrorMessage(
-        "Unable to save document submission stages."
-      );
+  } finally {
 
+    setIsSaving(false);
 
-    } finally {
+  }
 
-
-      setIsSaving(false);
-
-    }
-
-  };
+};
 
 
   /* ============================================
@@ -1520,17 +1740,12 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                         value={
                           stage.StageStartDate
                         }
-                        min={
-                          eventDetails
-                            ? formatDateTimeForInput(
-                              eventDetails.EventStartDate
-                            )
-                            : ""
-                        }
                         max={
                           eventDetails
-                            ? formatDateTimeForInput(
-                              eventDetails.EventEndDate
+                            ? getDateBefore(
+                              formatDateTimeForInput(
+                                eventDetails.EventStartDate
+                              )
                             )
                             : ""
                         }
@@ -1596,19 +1811,19 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                           stage.StageEndDate
                         }
                         min={
-                          stage.StageStartDate ||
-                          (
-                            eventDetails
-                              ? formatDateTimeForInput(
-                                eventDetails.EventStartDate
-                              )
-                              : ""
-                          )
+                          stage.StageStartDate
+                            ? getDateAfter(
+                              stage.StageStartDate
+                            )
+                            : ""
                         }
+
                         max={
                           eventDetails
-                            ? formatDateTimeForInput(
-                              eventDetails.EventEndDate
+                            ? getDateBefore(
+                              formatDateTimeForInput(
+                                eventDetails.EventStartDate
+                              )
                             )
                             : ""
                         }
