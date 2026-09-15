@@ -6,7 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 import {
- 
+
   Pagination,
   Table
 } from "react-bootstrap";
@@ -26,23 +26,13 @@ const Participants: React.FC<IParticipantsProps> = ({
   eventId
 }) => {
 
-  const [eventParticipantType, setEventParticipantType] =
-    useState<string>("");
-
-  const [participants, setParticipants] =
-    useState<IParticipantData[]>([]);
-
-  const [searchText, setSearchText] =
-    useState<string>("");
-
-  const [isLoading, setIsLoading] =
-    useState<boolean>(true);
-
-  const [currentPage, setCurrentPage] =
-    useState<number>(1);
-
-  const [pageSize, setPageSize] =
-    useState<number>(0);
+  const [eventParticipantType, setEventParticipantType] = useState<string>("");
+  const [participants, setParticipants] = useState<IParticipantData[]>([]);
+  const [searchText, setSearchText] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(0);
+  const [selectedParticipantIds, setSelectedParticipantIds] = useState<number[]>([]);
 
 
 
@@ -207,6 +197,139 @@ const Participants: React.FC<IParticipantsProps> = ({
 
 
   /* =======================================================
+ HANDLE PARTICIPANT SELECTION
+======================================================= */
+
+  const handleParticipantSelection = (
+    participantId: number,
+    checked: boolean
+  ): void => {
+
+    setSelectedParticipantIds((previousIds) => {
+
+      if (checked) {
+
+        if (previousIds.includes(participantId)) {
+          return previousIds;
+        }
+
+        return [
+          ...previousIds,
+          participantId
+        ];
+      }
+
+      return previousIds.filter(
+        (id) => id !== participantId
+      );
+    });
+  };
+
+  /* =======================================================
+   SEND EMAIL
+======================================================= */
+
+  const handleSendEmail = (): void => {
+
+    if (selectedParticipantIds.length === 0) {
+      alert("Please select at least one participant.");
+      return;
+    }
+
+    /* Get selected participant rows */
+    const selectedParticipants = participants.filter(
+      (participant) =>
+        selectedParticipantIds.includes(participant.Id)
+    );
+
+    /* Collect email addresses */
+    const emailAddresses: string[] = [];
+
+    selectedParticipants.forEach((participant) => {
+
+      /* ============================================
+         TEAM EVENT
+         Add Team Leader + Team Members
+      ============================================ */
+
+      if (isTeamEvent) {
+
+        /* Add Team Leader email */
+        if (participant.TeamLeader?.EMail) {
+          emailAddresses.push(
+            participant.TeamLeader.EMail
+          );
+        }
+
+        /* Add all Team Member emails */
+        participant.Participant.forEach((person) => {
+
+          if (person.EMail) {
+            emailAddresses.push(
+              person.EMail
+            );
+          }
+
+        });
+
+      } else {
+
+        /* ============================================
+           INDIVIDUAL EVENT
+           Add only selected participant email(s)
+        ============================================ */
+
+        participant.Participant.forEach((person) => {
+
+          if (person.EMail) {
+            emailAddresses.push(
+              person.EMail
+            );
+          }
+
+        });
+
+      }
+
+    });
+
+    /* ============================================
+       REMOVE BLANK & DUPLICATE EMAIL IDs
+    ============================================ */
+
+    const uniqueEmailAddresses = Array.from(
+      new Set(
+        emailAddresses
+          .map((email) => email.trim())
+          .filter((email) => email !== "")
+      )
+    );
+
+    if (uniqueEmailAddresses.length === 0) {
+      alert(
+        "No email addresses found for the selected participant(s)."
+      );
+      return;
+    }
+
+    /* ============================================
+       OPEN OUTLOOK
+    ============================================ */
+
+    const toAddresses =
+      uniqueEmailAddresses.join(";");
+
+    const outlookUrl =
+      "https://outlook.office.com/mail/deeplink/compose" +
+      "?to=" +
+      encodeURIComponent(toAddresses);
+
+    window.open(
+      outlookUrl,
+      "_blank"
+    );
+  };
+  /* =======================================================
      HANDLE SEARCH
   ======================================================= */
 
@@ -343,6 +466,7 @@ const Participants: React.FC<IParticipantsProps> = ({
           <button
             type="button"
             className={styles.sendEmailButton}
+            onClick={handleSendEmail}
           >
             Send Email
           </button>
@@ -376,13 +500,11 @@ const Participants: React.FC<IParticipantsProps> = ({
                 </th>
 
 
-                {/* TEAM EVENT ONLY */}
 
-                {isTeamEvent && (
-                  <th>
-                    Team ID
-                  </th>
-                )}
+
+                <th>
+                  {isTeamEvent ? "Team ID" : "Participant ID"}
+                </th>
 
 
                 {/* DYNAMIC NAME COLUMN */}
@@ -449,6 +571,15 @@ const Participants: React.FC<IParticipantsProps> = ({
                       <input
                         type="checkbox"
                         className={styles.customCheckbox}
+                        checked={selectedParticipantIds.includes(
+                          participant.Id
+                        )}
+                        onChange={(e) =>
+                          handleParticipantSelection(
+                            participant.Id,
+                            e.target.checked
+                          )
+                        }
                       />
 
                     </td>
@@ -456,13 +587,9 @@ const Participants: React.FC<IParticipantsProps> = ({
 
                     {/* TEAM ID */}
 
-                    {isTeamEvent && (
-
-                      <td>
-                        {participant.Id}
-                      </td>
-
-                    )}
+                    <td>
+                      {participant.Id}
+                    </td>
 
 
                     {/* LEAD NAME / TEAM MEMBER */}
@@ -497,18 +624,20 @@ const Participants: React.FC<IParticipantsProps> = ({
                     {/* STAGES CLEARED - BLANK FOR NOW */}
 
                     <td>
+                      {participant.StagesCleared}
                     </td>
-
 
                     {/* STATUS - BLANK FOR NOW */}
 
                     <td>
+                      {participant.ParticipantOrTeamStatus || ""}
                     </td>
 
 
                     {/* DOCUMENT SUBMITTED - BLANK FOR NOW */}
 
                     <td className={styles.docSubmitted}>
+                      {participant.DocumentCount}
                     </td>
 
 

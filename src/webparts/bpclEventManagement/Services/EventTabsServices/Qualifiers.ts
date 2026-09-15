@@ -596,6 +596,82 @@ export default class QualifiersService {
 
 
     /* =======================================================
+   GET PARTICIPANT DOCUMENT COUNT
+
+   Filters:
+     EventID
+     SubEventID
+     TeamID
+     Stage
+
+   Library:
+     Corp_SL_EventParticipantDocument
+======================================================= */
+
+    public async getParticipantDocumentCount(
+        eventId: number,
+        subEventId: number | undefined,
+        stage: string,
+        teamId: number | undefined
+    ): Promise<number> {
+
+        try {
+
+            if (!eventId || !stage || !teamId) {
+                return 0;
+            }
+
+            let filter =
+                `EventIDId eq ${eventId}` +
+                ` and TeamIDId eq ${teamId}` +
+                ` and Stages eq '${stage.replace(/'/g, "''")}'`;
+
+            /*
+             * SubEvent filter
+             *
+             * For SubEvent scenarios:
+             * EventID + SubEventID + TeamID + Stage
+             */
+            if (
+                subEventId !== undefined &&
+                subEventId !== null
+            ) {
+
+                filter +=
+                    ` and SubEventIDId eq ${subEventId}`;
+
+            }
+
+            const items: any[] =
+                await sp.web.lists
+                    .getByTitle(
+                        "Corp_SL_EventParticipantDocument"
+                    )
+                    .items
+                    .select(
+                        "Id",
+                        "EventIDId",
+                        "SubEventIDId",
+                        "TeamIDId",
+                        "Stages"
+                    )
+                    .filter(filter)
+                    .get();
+
+            return items.length;
+
+        } catch (error) {
+
+            console.error(
+                "Error getting participant document count:",
+                error
+            );
+
+            return 0;
+        }
+    }
+
+    /* =======================================================
        SUBMIT STAGE QUALIFICATION
        
        Creates records in:

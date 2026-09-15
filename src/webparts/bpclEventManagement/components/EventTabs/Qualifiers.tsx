@@ -61,6 +61,8 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
 
   const [stageStatus, setStageStatus] =
     React.useState<IParticipantStageStatus[]>([]);
+  const [documentCounts, setDocumentCounts] =
+    React.useState<Record<string, number>>({});
 
   const [selectedParticipants, setSelectedParticipants] =
     React.useState<number[]>([]);
@@ -368,6 +370,10 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
           currentHistory
         );
 
+        await loadDocumentCounts(
+          currentHistory
+        );
+
         setCurrentStageSubmitted(
           true
         );
@@ -405,6 +411,10 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
         }
 
         setParticipants(
+          participantData
+        );
+
+        await loadDocumentCounts(
           participantData
         );
 
@@ -495,6 +505,10 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
         nextStageParticipants
       );
 
+      await loadDocumentCounts(
+        nextStageParticipants
+      );
+
       setPreviousStageCompleted(
         true
       );
@@ -560,6 +574,8 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
     setSelectedStage(
       stageIndex
     );
+
+    setDocumentCounts({});
 
     setSelectedParticipants([]);
 
@@ -839,6 +855,97 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
     );
   };
 
+  /* ============================================================
+   LOAD DOCUMENT COUNTS
+   
+   Key:
+     TeamID
+
+   Filter:
+     EventId
+     SubEventID
+     Stage
+     TeamID
+============================================================ */
+
+  const loadDocumentCounts = async (
+    data: Array<
+      IQualifierParticipant |
+      IParticipantStageStatus
+    >
+  ): Promise<void> => {
+
+    try {
+
+      if (
+        !eventId ||
+        !isStage ||
+        !stages[selectedStage]
+      ) {
+        setDocumentCounts({});
+        return;
+      }
+
+      const currentStage =
+        stages[selectedStage];
+
+      if (!currentStage?.Stage) {
+        setDocumentCounts({});
+        return;
+      }
+
+      const counts: Record<string, number> = {};
+
+      /*
+       * Get unique Team IDs
+       */
+      const teamIds: number[] = Array.from(
+        new Set(
+          data
+            .map(
+              (item) => item.TeamIDId
+            )
+            .filter(
+              (id): id is number =>
+                id !== undefined &&
+                id !== null
+            )
+        )
+      );
+
+      /*
+       * Get document count for every Team
+       */
+      await Promise.all(
+        teamIds.map(
+          async (teamId) => {
+
+            const count =
+              await service.getParticipantDocumentCount(
+                eventId,
+                selectedSubEvent,
+                currentStage.Stage,
+                teamId
+              );
+
+            counts[String(teamId)] = count;
+          }
+        )
+      );
+
+      setDocumentCounts(counts);
+
+    } catch (error) {
+
+      console.error(
+        "Error loading document counts:",
+        error
+      );
+
+      setDocumentCounts({});
+    }
+  };
+
   /*
    * ============================================================
    * SUBMIT
@@ -1063,7 +1170,7 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
               }
             >
 
-              
+
 
               {subEvents.map(
                 (subEvent) => (
@@ -1524,7 +1631,26 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
                             styles.Documents
                           }
                         >
-                          -
+                          {(() => {
+
+                            const teamId =
+                              item.TeamIDId;
+
+                            if (
+                              !teamId ||
+                              !isStage ||
+                              !currentStage?.Stage
+                            ) {
+                              return 0;
+                            }
+
+                            return (
+                              documentCounts[
+                              String(teamId)
+                              ] || 0
+                            );
+
+                          })()}
                         </td>
 
                         <td

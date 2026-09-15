@@ -5,6 +5,7 @@ import CreateEvent from './CreateEvent';
 import CancelEvent from './CancelEvent';
 import EventDetails from './EventDetails';
 import DocumentSubmission from './EventDocSubmission';
+import BpclEventParticipantDetails from './BpclEventParticipantDetails';
 
 import EventService, { IEventItem } from '../Services/EventManagementServices';
 
@@ -40,6 +41,8 @@ interface IBpclEventManagementState {
   selectedEventHasSubEvents: boolean;
   selectedEventHasStages: boolean;
   showDocumentSubmission: boolean;
+  showParticipantDetails: boolean;
+  selectedParticipantItemId: number | null;
   eventList: IEventItem[];
   isLoading: boolean;
   isCancelling: boolean;
@@ -78,7 +81,9 @@ export default class BpclEventManagement
       isLoading: true,
       isCancelling: false,
       pageSize: 10,
-      currentPage: 1
+      currentPage: 1,
+      showParticipantDetails: false,
+      selectedParticipantItemId: null
 
     };
   }
@@ -216,7 +221,9 @@ export default class BpclEventManagement
       selectedEventTitle: '',
 
       selectedEventHasSubEvents: false,
-      selectedEventHasStages: false
+      selectedEventHasStages: false,
+      showParticipantDetails: false,
+      selectedParticipantItemId: null
     });
 
     this.loadEvents();
@@ -371,6 +378,60 @@ export default class BpclEventManagement
 
   };
 
+  private handleParticipantView = async (
+    event: IEventItem
+  ): Promise<void> => {
+
+    try {
+
+      this.setState({
+        isLoading: true
+      });
+
+      // ----------------------------------------
+      // Get current user's participant/team ID
+      // for selected event
+      // ----------------------------------------
+
+      const participantItemId =
+        await this.eventService
+          .getMyParticipantItemForEvent(event.id);
+
+    
+
+      
+
+      // ----------------------------------------
+      // Open Participant / Team Details
+      // ----------------------------------------
+
+      this.setState({
+        showParticipantDetails: true,
+        selectedParticipantItemId:
+          participantItemId
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Error opening participant details:",
+        error
+      );
+
+      alert(
+        "Unable to load participant details."
+      );
+
+    } finally {
+
+      this.setState({
+        isLoading: false
+      });
+
+    }
+
+  };
+
   private getStatusClass = (
     status: string
   ): string => {
@@ -503,6 +564,18 @@ export default class BpclEventManagement
         />
       );
 
+    }
+
+    if (this.state.showParticipantDetails) {
+      return (
+        <BpclEventParticipantDetails
+          participantItemId={
+            this.state.selectedParticipantItemId || 0
+          }
+          context={this.props.context}
+          onBack={this.handleBack}
+        />
+      );
     }
 
 
@@ -1155,13 +1228,18 @@ export default class BpclEventManagement
                                     </Button>
 
                                     {/* Participant View */}
-                                    <Button
-                                      variant="light"
-                                      size="sm"
-                                      title="Participant View"
-                                    >
-                                      <i className="bi bi-people-fill text-secondary" />
-                                    </Button>
+                                    {event.participantItemId !== null && (
+                                      <Button
+                                        variant="light"
+                                        size="sm"
+                                        title="Participant View"
+                                        onClick={() =>
+                                          void this.handleParticipantView(event)
+                                        }
+                                      >
+                                        <i className="bi bi-people-fill text-secondary" />
+                                      </Button>
+                                    )}
 
                                     {/* Cancel */}
 

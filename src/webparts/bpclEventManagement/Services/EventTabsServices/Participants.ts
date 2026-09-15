@@ -13,12 +13,6 @@ export interface IParticipantPerson {
 }
 
 
-export interface IParticipantData {
-  Id: number;
-  TeamLeader: IParticipantPerson | null;
-  Participant: IParticipantPerson[];
-  Created: string;
-}
 
 
 export interface IParticipantsResponse {
@@ -26,10 +20,20 @@ export interface IParticipantsResponse {
   Participants: IParticipantData[];
 }
 
+export interface IParticipantData {
+  Id: number;
+  TeamLeader: IParticipantPerson | null;
+  Participant: IParticipantPerson[];
+  Created: string;
+  ParticipantOrTeamStatus: string;
+  DocumentCount: number;
+  StagesCleared: string;
+}
+
 
 export default class ParticipantsService {
 
-  
+
   public async getParticipants(
     eventId: number
   ): Promise<IParticipantsResponse> {
@@ -51,6 +55,28 @@ export default class ParticipantsService {
       const eventParticipantType: string =
         eventItem.EventParticipantType || "";
 
+      /* ============================================
+ GET TOTAL STAGES FOR EVENT
+ Common for all participants
+============================================ */
+
+      const stageItems: any[] =
+        await sp.web.lists
+          .getByTitle("Corp_SL_EventStages")
+          .items
+          .select(
+            "Id",
+            "EventIDId",
+            "Stages"
+          )
+          .filter(
+            `EventIDId eq ${eventId}`
+          )
+          .get();
+
+      const totalStages: number = stageItems.length;
+
+
       const participantItems: any[] = await sp.web.lists
         .getByTitle("Corp_SL_EventParticipants")
         .items
@@ -58,6 +84,7 @@ export default class ParticipantsService {
           "Id",
           "Created",
           "Event_IDId",
+          "ParticipantOrTeamStatus",
           "TeamLeader/Id",
           "TeamLeader/Title",
           "TeamLeader/EMail",
@@ -78,49 +105,91 @@ export default class ParticipantsService {
          FORMAT PARTICIPANT DATA
       ============================================ */
 
-      const participants: IParticipantData[] =
-        participantItems.map((item: any) => {
+      const participants: IParticipantData[] = await Promise.all(
+        participantItems.map(async (item: any) => {
 
           // TeamLeader is a single People Picker
           const teamLeader: IParticipantPerson | null =
             item.TeamLeader
               ? {
-                  Id: item.TeamLeader.Id,
-                  Title: item.TeamLeader.Title || "",
-                  EMail: item.TeamLeader.EMail || ""
-                }
+                Id: item.TeamLeader.Id,
+                Title: item.TeamLeader.Title || "",
+                EMail: item.TeamLeader.EMail || ""
+              }
               : null;
-
 
           // Participant can contain multiple people
           const participantPeople: IParticipantPerson[] =
             item.Participant
               ? item.Participant.map(
-                  (person: any) => ({
-                    Id: person.Id,
-                    Title: person.Title || "",
-                    EMail: person.EMail || ""
-                  })
-                )
+                (person: any) => ({
+                  Id: person.Id,
+                  Title: person.Title || "",
+                  EMail: person.EMail || ""
+                })
+              )
               : [];
 
+          /* ============================================
+             GET DOCUMENT COUNT
+             Corp_SL_EventParticipantDocument
+             TeamID is a Lookup field
+          ============================================ */
+
+          const documentItems: any[] =
+            await sp.web.lists
+              .getByTitle("Corp_SL_EventParticipantDocument")
+              .items
+              .select("Id", "TeamIDId")
+              .filter(`TeamIDId eq ${item.Id}`)
+              .get();
+
+          const documentCount: number = documentItems.length;
+
+
+          /* ============================================
+   GET CLEARED STAGES
+   TeamID == Participant/Team ID
+   Status == Qualified
+============================================ */
+
+          const qualifiedStageItems: any[] =
+            await sp.web.lists
+              .getByTitle("Corp_SL_EventParticipantStageStatus")
+              .items
+              .select(
+                "Id",
+                "TeamIDId",
+                "Status",
+                "Stage"
+              )
+              .filter(
+                `TeamIDId eq ${item.Id} and Status eq 'Qualified'`
+              )
+              .get();
+
+          const clearedStages: number = qualifiedStageItems.length;
+            
 
           return {
-
-            // SharePoint Item ID
             Id: item.Id,
 
-            // Team Leader
             TeamLeader: teamLeader,
 
-            // Individual participant / Team Members
             Participant: participantPeople,
 
-            // Registration Date
-            Created: item.Created
+            Created: item.Created,
+
+            ParticipantOrTeamStatus:
+              item.ParticipantOrTeamStatus || "",
+
+            DocumentCount: documentCount,
+             StagesCleared: `${clearedStages}/${totalStages}`
+    
           };
 
-        });
+        })
+      );
 
 
       /* ============================================
