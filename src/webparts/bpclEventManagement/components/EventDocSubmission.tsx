@@ -317,31 +317,99 @@ const EventSubmitDocs:
              FILTER STAGES
           ========================================= */
 
-          const visibleStages =
-            isTeamEvent
-              ?
-              stages.filter(
-                (
-                  stage
-                ) => {
+          // const visibleStages =
+          //   isTeamEvent
+          //     ?
+          //     stages.filter(
+          //       (
+          //         stage
+          //       ) => {
 
-                  const status =
-                    statusMap[
-                      stage.Id
-                    ];
+          //         const status =
+          //           statusMap[
+          //             stage.Id
+          //           ];
 
 
-                  return (
-                    status
-                      ?.IsRegisteredForSubEvent ===
-                    true
-                  );
+          //         return (
+          //           status
+          //             ?.IsRegisteredForSubEvent ===
+          //           true
+          //         );
 
-                }
-              )
-              :
-              stages;
+          //       }
+          //     )
+          //     :
+          //     stages;
+/* =========================================
+   FILTER STAGES
 
+   RULES:
+
+   Individual Event:
+   - Show all active stages.
+
+   Team Event:
+   - Stage WITHOUT SubEvent:
+       Show directly.
+
+   - Stage WITH SubEvent:
+       Show only when current user is
+       registered for that SubEvent.
+========================================= */
+
+const visibleStages =
+  isTeamEvent
+    ?
+    stages.filter(
+      (
+        stage
+      ) => {
+
+        /* =====================================
+           NO SUB EVENT
+
+           Team event without subevent should
+           still allow document submission.
+        ===================================== */
+
+        if (
+          !stage.SubEventId ||
+          stage.SubEventId <= 0
+        ) {
+
+          console.log(
+            "Team event stage WITHOUT SubEvent. Showing stage:",
+            {
+              StageId: stage.Id,
+              StageName: stage.StageName
+            }
+          );
+
+          return true;
+        }
+
+
+        /* =====================================
+           SUB EVENT EXISTS
+
+           Check current user's registration.
+        ===================================== */
+
+        const status =
+          statusMap[
+            stage.Id
+          ];
+
+
+        return (
+          status?.IsRegisteredForSubEvent ===
+          true
+        );
+      }
+    )
+    :
+    stages;
 
           /* =========================================
              SET DATA
@@ -819,33 +887,34 @@ const EventSubmitDocs:
        CHECK IF ALL AVAILABLE STAGES SUBMITTED
     ================================================= */
 
-    const hasAvailableStage =
-      (): boolean => {
+   const hasAvailableStage =
+  (): boolean => {
 
+    return activeStages.some(
+      (
+        stage
+      ) => {
 
-        return activeStages.some(
-          (
-            stage
-          ) => {
+        const status =
+          stageStatuses[
+            stage.Id
+          ];
 
-            const status =
-              stageStatuses[
-                stage.Id
-              ];
+        const hasSubEvent =
+          !!stage.SubEventId &&
+          stage.SubEventId > 0;
 
+        const isRegistered =
+          !hasSubEvent ||
+          status?.IsRegisteredForSubEvent === true;
 
-            return (
-
-              status?.IsRegisteredForSubEvent === true &&
-
-              status?.IsAlreadySubmitted !== true
-
-            );
-
-          }
+        return (
+          isRegistered &&
+          status?.IsAlreadySubmitted !== true
         );
-
-      };
+      }
+    );
+  };
 
 
     /* =================================================
@@ -1617,10 +1686,13 @@ const EventSubmitDocs:
                       ];
 
 
+                    const hasSubEvent =
+                      !!stage.SubEventId &&
+                      stage.SubEventId > 0;
+
                     const isRegistered =
-                      status
-                        ?.IsRegisteredForSubEvent ===
-                      true;
+                      !hasSubEvent ||
+                      status?.IsRegisteredForSubEvent === true;
 
 
                     const isAlreadySubmitted =
@@ -1721,13 +1793,12 @@ const EventSubmitDocs:
                         ============================= */}
 
                         {
+                          hasSubEvent &&
                           !isRegistered && (
-
                             <Alert
                               variant="warning"
                               className="mt-3"
                             >
-
                               <i
                                 className="
                                   bi
@@ -1740,7 +1811,6 @@ const EventSubmitDocs:
                               Document submission is not allowed.
 
                             </Alert>
-
                           )
                         }
 

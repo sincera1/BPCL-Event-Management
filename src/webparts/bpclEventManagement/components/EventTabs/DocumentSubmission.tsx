@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import styles from "./DocumentSubmission.module.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { Button, Row, Col, Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import DocumentSubmissionService, { IEventDetails, ISubEventDetails, IEventStage, IStageSaveData } from "../../Services/EventTabsServices/DocumentSubmission";
 
 
@@ -1013,293 +1013,293 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
      SAVE / UPDATE SECTION
   ============================================ */
 
-const handleSaveUpdate = async (
-  sectionIndex: number
-): Promise<void> => {
+  const handleSaveUpdate = async (
+    sectionIndex: number
+  ): Promise<void> => {
 
-  if (!eventId) {
-
-    setErrorMessage(
-      "Event ID is not available."
-    );
-
-    return;
-
-  }
-
-
-  const section =
-    stageSections[sectionIndex];
-
-
-  setErrorMessage("");
-  setSuccessMessage("");
-
-
-  /* ============================================
-     VALIDATE ACTIVE STAGES
-  ============================================ */
-
-  const activeValidation =
-    validateActiveStages(
-      section.Stages
-    );
-
-  if (activeValidation) {
-
-    setErrorMessage(
-      activeValidation
-    );
-
-    return;
-
-  }
-
-
-  /* ============================================
-     VALIDATE STAGE DATE SEQUENCE
-  ============================================ */
-
-  const stageSequenceValidation =
-    validateStageDateSequence(
-      section.Stages
-    );
-
-  if (stageSequenceValidation) {
-
-    setErrorMessage(
-      stageSequenceValidation
-    );
-
-    return;
-
-  }
-
-
-  /* ============================================
-     VALIDATE ALL STAGES
-  ============================================ */
-
-  for (
-    const stage of section.Stages
-  ) {
-
-    const validationMessage =
-      validateStage(stage);
-
-    if (validationMessage) {
+    if (!eventId) {
 
       setErrorMessage(
-        validationMessage
+        "Event ID is not available."
       );
 
       return;
 
     }
 
-  }
+
+    const section =
+      stageSections[sectionIndex];
 
 
-  try {
-
-    setIsSaving(true);
+    setErrorMessage("");
+    setSuccessMessage("");
 
 
     /* ============================================
-       CHECK IF NEW STAGE1 IS BEING SAVED
+       VALIDATE ACTIVE STAGES
     ============================================ */
 
-    const isNewStage1 =
-      section.Stages.some(
-        (
-          stage: IStageFormData
-        ): boolean =>
-          stage.Stages === "Stage1" &&
-          !stage.Id
+    const activeValidation =
+      validateActiveStages(
+        section.Stages
       );
+
+    if (activeValidation) {
+
+      setErrorMessage(
+        activeValidation
+      );
+
+      return;
+
+    }
 
 
     /* ============================================
-       SAVE OR UPDATE EVERY STAGE
+       VALIDATE STAGE DATE SEQUENCE
+    ============================================ */
+
+    const stageSequenceValidation =
+      validateStageDateSequence(
+        section.Stages
+      );
+
+    if (stageSequenceValidation) {
+
+      setErrorMessage(
+        stageSequenceValidation
+      );
+
+      return;
+
+    }
+
+
+    /* ============================================
+       VALIDATE ALL STAGES
     ============================================ */
 
     for (
       const stage of section.Stages
     ) {
 
-      const stageData:
-        IStageSaveData = {
+      const validationMessage =
+        validateStage(stage);
 
-        Id:
-          stage.Id,
+      if (validationMessage) {
 
-        EventID:
-          eventId,
+        setErrorMessage(
+          validationMessage
+        );
 
-        SubEventID:
-          section.SubEventID || null,
-
-        Stages:
-          stage.Stages,
-
-        StageStartDate:
-          formatSharePointDate(
-            stage.StageStartDate
-          ) || "",
-
-        StageEndDate:
-          formatSharePointDate(
-            stage.StageEndDate
-          ) || "",
-
-        MaxFileSize:
-          Number(
-            stage.MaxFileSize
-          ),
-
-        UploadLimit:
-          Number(
-            stage.UploadLimit
-          ),
-
-        IsActive:
-          stage.IsActive
-
-      };
-
-
-      /* ============================================
-         UPDATE EXISTING STAGE
-      ============================================ */
-
-      if (stage.Id) {
-
-        await documentSubmissionService
-          .updateStage(
-            stageData
-          );
-
-      }
-
-
-      /* ============================================
-         SAVE NEW STAGE
-      ============================================ */
-
-      else {
-
-        await documentSubmissionService
-          .saveStage(
-            stageData
-          );
+        return;
 
       }
 
     }
 
 
-    /* ============================================
-       UPDATE EVENT HAS STAGES
-       
-       ONLY WHEN NEW STAGE1 WAS SAVED
-    ============================================ */
+    try {
 
-    if (isNewStage1) {
-
-      await documentSubmissionService
-        .updateEventHasStages(
-          eventId
-        );
-
-    }
+      setIsSaving(true);
 
 
-    /* ============================================
-       SUCCESS MESSAGE
-    ============================================ */
+      /* ============================================
+         CHECK IF NEW STAGE1 IS BEING SAVED
+      ============================================ */
 
-    setSuccessMessage(
-      "Document submission stages saved successfully."
-    );
-
-
-    /* ============================================
-       RELOAD DATA
-    ============================================ */
-
-    const response =
-      await documentSubmissionService
-        .getDocumentSubmission(
-          eventId
+      const isNewStage1 =
+        section.Stages.some(
+          (
+            stage: IStageFormData
+          ): boolean =>
+            stage.Stages === "Stage1" &&
+            !stage.Id
         );
 
 
-    const updatedSections =
-      buildStageSections(
-        response.Event,
-        response.SubEvents,
-        response.EventStages,
-        eventId
+      /* ============================================
+         SAVE OR UPDATE EVERY STAGE
+      ============================================ */
+
+      for (
+        const stage of section.Stages
+      ) {
+
+        const stageData:
+          IStageSaveData = {
+
+          Id:
+            stage.Id,
+
+          EventID:
+            eventId,
+
+          SubEventID:
+            section.SubEventID || null,
+
+          Stages:
+            stage.Stages,
+
+          StageStartDate:
+            formatSharePointDate(
+              stage.StageStartDate
+            ) || "",
+
+          StageEndDate:
+            formatSharePointDate(
+              stage.StageEndDate
+            ) || "",
+
+          MaxFileSize:
+            Number(
+              stage.MaxFileSize
+            ),
+
+          UploadLimit:
+            Number(
+              stage.UploadLimit
+            ),
+
+          IsActive:
+            stage.IsActive
+
+        };
+
+
+        /* ============================================
+           UPDATE EXISTING STAGE
+        ============================================ */
+
+        if (stage.Id) {
+
+          await documentSubmissionService
+            .updateStage(
+              stageData
+            );
+
+        }
+
+
+        /* ============================================
+           SAVE NEW STAGE
+        ============================================ */
+
+        else {
+
+          await documentSubmissionService
+            .saveStage(
+              stageData
+            );
+
+        }
+
+      }
+
+
+      /* ============================================
+         UPDATE EVENT HAS STAGES
+         
+         ONLY WHEN NEW STAGE1 WAS SAVED
+      ============================================ */
+
+      if (isNewStage1) {
+
+        await documentSubmissionService
+          .updateEventHasStages(
+            eventId
+          );
+
+      }
+
+
+      /* ============================================
+         SUCCESS MESSAGE
+      ============================================ */
+
+      setSuccessMessage(
+        "Document submission stages saved successfully."
       );
 
 
-    setEventDetails(
-      response.Event
-    );
+      /* ============================================
+         RELOAD DATA
+      ============================================ */
+
+      const response =
+        await documentSubmissionService
+          .getDocumentSubmission(
+            eventId
+          );
 
 
-    /* ============================================
-       UPDATE ONLY THE CURRENT SECTION
-
-       Keep other sections as they are in the UI.
-    ============================================ */
-
-    setStageSections(
-      (previousSections) => {
-
-        return previousSections.map(
-          (
-            existingSection,
-            index
-          ) => {
-
-            if (
-              index === sectionIndex &&
-              updatedSections[index]
-            ) {
-
-              return updatedSections[index];
-
-            }
-
-            return existingSection;
-
-          }
+      const updatedSections =
+        buildStageSections(
+          response.Event,
+          response.SubEvents,
+          response.EventStages,
+          eventId
         );
 
-      }
-    );
+
+      setEventDetails(
+        response.Event
+      );
 
 
-  } catch (error) {
+      /* ============================================
+         UPDATE ONLY THE CURRENT SECTION
+  
+         Keep other sections as they are in the UI.
+      ============================================ */
 
-    console.error(
-      "Error saving document stages:",
-      error
-    );
+      setStageSections(
+        (previousSections) => {
 
-    setErrorMessage(
-      "Unable to save document submission stages."
-    );
+          return previousSections.map(
+            (
+              existingSection,
+              index
+            ) => {
+
+              if (
+                index === sectionIndex &&
+                updatedSections[index]
+              ) {
+
+                return updatedSections[index];
+
+              }
+
+              return existingSection;
+
+            }
+          );
+
+        }
+      );
 
 
-  } finally {
+    } catch (error) {
 
-    setIsSaving(false);
+      console.error(
+        "Error saving document stages:",
+        error
+      );
 
-  }
+      setErrorMessage(
+        "Unable to save document submission stages."
+      );
 
-};
+
+    } finally {
+
+      setIsSaving(false);
+
+    }
+
+  };
 
 
   /* ============================================
@@ -1671,20 +1671,19 @@ const handleSaveUpdate = async (
                 stageIndex: number
               ) => (
 
-                <Row
+                <div
                   key={
                     stage.Id ||
                     `${sectionIndex}-${stageIndex}`
                   }
-                  className="p-2 align-items-end"
+
+                  className={`${styles.stageRow} p-2`}
                 >
 
 
                   {/* STAGE NAME */}
 
-                  <Col
-                    xs={12}
-                    md={1}
+                  <div
                     className={
                       styles.stageNameCol
                     }
@@ -1696,426 +1695,402 @@ const handleSaveUpdate = async (
                       }
                     >
 
-                      {stage.Stages}
+                      {/* {stage.Stages} */}
+                      stage 1
 
                     </div>
 
-                  </Col>
+                  </div>
 
 
                   {/* START DATE */}
 
-                  <Col
-                    xs={12}
-                    md={2}
+
+
+                  <Form.Group
+                    className={
+                      styles.inputGroup
+                    }
                   >
 
-                    <Form.Group
+                    <Form.Label
                       className={
-                        styles.inputGroup
+                        styles.inputLabel
                       }
                     >
 
-                      <Form.Label
+                      Start Date & Time
+
+                      <span
                         className={
-                          styles.inputLabel
+                          styles.required
                         }
                       >
+                        *
+                      </span>
 
-                        Start Date & Time
-
-                        <span
-                          className={
-                            styles.required
-                          }
-                        >
-                          *
-                        </span>
-
-                      </Form.Label>
+                    </Form.Label>
 
 
-                      <Form.Control
-                        type="date"
-                        value={
-                          stage.StageStartDate
-                        }
-                        max={
-                          eventDetails
-                            ? getDateBefore(
-                              formatDateTimeForInput(
-                                eventDetails.EventStartDate
-                              )
+                    <Form.Control
+                      type="date"
+                      value={
+                        stage.StageStartDate
+                      }
+                      max={
+                        eventDetails
+                          ? getDateBefore(
+                            formatDateTimeForInput(
+                              eventDetails.EventStartDate
                             )
-                            : ""
-                        }
-                        onChange={
-                          (
-                            e: React.ChangeEvent<
-                              HTMLInputElement
-                            >
-                          ): void =>
+                          )
+                          : ""
+                      }
+                      onChange={
+                        (
+                          e: React.ChangeEvent<
+                            HTMLInputElement
+                          >
+                        ): void =>
 
-                            updateStageField(
-                              sectionIndex,
-                              stageIndex,
-                              "StageStartDate",
-                              e.target.value
-                            )
-                        }
-                        className={
-                          styles.inputField
-                        }
-                      />
+                          updateStageField(
+                            sectionIndex,
+                            stageIndex,
+                            "StageStartDate",
+                            e.target.value
+                          )
+                      }
+                      className={
+                        styles.inputField
+                      }
+                    />
 
-                    </Form.Group>
+                  </Form.Group>
 
-                  </Col>
+
 
 
                   {/* END DATE */}
 
-                  <Col
-                    xs={12}
-                    md={2}
+
+
+                  <Form.Group
+                    className={
+                      styles.inputGroup
+                    }
                   >
 
-                    <Form.Group
+                    <Form.Label
                       className={
-                        styles.inputGroup
+                        styles.inputLabel
                       }
                     >
 
-                      <Form.Label
+                      End Date & Time
+
+                      <span
                         className={
-                          styles.inputLabel
+                          styles.required
                         }
                       >
+                        *
+                      </span>
 
-                        End Date & Time
-
-                        <span
-                          className={
-                            styles.required
-                          }
-                        >
-                          *
-                        </span>
-
-                      </Form.Label>
+                    </Form.Label>
 
 
-                      <Form.Control
-                        type="date"
-                        value={
-                          stage.StageEndDate
-                        }
-                        min={
-                          stage.StageStartDate
-                            ? getDateAfter(
-                              stage.StageStartDate
+                    <Form.Control
+                      type="date"
+                      value={
+                        stage.StageEndDate
+                      }
+                      min={
+                        stage.StageStartDate
+                          ? getDateAfter(
+                            stage.StageStartDate
+                          )
+                          : ""
+                      }
+
+                      max={
+                        eventDetails
+                          ? getDateBefore(
+                            formatDateTimeForInput(
+                              eventDetails.EventStartDate
                             )
-                            : ""
-                        }
+                          )
+                          : ""
+                      }
+                      onChange={
+                        (
+                          e: React.ChangeEvent<
+                            HTMLInputElement
+                          >
+                        ): void =>
 
-                        max={
-                          eventDetails
-                            ? getDateBefore(
-                              formatDateTimeForInput(
-                                eventDetails.EventStartDate
-                              )
-                            )
-                            : ""
-                        }
-                        onChange={
-                          (
-                            e: React.ChangeEvent<
-                              HTMLInputElement
-                            >
-                          ): void =>
+                          updateStageField(
+                            sectionIndex,
+                            stageIndex,
+                            "StageEndDate",
+                            e.target.value
+                          )
+                      }
+                      className={
+                        styles.inputField
+                      }
+                    />
 
-                            updateStageField(
-                              sectionIndex,
-                              stageIndex,
-                              "StageEndDate",
-                              e.target.value
-                            )
-                        }
-                        className={
-                          styles.inputField
-                        }
-                      />
+                  </Form.Group>
 
-                    </Form.Group>
 
-                  </Col>
 
 
                   {/* MAX FILE SIZE */}
 
-                  <Col
-                    xs={12}
-                    md={2}
+
+
+                  <Form.Group
+                    className={
+                      styles.inputGroup
+                    }
                   >
 
-                    <Form.Group
+                    <Form.Label
                       className={
-                        styles.inputGroup
+                        styles.inputLabel
                       }
                     >
 
-                      <Form.Label
+                      Maximum File Size (KB)
+
+                      <span
                         className={
-                          styles.inputLabel
+                          styles.required
                         }
                       >
+                        *
+                      </span>
 
-                        Maximum File Size (KB)
-
-                        <span
-                          className={
-                            styles.required
-                          }
-                        >
-                          *
-                        </span>
-
-                      </Form.Label>
+                    </Form.Label>
 
 
-                      <Form.Control
-                        type="number"
-                        min="1"
-                        value={
-                          stage.MaxFileSize
-                        }
-                        placeholder="Enter File Size"
-                        onChange={
-                          (
-                            e: React.ChangeEvent<
-                              HTMLInputElement
-                            >
-                          ): void =>
+                    <Form.Control
+                      type="number"
+                      min="1"
+                      value={
+                        stage.MaxFileSize
+                      }
+                      placeholder="Enter File Size"
+                      onChange={
+                        (
+                          e: React.ChangeEvent<
+                            HTMLInputElement
+                          >
+                        ): void =>
 
-                            updateStageField(
-                              sectionIndex,
-                              stageIndex,
-                              "MaxFileSize",
-                              e.target.value === ""
-                                ? ""
-                                : Number(
-                                  e.target.value
-                                )
-                            )
-                        }
-                        className={
-                          styles.inputField
-                        }
-                      />
+                          updateStageField(
+                            sectionIndex,
+                            stageIndex,
+                            "MaxFileSize",
+                            e.target.value === ""
+                              ? ""
+                              : Number(
+                                e.target.value
+                              )
+                          )
+                      }
+                      className={
+                        styles.inputField
+                      }
+                    />
 
-                    </Form.Group>
+                  </Form.Group>
 
-                  </Col>
+
 
 
                   {/* UPLOAD LIMIT */}
 
-                  <Col
-                    xs={12}
-                    md={2}
+
+
+                  <Form.Group
+                    className={
+                      styles.inputGroup
+                    }
                   >
 
-                    <Form.Group
+                    <Form.Label
                       className={
-                        styles.inputGroup
+                        styles.inputLabel
                       }
                     >
 
-                      <Form.Label
+                      Upload Limit
+
+                      <span
                         className={
-                          styles.inputLabel
+                          styles.required
                         }
                       >
+                        *
+                      </span>
 
-                        Upload Limit
-
-                        <span
-                          className={
-                            styles.required
-                          }
-                        >
-                          *
-                        </span>
-
-                      </Form.Label>
+                    </Form.Label>
 
 
-                      <Form.Control
-                        type="number"
-                        min="1"
-                        value={
-                          stage.UploadLimit
+                    <Form.Control
+                      type="number"
+                      min="1"
+                      value={
+                        stage.UploadLimit
+                      }
+                      placeholder="Enter Upload Limit"
+                      onChange={
+                        (
+                          e: React.ChangeEvent<
+                            HTMLInputElement
+                          >
+                        ): void =>
+
+                          updateStageField(
+                            sectionIndex,
+                            stageIndex,
+                            "UploadLimit",
+                            e.target.value === ""
+                              ? ""
+                              : Number(
+                                e.target.value
+                              )
+                          )
+                      }
+                      className={
+                        styles.inputField
+                      }
+                    />
+
+                  </Form.Group>
+
+
+
+
+                  {/* IS ACTIVE */}
+
+
+
+                  <Form.Group
+                    className={
+                      styles.inputGroup
+                    }
+                  >
+
+                    <Form.Label
+                      className={
+                        styles.inputLabel
+                      }
+                    >
+
+                      Is Active?
+
+                      <span
+                        className={
+                          styles.required
                         }
-                        placeholder="Enter Upload Limit"
+                      >
+                        *
+                      </span>
+
+                    </Form.Label>
+
+
+                    <div
+                      className={
+                        styles.checkboxWrapper
+                      }
+                    >
+
+                      <Form.Check
+                        type="checkbox"
+                        checked={
+                          stage.IsActive
+                        }
                         onChange={
                           (
                             e: React.ChangeEvent<
                               HTMLInputElement
                             >
-                          ): void =>
+                          ): void => {
+
+                            if (
+                              e.target.checked &&
+                              stage.StageEndDate
+                            ) {
+
+                              const endDate =
+                                new Date(
+                                  stage.StageEndDate
+                                );
+
+
+                              if (
+                                endDate <
+                                new Date()
+                              ) {
+
+                                setErrorMessage(
+                                  "You cannot activate a stage whose End Date has already passed."
+                                );
+
+                                return;
+
+                              }
+
+                            }
+
 
                             updateStageField(
                               sectionIndex,
                               stageIndex,
-                              "UploadLimit",
-                              e.target.value === ""
-                                ? ""
-                                : Number(
-                                  e.target.value
-                                )
-                            )
+                              "IsActive",
+                              e.target.checked
+                            );
+
+                          }
                         }
                         className={
-                          styles.inputField
+                          styles.activeCheckbox
                         }
                       />
 
-                    </Form.Group>
+                    </div>
 
-                  </Col>
+                  </Form.Group>
 
-
-                  {/* IS ACTIVE */}
-
-                  <Col
-                    xs={12}
-                    md={1}
-                    className={
-                      styles.activeCol
-                    }
-                  >
-
-                    <Form.Group
-                      className={
-                        styles.inputGroup
-                      }
-                    >
-
-                      <Form.Label
-                        className={
-                          styles.inputLabel
-                        }
-                      >
-
-                        Is Active?
-
-                        <span
-                          className={
-                            styles.required
-                          }
-                        >
-                          *
-                        </span>
-
-                      </Form.Label>
-
-
-                      <div
-                        className={
-                          styles.checkboxWrapper
-                        }
-                      >
-
-                        <Form.Check
-                          type="checkbox"
-                          checked={
-                            stage.IsActive
-                          }
-                          onChange={
-                            (
-                              e: React.ChangeEvent<
-                                HTMLInputElement
-                              >
-                            ): void => {
-
-                              if (
-                                e.target.checked &&
-                                stage.StageEndDate
-                              ) {
-
-                                const endDate =
-                                  new Date(
-                                    stage.StageEndDate
-                                  );
-
-
-                                if (
-                                  endDate <
-                                  new Date()
-                                ) {
-
-                                  setErrorMessage(
-                                    "You cannot activate a stage whose End Date has already passed."
-                                  );
-
-                                  return;
-
-                                }
-
-                              }
-
-
-                              updateStageField(
-                                sectionIndex,
-                                stageIndex,
-                                "IsActive",
-                                e.target.checked
-                              );
-
-                            }
-                          }
-                          className={
-                            styles.activeCheckbox
-                          }
-                        />
-
-                      </div>
-
-                    </Form.Group>
-
-                  </Col>
 
 
                   {/* DELETE STAGE */}
 
-                  <Col
-                    xs={12}
-                    md={2}
-                    className="pb-2"
-                  >
 
-                    {stage.Stages !== "Stage1" && !stage.Id && (
-                      <Button
-                        variant="link"
-                        className="text-danger"
-                        title="Delete Stage"
-                        onClick={() => {
-                          handleDeleteStage(
-                            sectionIndex,
-                            stageIndex
-                          ).catch((error) => {
-                            console.error(error);
-                          });
-                        }}
-                      >
-                        <i className="bi bi-trash-fill me-1" />
-                        Delete
-                      </Button>
-                    )}
 
-                  </Col>
+                  {stage.Stages !== "Stage1" && !stage.Id && (
+                    <Button
+                      variant="link"
+                      className={`${styles.deleteStageBtn} `}
+                      title="Delete Stage"
+                      onClick={() => {
+                        handleDeleteStage(
+                          sectionIndex,
+                          stageIndex
+                        ).catch((error) => {
+                          console.error(error);
+                        });
+                      }}
+                    >
+                      <i className="bi bi-trash-fill me-1" />
+                      <span className={styles.deleteText}>Delete</span>
+                    </Button>
 
-                </Row>
+                  )}
+                </div>
 
               )
             )}

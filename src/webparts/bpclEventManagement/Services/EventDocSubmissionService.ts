@@ -99,6 +99,10 @@ export default class StageSubmissionService {
     "Corp_SL_EventStages";
 
 
+  private eventParticipantListName =
+    "Corp_SL_EventParticipants";
+
+
   private subEventParticipantListName =
     "Corp_SL_SubEvent_Participants";
 
@@ -245,7 +249,8 @@ export default class StageSubmissionService {
           `EventIDId eq ${eventId} and IsActive eq 1`
         )();
 
-
+console.log("doc submission Requested Event ID:", eventId);
+console.log("doc submission All Stages for Event:", items);
     /* ===============================================
        TODAY DATE
 
@@ -461,6 +466,62 @@ export default class StageSubmissionService {
      Current User must exist in Participant
   =================================================== */
 
+  private async getEventParticipantInfo(
+    eventId: number
+  ): Promise<ISubEventParticipantInfo> {
+
+    const currentUser = await this.getCurrentUser();
+
+    if (!currentUser || !currentUser.Id) {
+      throw new Error(
+        "Unable to identify the current logged-in user."
+      );
+    }
+
+    const participantItems: any[] =
+      await sp.web.lists
+        .getByTitle(this.eventParticipantListName)
+        .items
+        .select(
+          "Id",
+          "EventParticipantType",
+          "TeamIDId"
+        )
+        .filter(
+          `Event_IDId eq ${eventId} and ` +
+          `ParticipantId eq ${currentUser.Id}`
+        )
+        .top(1)();
+
+    if (!participantItems || participantItems.length === 0) {
+      return {
+        Id: 0,
+        TeamId: 0,
+        EventParticipantType: "",
+        IsRegistered: false
+      };
+    }
+
+    const participantItem = participantItems[0];
+
+    const teamLookupId =
+      Number(participantItem.TeamIDId) || 0;
+
+    const finalTeamId =
+      teamLookupId > 0
+        ? teamLookupId
+        : Number(participantItem.Id);
+
+    return {
+      Id: Number(participantItem.Id),
+      TeamId: finalTeamId,
+      EventParticipantType:
+        participantItem.EventParticipantType || "",
+      IsRegistered: true
+    };
+  }
+
+
   private async getSubEventParticipantInfo(
 
     eventId: number,
@@ -474,16 +535,16 @@ export default class StageSubmissionService {
        VALIDATE SUB EVENT
     =============================================== */
 
-    if (
-      !subEventId ||
-      subEventId <= 0
-    ) {
+    // if (
+    //   !subEventId ||
+    //   subEventId <= 0
+    // ) {
 
-      throw new Error(
-        "Sub Event information is not available."
-      );
+    //   throw new Error(
+    //     "Sub Event information is not available."
+    //   );
 
-    }
+    // }
 
 
     /* ===============================================
@@ -552,11 +613,6 @@ export default class StageSubmissionService {
         .top(
           1
         )();
-
-
-    console.log(
-      "=========================================="
-    );
 
 
     console.log(
@@ -638,10 +694,6 @@ export default class StageSubmissionService {
           participantItem.Id
         );
 
-
-    console.log(
-      "=========================================="
-    );
 
 
     console.log(
@@ -731,20 +783,28 @@ export default class StageSubmissionService {
 
     eventId: number,
 
-    subEventId: number,
+    subEventId: number | undefined,
 
     teamId: number
 
   ): Promise<number> {
 
 
-    const filterText =
-
+    let filterText =
       `EventIDId eq ${eventId} and ` +
-
-      `SubEventIDId eq ${subEventId} and ` +
-
       `TeamIDId eq ${teamId}`;
+
+    if (
+      subEventId &&
+      subEventId > 0
+    ) {
+      filterText +=
+        ` and SubEventIDId eq ${subEventId}`;
+    }
+    else {
+      filterText +=
+        ` and SubEventIDId eq null`;
+    }
 
 
     console.log(
@@ -809,115 +869,275 @@ export default class StageSubmissionService {
      Used for individual stage.
   =================================================== */
 
-  public async getStageSubmissionStatus(
+  // public async getStageSubmissionStatus(
 
-    eventId: number,
+  //   eventId: number,
 
-    stage: IActiveEventStage
+  //   stage: IActiveEventStage
 
-  ): Promise<IStageSubmissionStatus> {
-
-
-    /* ===============================================
-       VALIDATE EVENT
-    =============================================== */
-
-    if (
-      !eventId ||
-      eventId <= 0
-    ) {
-
-      throw new Error(
-        "Invalid Event ID."
-      );
-
-    }
+  // ): Promise<IStageSubmissionStatus> {
 
 
-    /* ===============================================
-       GET PARTICIPANT INFORMATION
-    =============================================== */
+  //   /* ===============================================
+  //      VALIDATE EVENT
+  //   =============================================== */
 
-    const participantInfo =
+  //   if (
+  //     !eventId ||
+  //     eventId <= 0
+  //   ) {
 
-      await this.getSubEventParticipantInfo(
+  //     throw new Error(
+  //       "Invalid Event ID."
+  //     );
 
-        eventId,
-
-        stage.SubEventId
-
-      );
-
-
-    /* ===============================================
-       NOT REGISTERED
-    =============================================== */
-
-    if (
-      !participantInfo.IsRegistered
-    ) {
-
-      return {
-
-        TeamId: 0,
-
-        UploadedCount: 0,
-
-        IsAlreadySubmitted: false,
-
-        IsRegisteredForSubEvent: false
-
-      };
-
-    }
+  //   }
 
 
-    /* ===============================================
-       CHECK DOCUMENT
-    =============================================== */
+  //   /* ===============================================
+  //      GET PARTICIPANT INFORMATION
+  //   =============================================== */
 
-    const uploadedCount =
+  //   const participantInfo =
 
-      await this.getExistingDocumentCount(
+  //     await this.getSubEventParticipantInfo(
 
-        eventId,
+  //       eventId,
 
-        stage.SubEventId!,
+  //       stage.SubEventId
 
-        participantInfo.TeamId
-
-      );
+  //     );
 
 
-    /* ===============================================
-       RETURN STATUS
-    =============================================== */
+  //   /* ===============================================
+  //      NOT REGISTERED
+  //   =============================================== */
 
-    return {
+  //   if (
+  //     !participantInfo.IsRegistered
+  //   ) {
 
-      TeamId:
+  //     return {
 
-        participantInfo.TeamId,
+  //       TeamId: 0,
+
+  //       UploadedCount: 0,
+
+  //       IsAlreadySubmitted: false,
+
+  //       IsRegisteredForSubEvent: false
+
+  //     };
+
+  //   }
 
 
-      UploadedCount:
+  //   /* ===============================================
+  //      CHECK DOCUMENT
+  //   =============================================== */
 
-        uploadedCount,
+  //   const uploadedCount =
+
+  //     await this.getExistingDocumentCount(
+
+  //       eventId,
+
+  //       stage.SubEventId!,
+
+  //       participantInfo.TeamId
+
+  //     );
 
 
-      IsAlreadySubmitted:
+  //   /* ===============================================
+  //      RETURN STATUS
+  //   =============================================== */
 
-        uploadedCount > 0,
+  //   return {
+
+  //     TeamId:
+
+  //       participantInfo.TeamId,
 
 
-      IsRegisteredForSubEvent:
+  //     UploadedCount:
 
-        true
+  //       uploadedCount,
 
-    };
 
+  //     IsAlreadySubmitted:
+
+  //       uploadedCount > 0,
+
+
+  //     IsRegisteredForSubEvent:
+
+  //       true
+
+  //   };
+
+  // }
+/* ===================================================
+   GET STAGE SUBMISSION STATUS
+
+   RULES:
+   1. Stage WITHOUT SubEvent:
+      - No participant registration check
+      - Stage is available directly
+      - Uploaded document count is checked using EventId + StageId
+
+   2. Stage WITH SubEvent:
+      - Current user must be registered
+      - Existing TeamID logic is retained
+=================================================== */
+
+public async getStageSubmissionStatus(
+  eventId: number,
+  stage: IActiveEventStage
+): Promise<IStageSubmissionStatus> {
+
+  /* ===============================================
+     VALIDATE EVENT
+  =============================================== */
+
+  if (
+    !eventId ||
+    eventId <= 0
+  ) {
+    throw new Error(
+      "Invalid Event ID."
+    );
   }
 
+
+  /* ===============================================
+     CASE 1:
+     STAGE DOES NOT HAVE A SUB EVENT
+
+     Example:
+     Event 93
+     Stage 1
+     SubEventId = undefined
+
+     This stage should be directly available.
+  =============================================== */
+
+  if (
+    !stage.SubEventId ||
+    stage.SubEventId <= 0
+  ) {
+
+    console.log(
+      "Stage has NO SubEvent. Treating stage as directly available:",
+      {
+        EventId: eventId,
+        StageId: stage.Id,
+        StageName: stage.StageName
+      }
+    );
+
+    /*
+      There is no SubEvent participant to check.
+
+      We therefore return the stage as registered/available.
+    */
+
+    const eventParticipantInfo =
+      await this.getEventParticipantInfo(eventId);
+
+    if (!eventParticipantInfo.IsRegistered) {
+      return {
+        TeamId: 0,
+        UploadedCount: 0,
+        IsAlreadySubmitted: false,
+        IsRegisteredForSubEvent: true
+      };
+    }
+
+    const uploadedCount =
+      await this.getExistingDocumentCount(
+        eventId,
+        undefined,
+        eventParticipantInfo.TeamId
+      );
+
+    return {
+      TeamId: eventParticipantInfo.TeamId,
+      UploadedCount: uploadedCount,
+      IsAlreadySubmitted: uploadedCount > 0,
+      IsRegisteredForSubEvent: true
+    };
+  }
+
+
+  /* ===============================================
+     CASE 2:
+     STAGE HAS A SUB EVENT
+
+     Existing registration logic continues.
+  =============================================== */
+
+  const participantInfo =
+    await this.getSubEventParticipantInfo(
+      eventId,
+      stage.SubEventId
+    );
+
+
+  /* ===============================================
+     USER NOT REGISTERED
+  =============================================== */
+
+  if (
+    !participantInfo.IsRegistered
+  ) {
+
+    return {
+      TeamId: 0,
+
+      UploadedCount: 0,
+
+      IsAlreadySubmitted: false,
+
+      IsRegisteredForSubEvent: false
+    };
+  }
+
+
+  /* ===============================================
+     CHECK EXISTING DOCUMENT
+
+     Only applicable when SubEvent exists.
+  =============================================== */
+
+  const uploadedCount =
+    await this.getExistingDocumentCount(
+      eventId,
+      stage.SubEventId,
+      participantInfo.TeamId
+    );
+
+
+  /* ===============================================
+     RETURN STATUS
+  =============================================== */
+
+  return {
+
+    TeamId:
+      participantInfo.TeamId,
+
+    UploadedCount:
+      uploadedCount,
+
+    IsAlreadySubmitted:
+      uploadedCount > 0,
+
+    IsRegisteredForSubEvent:
+      true
+
+  };
+}
 
   /* ===================================================
      GET ALL STAGE SUBMISSION STATUSES
@@ -1142,16 +1362,16 @@ export default class StageSubmissionService {
        VALIDATE SUB EVENT
     =============================================== */
 
-    if (
-      !stage.SubEventId ||
-      stage.SubEventId <= 0
-    ) {
+    // if (
+    //   !stage.SubEventId ||
+    //   stage.SubEventId <= 0
+    // ) {
 
-      throw new Error(
-        "Sub Event information is not available."
-      );
+    //   throw new Error(
+    //     "Sub Event information is not available."
+    //   );
 
-    }
+    // }
 
 
     /* ===============================================
@@ -1174,40 +1394,37 @@ export default class StageSubmissionService {
        GET SUB EVENT PARTICIPANT
     =============================================== */
 
-    const participantInfo =
-
-      await this.getSubEventParticipantInfo(
-
-        eventId,
-
-        stage.SubEventId
-
-      );
-
-
-    /* ===============================================
-       USER NOT REGISTERED
-    =============================================== */
+    let teamId = 0;
 
     if (
-      !participantInfo.IsRegistered
+      stage.SubEventId &&
+      stage.SubEventId > 0
     ) {
+      const participantInfo =
+        await this.getSubEventParticipantInfo(
+          eventId,
+          stage.SubEventId
+        );
 
-      throw new Error(
+      if (!participantInfo.IsRegistered) {
+        throw new Error(
+          "You are not registered for this Sub Event. Document submission is not allowed."
+        );
+      }
 
-        "You are not registered for this Sub Event. Document submission is not allowed."
+      teamId = participantInfo.TeamId;
+    } else {
+      const eventParticipantInfo =
+        await this.getEventParticipantInfo(eventId);
 
-      );
+      if (!eventParticipantInfo.IsRegistered) {
+        throw new Error(
+          "You are not registered for this Event. Document submission is not allowed."
+        );
+      }
 
+      teamId = eventParticipantInfo.TeamId;
     }
-
-
-    /* ===============================================
-       TEAM ID
-    =============================================== */
-
-    const teamId =
-      participantInfo.TeamId;
 
 
     /* ===============================================
@@ -1437,12 +1654,6 @@ export default class StageSubmissionService {
       );
 
     }
-
-
-    console.log(
-      "=========================================="
-    );
-
 
     console.log(
       "DOCUMENT SUBMISSION COMPLETED"

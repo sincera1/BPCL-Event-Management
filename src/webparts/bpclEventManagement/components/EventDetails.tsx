@@ -104,7 +104,7 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
                 </Col>
             </Row>
 
-            <Row>
+            <Row className="px-4 mb-3">
                 <Col xs={12}>
                     <div className={styles.tabContainer}>
 

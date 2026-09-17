@@ -324,7 +324,7 @@ const isIndividual =
     </Col>
   </Row>
       <Container fluid>
-        <Row>
+        <Row className="mb-4">
           {/* <Col md={4}> */}
       <Col xs={12} lg={4}>
 

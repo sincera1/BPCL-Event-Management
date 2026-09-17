@@ -85,8 +85,8 @@
 }
 
 .stageNameCol {
-  padding-left: 0 !important;
-  padding-right: 8px !important;
+  // padding-left: 0 !important;
+  // padding-right: 8px !important;
   align-items: center;
   display: flex;
 }
@@ -136,4 +136,34 @@
       outline: none !important;
     }
   }
+}
+
+.deleteStageBtn {
+  border: 1px solid #dc3545 !important;
+  border-radius: 6px !important;
+  font-weight: 600;
+  color: #dc3545 !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteText {
+  display: none;
+}
+
+/* Tablet and Mobile */
+@media (max-width: 991px) {
+  .deleteText {
+    display: inline;
+  }
+}
+
+.stageRow {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr 1.5fr 1.5fr 80px 40px;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
 }

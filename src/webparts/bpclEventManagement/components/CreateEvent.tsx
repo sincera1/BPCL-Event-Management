@@ -1255,7 +1255,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
       {/* Content */}
       <Container>
 
-        <Row>
+        <Row className="mb-4">
           <Col xs={12}>
 
             <Card className={styles.eventCard}>

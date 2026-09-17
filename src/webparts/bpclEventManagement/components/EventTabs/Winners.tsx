@@ -1033,7 +1033,7 @@ const Winners: React.FC<IWinnersProps> = ({
       >
 
         <div
-          className="table-responsive"
+          className="table-responsive mb-3"
         >
 
           <Table

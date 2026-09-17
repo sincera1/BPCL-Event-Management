@@ -478,7 +478,8 @@
 :global(.pagination .page-link) {
   color: #434975 !important;
 
-  border-radius: 6px;
+  //border-radius: 6px;
+  background: transparent !important;
 }
 
 :global(.pagination .page-link:hover) {

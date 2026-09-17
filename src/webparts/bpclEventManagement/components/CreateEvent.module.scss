@@ -139,6 +139,7 @@
     box-shadow: 0 0 0 0.2rem rgba(0, 84, 173, 0.15) !important;
   }
 }
+
 .inputField[type="file"] {
   height: 42px;
   padding: 0 0px !important;
@@ -154,6 +155,7 @@
     line-height: 42px;
   }
 }
+
 /* ---------------- Button ---------------- */
 
 .primaryBtn {
@@ -169,6 +171,7 @@
     border-color: #003d80 !important;
   }
 }
+
 .eventOutlineBtn {
   // min-width: 140px;
   // padding: 10px 30px !important;
@@ -178,6 +181,7 @@
   color: #0669f8 !important;
   font-weight: 600;
 }
+
 /* ---------------- Radio ---------------- */
 
 .radioBtn {
@@ -327,6 +331,7 @@
   background: #fdcf3f;
   margin-left: 12px;
 }
+
 textarea.inputField {
   height: auto !important;
   min-height: 120px;
@@ -343,6 +348,7 @@ textarea.inputField {
   border-radius: 8px !important;
   color: #fff;
 }
+
 .cancelBtn {
   padding: 10px 30px !important;
   font-size: 14px !important;
@@ -493,6 +499,7 @@ textarea.inputField {
   border-radius: 6px;
   font-weight: 500;
 }
+
 .filePreview {
   margin-top: 15px;
   width: 100%;
@@ -596,4 +603,13 @@ textarea.inputField {
   font-size: 13px;
   margin-top: 5px;
   font-weight: 500;
+}
+
+:global(.ms-BasePicker-text) {
+  border: 1px solid #d9d9d9 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  height: 42px !important;
+  padding: 10px 12px !important;
+  box-sizing: border-box;
 }
