@@ -5,6 +5,7 @@ import styles from "../EventTabs/Participants.module.scss";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+
 import {
 
   Pagination,
@@ -19,11 +20,13 @@ import ParticipantsService, {
 
 interface IParticipantsProps {
   eventId?: number;
+  onViewDetails?: (participantItemId: number) => void;
 }
 
 
 const Participants: React.FC<IParticipantsProps> = ({
-  eventId
+  eventId,
+  onViewDetails
 }) => {
 
   const [eventParticipantType, setEventParticipantType] = useState<string>("");
@@ -33,9 +36,7 @@ const Participants: React.FC<IParticipantsProps> = ({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(0);
   const [selectedParticipantIds, setSelectedParticipantIds] = useState<number[]>([]);
-
-
-
+ 
 
   /* =======================================================
      LOAD PARTICIPANTS
@@ -353,10 +354,9 @@ const Participants: React.FC<IParticipantsProps> = ({
     participantId: number
   ): void => {
 
-    console.log(
-      "View participant details:",
-      participantId
-    );
+    if (onViewDetails) {
+      onViewDetails(participantId);
+    }
 
   };
 

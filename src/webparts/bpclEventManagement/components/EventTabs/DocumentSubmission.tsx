@@ -1861,7 +1861,7 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                       }
                     >
 
-                      Maximum File Size (KB)
+                      Maximum File Size (MB)
 
                       <span
                         className={

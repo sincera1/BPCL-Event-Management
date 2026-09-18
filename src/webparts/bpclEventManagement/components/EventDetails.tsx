@@ -30,10 +30,12 @@ interface IEventDetailsProps {
     context: any;
     onBack: () => void;
     onEdit: () => void;
+    onViewParticipantDetails?: (participantItemId: number, returnTab?: string) => void;
+    initialActiveTab?: string;
 }
 
 
-const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSubEvents, hasStages, context, onBack,onEdit }) => {
+const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSubEvents, hasStages, context, onBack, onEdit, onViewParticipantDetails, initialActiveTab }) => {
 
     const tabs = [
         "About",
@@ -44,7 +46,7 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
         "Winners"
     ];
 
-    const [activeTab, setActiveTab] = useState("About");
+    const [activeTab, setActiveTab] = useState(initialActiveTab || "About");
 
     return (
         <section className={styles.commonSectionstyle}>
@@ -76,7 +78,7 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
 
                                 </div>
 
-                                <button className={styles.editBtn}  onClick={onEdit}>
+                                <button className={styles.editBtn} onClick={onEdit}>
                                     <i className="bi bi-pencil-square" />
                                     Edit Event
                                 </button>
@@ -118,7 +120,12 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
                         )}
 
                         {activeTab === "Participants" && (
-                            <Participants eventId={eventId} />
+                            <Participants
+                                eventId={eventId}
+                                onViewDetails={(id) =>
+                                    onViewParticipantDetails?.(id, "Participants")
+                                }
+                            />
                         )}
 
                         {activeTab === "Document Submission" && (
@@ -133,6 +140,9 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
                                 hasSubEvents={hasSubEvents}
                                 hasStages={hasStages}
                                 context={context}
+                                onViewDetails={(id) =>
+                                    onViewParticipantDetails?.(id, "Qualifiers")
+                                }
                             />
                         )}
 
@@ -142,6 +152,9 @@ const EventDetails: React.FC<IEventDetailsProps> = ({ eventId, eventTitle, hasSu
                                 hasSubEvents={hasSubEvents}
                                 hasStages={hasStages}
                                 context={context}
+                                onViewDetails={(id) =>
+                                    onViewParticipantDetails?.(id, "Winners")
+                                }
                             />
                         )}
 

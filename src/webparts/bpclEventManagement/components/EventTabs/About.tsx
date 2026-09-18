@@ -173,13 +173,18 @@ const About: React.FC<IAboutProps> = ({
 
 const handleCopyEventLink = async (): Promise<void> => {
   try {
-    await navigator.clipboard.writeText(window.location.href);
+    
+    const eventLink = `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${eventId}`;
+
+    await navigator.clipboard.writeText(eventLink);
 
     setLinkCopied(true);
+
     // Change back to "Copy link" after 2 seconds
     setTimeout(() => {
       setLinkCopied(false);
     }, 2000);
+
   } catch (error) {
     console.error("Unable to copy event link:", error);
   }
@@ -668,13 +673,17 @@ const handleCopyEventLink = async (): Promise<void> => {
 
     <div className={styles.shareLinkContainer}>
 
-      <input
-        type="text"
-        className={styles.shareLinkInput}
-        value={window.location.href}
-        readOnly
-        onFocus={(e) => e.target.select()}
-      />
+     <input
+  type="text"
+  className={styles.shareLinkInput}
+  value={
+    eventId
+      ? `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${eventId}`
+      : ""
+  }
+  readOnly
+  onFocus={(e) => e.target.select()}
+/>
 
      <Button
           className={styles.copyLinkButton}

@@ -34,6 +34,7 @@ interface IWinnersProps {
   hasStages: boolean;
 
   context: any;
+  onViewDetails?: (participantItemId: number) => void;
 }
 
 
@@ -42,12 +43,9 @@ interface IWinnersProps {
 ========================================================= */
 
 const Winners: React.FC<IWinnersProps> = ({
-  eventId
+  eventId, onViewDetails
 }) => {
 
-  /* =======================================================
-     SERVICE
-  ======================================================= */
 
   const winnersService =
     React.useMemo(
@@ -617,10 +615,9 @@ const Winners: React.FC<IWinnersProps> = ({
       participantId: number
     ): void => {
 
-      console.log(
-        "View details:",
-        participantId
-      );
+      if (onViewDetails) {
+        onViewDetails(participantId);
+      }
 
     };
 

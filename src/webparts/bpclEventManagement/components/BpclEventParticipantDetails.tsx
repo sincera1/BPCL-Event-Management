@@ -43,14 +43,7 @@ const BpclEventParticipantDetails: React.FC<
     React.useState<string>("");
 
 
-  /*
-   * Initialize PnP
-   */
-  // const sp = React.useMemo(() => {
-  //   return spfi().using(
-  //     SPFx(props.context)
-  //   );
-  // }, [props.context]);
+
 
 
   /*

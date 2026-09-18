@@ -24,13 +24,15 @@ interface IQualifiersProps {
   hasSubEvents: boolean;
   hasStages: boolean;
   context: any;
+  onViewDetails?: (participantItemId: number) => void;
 }
 
 const Qualifiers: React.FC<IQualifiersProps> = ({
   eventId,
   hasSubEvents,
   hasStages,
-  context
+  context,
+  onViewDetails
 }) => {
 
   const service = new QualifiersService();
@@ -839,20 +841,14 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
     );
   };
 
-  /*
-   * ============================================================
-   * VIEW
-   * ============================================================
-   */
+
 
   const handleView = (
     id: number
   ): void => {
-
-    console.log(
-      "View details:",
-      id
-    );
+    if (onViewDetails) {
+      onViewDetails(id);
+    }
   };
 
   /* ============================================================

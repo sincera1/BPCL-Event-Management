@@ -246,10 +246,10 @@ export const validateCreateEvent = (
          *
          * Same date is NOT allowed.
          */
-        if (eventEndDate <= eventStartDate) {
+        if (eventEndDate < eventStartDate) {
 
             errors.eventEndDate =
-                "Event End Date must be greater than Event Start Date.";
+                "Event End Date cannot be before Event Start Date.";
         }
     }
 

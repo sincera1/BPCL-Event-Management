@@ -43,6 +43,8 @@ interface IBpclEventManagementState {
   showDocumentSubmission: boolean;
   showParticipantDetails: boolean;
   selectedParticipantItemId: number | null;
+  eventDetailsInitialTab: string;
+  participantDetailsFromEventDetails: boolean;
   eventList: IEventItem[];
   isLoading: boolean;
   isCancelling: boolean;
@@ -77,13 +79,16 @@ export default class BpclEventManagement
       selectedEventHasSubEvents: false,
       selectedEventHasStages: false,
       showDocumentSubmission: false,
+      selectedParticipantItemId: null,
+      eventDetailsInitialTab: "About",
+      participantDetailsFromEventDetails: false,
       eventList: [],
       isLoading: true,
       isCancelling: false,
       pageSize: 10,
       currentPage: 1,
       showParticipantDetails: false,
-      selectedParticipantItemId: null
+
 
     };
   }
@@ -204,10 +209,14 @@ export default class BpclEventManagement
       selectedEventTitle: event.eventName,
 
       selectedEventHasSubEvents: event.hasSubEvents,
-      selectedEventHasStages: event.hasStages
+      selectedEventHasStages: event.hasStages,
+
+      eventDetailsInitialTab: "About"
     });
 
   };
+
+
 
 
 
@@ -216,7 +225,7 @@ export default class BpclEventManagement
     this.setState({
       showCreateEvent: false,
       showEventDetails: false,
-
+      showDocumentSubmission: false,
       selectedEventId: null,
       selectedEventTitle: '',
 
@@ -388,27 +397,16 @@ export default class BpclEventManagement
         isLoading: true
       });
 
-      // ----------------------------------------
-      // Get current user's participant/team ID
-      // for selected event
-      // ----------------------------------------
-
       const participantItemId =
         await this.eventService
           .getMyParticipantItemForEvent(event.id);
 
-    
-
-      
-
-      // ----------------------------------------
-      // Open Participant / Team Details
-      // ----------------------------------------
-
       this.setState({
+        showEventDetails: false,
         showParticipantDetails: true,
-        selectedParticipantItemId:
-          participantItemId
+        selectedParticipantItemId: participantItemId,
+        eventDetailsInitialTab: "Participants",
+        participantDetailsFromEventDetails: false
       });
 
     } catch (error) {
@@ -429,7 +427,38 @@ export default class BpclEventManagement
       });
 
     }
+  };
 
+  private handleViewParticipantDetails = (
+    participantItemId: number,
+    returnTab: string = "Participants"
+  ): void => {
+    this.setState({
+      showEventDetails: false,
+      showParticipantDetails: true,
+      selectedParticipantItemId: participantItemId,
+      eventDetailsInitialTab: returnTab,
+      participantDetailsFromEventDetails: true
+    });
+  };
+
+  private handleBackFromParticipantDetails = (): void => {
+    if (this.state.participantDetailsFromEventDetails) {
+      this.setState({
+        showParticipantDetails: false,
+        selectedParticipantItemId: null,
+        showEventDetails: true,
+        
+        participantDetailsFromEventDetails: false
+      });
+    } else {
+      this.setState({
+        showParticipantDetails: false,
+        selectedParticipantItemId: null,
+        showEventDetails: false,
+        participantDetailsFromEventDetails: false
+      });
+    }
   };
 
   private getStatusClass = (
@@ -551,6 +580,8 @@ export default class BpclEventManagement
           context={this.props.context}
           onBack={this.handleBack}
           onEdit={this.handleEditEventFromDetails}
+          onViewParticipantDetails={this.handleViewParticipantDetails}
+          initialActiveTab={this.state.eventDetailsInitialTab}
         />
       );
     }
@@ -573,7 +604,7 @@ export default class BpclEventManagement
             this.state.selectedParticipantItemId || 0
           }
           context={this.props.context}
-          onBack={this.handleBack}
+          onBack={this.handleBackFromParticipantDetails}
         />
       );
     }
