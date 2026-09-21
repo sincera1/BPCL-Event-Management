@@ -866,13 +866,10 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
 
   const loadDocumentCounts = async (
     data: Array<
-      IQualifierParticipant |
-      IParticipantStageStatus
+      IQualifierParticipant | IParticipantStageStatus
     >
   ): Promise<void> => {
-
     try {
-
       if (
         !eventId ||
         !isStage ||
@@ -882,8 +879,7 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
         return;
       }
 
-      const currentStage =
-        stages[selectedStage];
+      const currentStage = stages[selectedStage];
 
       if (!currentStage?.Stage) {
         setDocumentCounts({});
@@ -893,46 +889,56 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
       const counts: Record<string, number> = {};
 
       /*
-       * Get unique Team IDs
+       * Get Team IDs.
+       *
+       * For first stage, Team ID can come from item.Id.
+       * For later stages / submitted data, TeamIDId is available.
        */
       const teamIds: number[] = Array.from(
         new Set(
           data
-            .map(
-              (item) => item.TeamIDId
-            )
+            .map((item) => {
+              return Number(item.TeamIDId || item.Id);
+            })
             .filter(
               (id): id is number =>
-                id !== undefined &&
-                id !== null
+                !isNaN(id) && id > 0
             )
         )
       );
 
-      /*
-       * Get document count for every Team
-       */
+      console.log("Document Count - Event ID:", eventId);
+      console.log("Document Count - SubEvent ID:", selectedSubEvent);
+      console.log("Document Count - Stage:", currentStage.Stage);
+      console.log("Document Count - Team IDs:", teamIds);
+
       await Promise.all(
-        teamIds.map(
-          async (teamId) => {
+        teamIds.map(async (teamId) => {
+          const count =
+            await service.getParticipantDocumentCount(
+              eventId,
+              selectedSubEvent,
+              currentStage.Stage,
+              teamId
+            );
 
-            const count =
-              await service.getParticipantDocumentCount(
-                eventId,
-                selectedSubEvent,
-                currentStage.Stage,
-                teamId
-              );
+          console.log(
+            `Document Count - Team ${teamId}:`,
+            count
+          );
 
-            counts[String(teamId)] = count;
-          }
-        )
+          counts[String(teamId)] = count;
+        })
+      );
+
+      console.log(
+        "Final Document Counts:",
+        counts
       );
 
       setDocumentCounts(counts);
 
     } catch (error) {
-
       console.error(
         "Error loading document counts:",
         error
@@ -1629,8 +1635,7 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
                         >
                           {(() => {
 
-                            const teamId =
-                              item.TeamIDId;
+                           const teamId = Number(item.TeamIDId || item.Id);
 
                             if (
                               !teamId ||

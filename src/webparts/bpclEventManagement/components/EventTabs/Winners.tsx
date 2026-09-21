@@ -596,14 +596,14 @@ const Winners: React.FC<IWinnersProps> = ({
      SEND EMAIL
   ======================================================= */
 
-  const handleSendEmail =
-    (): void => {
+  // const handleSendEmail =
+  //   (): void => {
 
-      console.log(
-        "Send Email clicked"
-      );
+  //     console.log(
+  //       "Send Email clicked"
+  //     );
 
-    };
+  //   };
 
 
   /* =======================================================
@@ -702,16 +702,30 @@ const Winners: React.FC<IWinnersProps> = ({
     };
 
 
+
+
   /* =======================================================
-     BANNER TEAM ID
-  ======================================================= */
+   BANNER WINNER ID
+   ======================================================= */
 
-  const winnerBannerTeamId:
-    string =
-    selectedIds.length > 0
-      ? String(selectedIds[0])
-      : "";
+const winnerParticipants: IWinnerRow[] =
+  participants.filter(
+    (participant: IWinnerRow) =>
+      participant.ParticipantOrTeamStatus
+        ?.trim()
+        .toLowerCase() === "winner"
+  );
 
+const winnerBannerIds: string =
+  winnerParticipants
+    .map((participant: IWinnerRow) =>
+      isTeam
+        ? String(participant.TeamId || "")
+        : String(participant.Id)
+    )
+    .filter((id: string) => id !== "")
+    .map((id: string) => `#${id}`)
+    .join(", ");
 
   /* =======================================================
      RENDER
@@ -769,8 +783,8 @@ const Winners: React.FC<IWinnersProps> = ({
                 }
               >
                 {
-                  winnerBannerTeamId
-                    ? `#${winnerBannerTeamId}`
+                  winnerBannerIds
+                    ? winnerBannerIds
                     : ""
                 }
               </span>
@@ -803,7 +817,7 @@ const Winners: React.FC<IWinnersProps> = ({
           </div>
 
 
-          <Button
+          {/* <Button
             type="button"
             className={
               styles.sendEmailButton
@@ -813,7 +827,7 @@ const Winners: React.FC<IWinnersProps> = ({
             }
           >
             Send Email
-          </Button>
+          </Button> */}
 
         </div>
 

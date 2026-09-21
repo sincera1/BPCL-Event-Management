@@ -614,39 +614,31 @@ export default class QualifiersService {
         stage: string,
         teamId: number | undefined
     ): Promise<number> {
-
         try {
-
             if (!eventId || !stage || !teamId) {
                 return 0;
             }
 
+            // Base filter
             let filter =
                 `EventIDId eq ${eventId}` +
                 ` and TeamIDId eq ${teamId}` +
                 ` and Stages eq '${stage.replace(/'/g, "''")}'`;
 
-            /*
-             * SubEvent filter
-             *
-             * For SubEvent scenarios:
-             * EventID + SubEventID + TeamID + Stage
-             */
+            // Add SubEvent filter ONLY when SubEventID actually exists
             if (
                 subEventId !== undefined &&
-                subEventId !== null
+                subEventId !== null &&
+                Number(subEventId) > 0
             ) {
-
-                filter +=
-                    ` and SubEventIDId eq ${subEventId}`;
-
+                filter += ` and SubEventIDId eq ${Number(subEventId)}`;
             }
+
+            console.log("Document Count Filter:", filter);
 
             const items: any[] =
                 await sp.web.lists
-                    .getByTitle(
-                        "Corp_SL_EventParticipantDocument"
-                    )
+                    .getByTitle("Corp_SL_EventParticipantDocument")
                     .items
                     .select(
                         "Id",
@@ -658,10 +650,11 @@ export default class QualifiersService {
                     .filter(filter)
                     .get();
 
+            console.log("Document Count Result:", items.length, items);
+
             return items.length;
 
         } catch (error) {
-
             console.error(
                 "Error getting participant document count:",
                 error
