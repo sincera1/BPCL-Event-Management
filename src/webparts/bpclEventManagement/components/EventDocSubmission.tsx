@@ -56,18 +56,20 @@ interface IDocumentSubmissionProps {
 ===================================================== */
 
 interface IStageStatusMap {
-  [stageId: number]: IStageSubmissionStatus;
-}
+  [stageId: number]:
+    IStageSubmissionStatus;
 
+}
 
 /* =====================================================
    FILE ERROR MAP
 ===================================================== */
 
 interface IFileErrorMap {
-  [stageId: number]: string;
-}
+  [stageId: number]:
+    string;
 
+}
 
 /* =====================================================
    COMPONENT
@@ -77,11 +79,9 @@ const EventSubmitDocs:
   React.FC<IDocumentSubmissionProps> =
   (props) => {
 
-
     /* =================================================
        SELECTED FILES
     ================================================= */
-
     const [
       selectedFiles,
       setSelectedFiles
@@ -90,11 +90,9 @@ const EventSubmitDocs:
         [stageId: number]: File[];
       }>({});
 
-
     /* =================================================
        EVENT DETAILS
     ================================================= */
-
     const [
       eventDetails,
       setEventDetails
@@ -103,11 +101,9 @@ const EventSubmitDocs:
         null
       );
 
-
     /* =================================================
        ACTIVE STAGES
     ================================================= */
-
     const [
       activeStages,
       setActiveStages
@@ -115,8 +111,6 @@ const EventSubmitDocs:
       useState<IActiveEventStage[]>(
         []
       );
-
-
     /* =================================================
        STAGE SUBMISSION STATUS
     ================================================= */
@@ -128,7 +122,6 @@ const EventSubmitDocs:
       useState<IStageStatusMap>(
         {}
       );
-
 
     /* =================================================
        FILE VALIDATION ERRORS
@@ -142,7 +135,6 @@ const EventSubmitDocs:
         {}
       );
 
-
     /* =================================================
        PAGE LOADING
     ================================================= */
@@ -154,9 +146,7 @@ const EventSubmitDocs:
       useState<boolean>(
         false
       );
-
-
-    const showPageLoader = false;
+    const showPageLoader =false;
 
 
     /* =================================================
@@ -188,7 +178,6 @@ const EventSubmitDocs:
     /* =================================================
        SUCCESS MESSAGE
     ================================================= */
-
     const [
       successMessage,
       setSuccessMessage
@@ -213,15 +202,14 @@ const EventSubmitDocs:
 
     /* =================================================
        SERVICES
+
+       Keep service instances stable for this
+       component instance.
     ================================================= */
 
-    const aboutService =
-      new AboutService();
+    const aboutService = new AboutService();
 
-
-    const stageSubmissionService =
-      new StageSubmissionService();
-
+    const stageSubmissionService = new StageSubmissionService();
 
     /* =================================================
        LOAD DATA
@@ -229,9 +217,7 @@ const EventSubmitDocs:
 
     const loadData =
       async (): Promise<void> => {
-
         setIsDataLoaded(false);
-
 
         if (
           !props.eventId ||
@@ -240,18 +226,11 @@ const EventSubmitDocs:
 
           setIsLoading(false);
           setIsDataLoaded(true);
-
           return;
-
         }
-
-
         try {
-
           setIsLoading(true);
-
           setErrorMessage("");
-
 
           /* =========================================
              LOAD EVENT
@@ -264,16 +243,13 @@ const EventSubmitDocs:
                 props.eventId
               );
 
-
           setEventDetails(
             eventData
           );
 
-
           /* =========================================
              LOAD ACTIVE STAGES
           ========================================= */
-
           const stages:
             IActiveEventStage[] =
             await stageSubmissionService
@@ -281,11 +257,9 @@ const EventSubmitDocs:
                 props.eventId
               );
 
-
           /* =========================================
-             LOAD SUBMISSION STATUS
+             LOAD STATUS
           ========================================= */
-
           const statusMap:
             IStageStatusMap =
             await stageSubmissionService
@@ -294,9 +268,8 @@ const EventSubmitDocs:
                 stages
               );
 
-
           /* =========================================
-             CHECK EVENT TYPE
+             EVENT TYPE
           ========================================= */
 
           const eventParticipantType =
@@ -310,111 +283,25 @@ const EventSubmitDocs:
 
 
           const isTeamEvent =
-            eventParticipantType === "team";
+            eventParticipantType ===
+            "team";
 
 
           /* =========================================
-             FILTER STAGES
+             FILTER VISIBLE STAGES
+
+             INDIVIDUAL:
+               Show all active stages.
+
+             TEAM:
+               No SubEvent -> Show.
+
+               Has SubEvent ->
+               Show only when registered.
           ========================================= */
 
-          // const visibleStages =
-          //   isTeamEvent
-          //     ?
-          //     stages.filter(
-          //       (
-          //         stage
-          //       ) => {
-
-          //         const status =
-          //           statusMap[
-          //             stage.Id
-          //           ];
-
-
-          //         return (
-          //           status
-          //             ?.IsRegisteredForSubEvent ===
-          //           true
-          //         );
-
-          //       }
-          //     )
-          //     :
-          //     stages;
-/* =========================================
-   FILTER STAGES
-
-   RULES:
-
-   Individual Event:
-   - Show all active stages.
-
-   Team Event:
-   - Stage WITHOUT SubEvent:
-       Show directly.
-
-   - Stage WITH SubEvent:
-       Show only when current user is
-       registered for that SubEvent.
-========================================= */
-
-const visibleStages =
-  isTeamEvent
-    ?
-    stages.filter(
-      (
-        stage
-      ) => {
-
-        /* =====================================
-           NO SUB EVENT
-
-           Team event without subevent should
-           still allow document submission.
-        ===================================== */
-
-        if (
-          !stage.SubEventId ||
-          stage.SubEventId <= 0
-        ) {
-
-          console.log(
-            "Team event stage WITHOUT SubEvent. Showing stage:",
-            {
-              StageId: stage.Id,
-              StageName: stage.StageName
-            }
-          );
-
-          return true;
-        }
-
-
-        /* =====================================
-           SUB EVENT EXISTS
-
-           Check current user's registration.
-        ===================================== */
-
-        const status =
-          statusMap[
-            stage.Id
-          ];
-
-
-        return (
-          status?.IsRegisteredForSubEvent ===
-          true
-        );
-      }
-    )
-    :
-    stages;
-
-          /* =========================================
-             SET DATA
-          ========================================= */
-
+       
+      const visibleStages = stages;
           setActiveStages(
             visibleStages
           );
@@ -424,19 +311,6 @@ const visibleStages =
             statusMap
           );
 
-
-          /* =========================================
-             DEBUG LOGS
-          ========================================= */
-
-          console.log(
-            "=========================================="
-          );
-
-          console.log(
-            "Event Details:",
-            eventData
-          );
 
           console.log(
             "Event Participant Type:",
@@ -458,16 +332,6 @@ const visibleStages =
             "Visible Stages:",
             visibleStages
           );
-
-          console.log(
-            "Stage Status:",
-            statusMap
-          );
-
-          console.log(
-            "=========================================="
-          );
-
 
         }
         catch (
@@ -492,7 +356,6 @@ const visibleStages =
           setIsDataLoaded(true);
 
         }
-
       };
 
 
@@ -501,9 +364,7 @@ const visibleStages =
     ================================================= */
 
     useEffect(() => {
-
       loadData();
-
     }, [
       props.eventId
     ]);
@@ -518,30 +379,24 @@ const visibleStages =
         dateValue?: string
       ): string => {
 
-        if (!dateValue) {
+        if (
+          !dateValue
+        ) {
 
           return "";
-
         }
-
-
         const date =
           new Date(
             dateValue
           );
-
 
         if (
           isNaN(
             date.getTime()
           )
         ) {
-
           return dateValue;
-
         }
-
-
         return date.toLocaleDateString(
           "en-GB",
           {
@@ -550,7 +405,6 @@ const visibleStages =
             year: "numeric"
           }
         );
-
       };
 
 
@@ -568,7 +422,6 @@ const visibleStages =
             stageId
           ] || []
         );
-
       };
 
 
@@ -582,26 +435,15 @@ const visibleStages =
         e: React.ChangeEvent<HTMLInputElement>
       ): void => {
 
-
         if (
           !e.target.files ||
           e.target.files.length === 0
         ) {
 
           return;
-
         }
-
-
         setErrorMessage("");
-
         setSuccessMessage("");
-
-
-        /* =============================================
-           CLEAR ONLY THIS STAGE FILE ERROR
-        ============================================= */
-
         setFileErrors(
           (
             previousErrors
@@ -635,9 +477,9 @@ const visibleStages =
           newFiles.length;
 
 
-        /* =============================================
-           VALIDATE UPLOAD LIMIT
-        ============================================= */
+        /* =========================================
+           UPLOAD LIMIT
+        ========================================= */
 
         if (
           uploadLimit > 0 &&
@@ -657,22 +499,23 @@ const visibleStages =
               previousErrors
             ) => ({
               ...previousErrors,
+
               [stage.Id]:
                 `You can select only ${remainingFiles} file(s). Maximum allowed is ${uploadLimit}.`
             })
           );
 
 
-          e.target.value = "";
+          e.target.value =
+            "";
 
           return;
-
         }
 
 
-        /* =============================================
-           VALIDATE FILE SIZE
-        ============================================= */
+        /* =========================================
+           FILE SIZE
+        ========================================= */
 
         const maxFileSizeMB =
           Number(
@@ -709,24 +552,24 @@ const visibleStages =
                 previousErrors
               ) => ({
                 ...previousErrors,
+
                 [stage.Id]:
                   `"${oversizedFile.name}" exceeds the maximum file size of ${maxFileSizeMB} MB.`
               })
             );
 
 
-            e.target.value = "";
+            e.target.value =
+              "";
 
             return;
-
           }
-
         }
 
 
-        /* =============================================
-           DUPLICATE FILE CHECK
-        ============================================= */
+        /* =========================================
+           DUPLICATE FILE
+        ========================================= */
 
         const duplicateFile =
           newFiles.find(
@@ -754,22 +597,23 @@ const visibleStages =
               previousErrors
             ) => ({
               ...previousErrors,
+
               [stage.Id]:
                 `"${duplicateFile.name}" is already selected.`
             })
           );
 
 
-          e.target.value = "";
+          e.target.value =
+            "";
 
           return;
-
         }
 
 
-        /* =============================================
+        /* =========================================
            ADD FILES
-        ============================================= */
+        ========================================= */
 
         setSelectedFiles(
           (
@@ -794,8 +638,8 @@ const visibleStages =
         );
 
 
-        e.target.value = "";
-
+        e.target.value =
+          "";
       };
 
 
@@ -814,7 +658,6 @@ const visibleStages =
           (
             previousFiles
           ) => {
-
 
             const currentFiles =
               previousFiles[
@@ -841,33 +684,30 @@ const visibleStages =
                 updatedFiles
 
             };
-
           }
         );
 
 
         setErrorMessage("");
-
-
         setFileErrors(
           (
             previousErrors
           ) => ({
             ...previousErrors,
-            [stageId]: ""
+
+            [stageId]:
+              ""
           })
         );
-
       };
 
 
     /* =================================================
-       CHECK IF ANY FILE IS SELECTED
+       CHECK ANY FILE SELECTED
     ================================================= */
 
     const hasAnySelectedFiles =
       (): boolean => {
-
 
         return Object.keys(
           selectedFiles
@@ -879,56 +719,61 @@ const visibleStages =
               Number(stageId)
             ]?.length > 0
         );
-
       };
 
 
     /* =================================================
-       CHECK IF ALL AVAILABLE STAGES SUBMITTED
+       CHECK AVAILABLE STAGES
+
+       IMPORTANT:
+
+       A stage is available when:
+
+       1. It has NO SubEvent
+          AND is not already submitted.
+
+       OR
+
+       2. It HAS SubEvent
+          AND user is registered
+          AND it is not already submitted.
+
+       An unregistered SubEvent must NOT result
+       in "already submitted".
     ================================================= */
 
-   const hasAvailableStage =
-  (): boolean => {
+  const hasAvailableStage = (): boolean => {
+                return activeStages.some((stage) => {
+                  const status = stageStatuses[stage.Id];
 
-    return activeStages.some(
-      (
-        stage
-      ) => {
+                  const hasSubEvent =
+                    !!stage.SubEventId &&
+                    stage.SubEventId > 0;
 
-        const status =
-          stageStatuses[
-            stage.Id
-          ];
+                  const isRegistered = hasSubEvent
+                    ? status?.IsRegisteredForSubEvent === true
+                    : status?.IsRegisteredForEvent === true;
 
-        const hasSubEvent =
-          !!stage.SubEventId &&
-          stage.SubEventId > 0;
-
-        const isRegistered =
-          !hasSubEvent ||
-          status?.IsRegisteredForSubEvent === true;
-
-        return (
-          isRegistered &&
-          status?.IsAlreadySubmitted !== true
-        );
-      }
-    );
-  };
-
-
+                  if (!isRegistered) {
+                    return false;
+                  }
+                  return status?.IsAlreadySubmitted !== true;
+                });
+              };
+              
     /* =================================================
-       HANDLE SINGLE SUBMIT BUTTON
+       HANDLE SUBMIT
     ================================================= */
 
     const handleSubmit =
       async (): Promise<void> => {
 
-
         setErrorMessage("");
-
         setSuccessMessage("");
 
+        /* =========================================
+           VALIDATE EVENT
+        ========================================= */
 
         if (
           !props.eventId ||
@@ -938,57 +783,44 @@ const visibleStages =
           setErrorMessage(
             "Invalid Event ID."
           );
-
           return;
-
         }
 
 
-        /* =============================================
-           CHECK FILE
-        ============================================= */
+        /* =========================================
+           VALIDATE FILE
+        ========================================= */
 
         if (
           !hasAnySelectedFiles()
         ) {
-
           setErrorMessage(
             "Please select at least one document."
           );
-
           return;
-
         }
-
-
         try {
-
           setIsSubmitting(
             true
           );
 
 
-          /* ===========================================
-             LOOP THROUGH ALL STAGES
-          =========================================== */
+          /* =======================================
+             LOOP THROUGH STAGES
+          ======================================= */
 
           for (
             const stage of activeStages
           ) {
-
-
             const files =
               getFilesForStage(
                 stage.Id
               );
-
-
             if (
               files.length === 0
             ) {
 
               continue;
-
             }
 
 
@@ -998,27 +830,58 @@ const visibleStages =
               ];
 
 
+            const hasSubEvent =
+              !!stage.SubEventId &&
+              stage.SubEventId > 0;
+
+
+            /* =====================================
+               REGISTRATION CHECK
+
+               NO SUB EVENT:
+                 Do NOT check
+                 IsRegisteredForSubEvent.
+
+               HAS SUB EVENT:
+                 Must be registered.
+            ===================================== */
+
             if (
-              !status?.IsRegisteredForSubEvent
+              hasSubEvent &&
+              status
+                ?.IsRegisteredForSubEvent !==
+              true
             ) {
 
               throw new Error(
-                `You are not registered for ${stage.SubEventTitle || "this Sub Event"}.`
-              );
 
+                `You are not registered for ${stage.SubEventTitle || "this Sub Event"}. Document submission is not allowed.`
+
+              );
             }
 
+
+            /* =====================================
+               ALREADY SUBMITTED
+
+               Only check this after registration.
+            ===================================== */
 
             if (
               status?.IsAlreadySubmitted
             ) {
 
               throw new Error(
-                `You have already submitted the document for ${stage.SubEventTitle || "this Sub Event"}.`
-              );
 
+                `You have already submitted the document${stage.SubEventTitle ? ` for ${stage.SubEventTitle}` : ""}.`
+
+              );
             }
 
+
+            /* =====================================
+               UPLOAD
+            ===================================== */
 
             await stageSubmissionService
               .uploadStageDocuments(
@@ -1026,29 +889,26 @@ const visibleStages =
                 stage,
                 files
               );
-
           }
 
 
-          /* ===========================================
+          /* =======================================
+             CLEAR SELECTED FILES
+          ======================================= */
+
+          setSelectedFiles({});
+          /* =======================================
              SUCCESS
-          =========================================== */
+          ======================================= */
 
           setSuccessMessage(
             "Document submitted successfully."
           );
 
 
-          /* ===========================================
-             CLEAR FILES
-          =========================================== */
-
-          setSelectedFiles({});
-
-
-          /* ===========================================
+          /* =======================================
              RELOAD STATUS
-          =========================================== */
+          ======================================= */
 
           await loadData();
 
@@ -1062,7 +922,6 @@ const visibleStages =
             error
           );
 
-
           setErrorMessage(
             error?.message ||
             "Document submission failed. Please try again."
@@ -1074,9 +933,7 @@ const visibleStages =
           setIsSubmitting(
             false
           );
-
         }
-
       };
 
 
@@ -1092,20 +949,16 @@ const visibleStages =
       return (
 
         <div className="text-center p-5">
-
           <div
             className="spinner-border"
             role="status"
           />
-
           <p className="mt-3">
             Loading event details...
           </p>
 
         </div>
-
       );
-
     }
 
 
@@ -1114,18 +967,14 @@ const visibleStages =
     ================================================= */
 
     return (
-
       <Container fluid>
-
         <Row>
-
 
           {/* =========================================
               LEFT SIDE
           ========================================= */}
 
           <Col md={6}>
-
             <div
               className={
                 `p-4 ${styles.leftContent}`
@@ -1156,23 +1005,18 @@ const visibleStages =
                   />
 
                 </button>
-
-
                 <h2
                   className={
                     styles.ModalTitleName
                   }
                 >
-
                   {
                     eventDetails?.EventTitle ||
                     ""
                   }
 
                 </h2>
-
               </div>
-
 
               <div
                 className="
@@ -1181,14 +1025,12 @@ const visibleStages =
                   justify-content-between
                 "
               >
-
                 <div
                   className="
                     flex-grow-1
                     pe-4
                   "
                 >
-
                   <p
                     className={
                       `${styles.ModalDescription} mt-2`
@@ -1204,7 +1046,6 @@ const visibleStages =
 
                 </div>
 
-
                 <div
                   className="flex-shrink-0"
                 >
@@ -1216,22 +1057,18 @@ const visibleStages =
                       styles.modalImage
                     }
                   />
-
                 </div>
-
               </div>
 
 
               {/* =====================================
                   EVENT DETAILS
               ===================================== */}
-
               <div
                 className={
                   styles.customCard
                 }
               >
-
                 <h4
                   className={
                     styles.sectionEventTitle
@@ -1240,9 +1077,7 @@ const visibleStages =
                   Event Details
                 </h4>
 
-
                 <div className="row g-3">
-
 
                   <div
                     className="
@@ -1250,7 +1085,6 @@ const visibleStages =
                       col-md-5
                     "
                   >
-
                     <div
                       className={
                         styles.detailItem
@@ -1271,14 +1105,11 @@ const visibleStages =
                         />
 
                       </div>
-
-
                       <div>
 
                         <small>
                           Event Date
                         </small>
-
 
                         <h6>
 
@@ -1293,13 +1124,9 @@ const visibleStages =
                           )}
 
                         </h6>
-
                       </div>
-
                     </div>
-
                   </div>
-
 
                   <div
                     className="
@@ -1328,15 +1155,10 @@ const visibleStages =
                         />
 
                       </div>
-
-
                       <div>
-
                         <small>
                           Registration Date
                         </small>
-
-
                         <h6>
 
                           {formatDate(
@@ -1350,13 +1172,9 @@ const visibleStages =
                           )}
 
                         </h6>
-
                       </div>
-
                     </div>
-
                   </div>
-
 
                   <div
                     className="
@@ -1388,12 +1206,9 @@ const visibleStages =
 
 
                       <div>
-
                         <small>
                           Event Type
                         </small>
-
-
                         <h6>
 
                           {
@@ -1402,20 +1217,15 @@ const visibleStages =
                           }
 
                         </h6>
-
                       </div>
-
                     </div>
-
                   </div>
-
                 </div>
-
               </div>
 
 
               {/* =====================================
-                  RULES & REGULATIONS
+                  RULES
               ===================================== */}
 
               <div
@@ -1543,7 +1353,6 @@ const visibleStages =
           ========================================= */}
 
           <Col md={6}>
-
             <div
               className={
                 `align-items-center p-3 ${styles.rightContent}`
@@ -1560,13 +1369,11 @@ const visibleStages =
                   styles.headingWrapper
                 }
               >
-
                 <div
                   className={
                     styles.line
                   }
                 />
-
 
                 <h2
                   className={
@@ -1575,14 +1382,11 @@ const visibleStages =
                 >
                   Submit Documents
                 </h2>
-
-
                 <div
                   className={
                     styles.line
                   }
                 />
-
               </div>
 
 
@@ -1670,9 +1474,14 @@ const visibleStages =
                 activeStages.map(
 
                   (
-                    stage: IActiveEventStage,
-                    stageIndex: number
+                    stage:
+                      IActiveEventStage,
+
+                    stageIndex:
+                      number
+
                   ) => {
+
 
                     const stageFiles =
                       getFilesForStage(
@@ -1690,9 +1499,22 @@ const visibleStages =
                       !!stage.SubEventId &&
                       stage.SubEventId > 0;
 
-                    const isRegistered =
-                      !hasSubEvent ||
-                      status?.IsRegisteredForSubEvent === true;
+
+                    /*
+                       NO SUB EVENT:
+                       Always considered registered
+                       from SubEvent perspective.
+                    */
+
+                    // const isRegistered =
+                    //   !hasSubEvent ||
+                    //   status
+                    //     ?.IsRegisteredForSubEvent === true;
+
+                        const isRegistered =
+                              hasSubEvent
+                                ? status?.IsRegisteredForSubEvent === true
+                                : status?.IsRegisteredForEvent === true;
 
 
                     const isAlreadySubmitted =
@@ -1723,9 +1545,9 @@ const visibleStages =
                       >
 
 
-                        {/* =============================
+                        {/* =================================
                             EVENT → SUB EVENT → STAGE
-                        ============================= */}
+                        ================================= */}
 
                         <p
                           className={
@@ -1788,17 +1610,22 @@ const visibleStages =
                         </p>
 
 
-                        {/* =============================
+                        {/* =================================
                             NOT REGISTERED
-                        ============================= */}
 
-                        {
+                            Only shown when a SubEvent
+                            actually exists.
+                        ================================= */}
+
+                        {/* {
                           hasSubEvent &&
                           !isRegistered && (
+
                             <Alert
                               variant="warning"
                               className="mt-3"
                             >
+
                               <i
                                 className="
                                   bi
@@ -1807,17 +1634,82 @@ const visibleStages =
                                 "
                               />
 
-                              You are not registered for this Sub Event.
-                              Document submission is not allowed.
+                              You are not registered for this
+                              Sub Event. Document submission is
+                              not allowed.
 
                             </Alert>
+
                           )
-                        }
+                        } */}
+
+                          {
+                            !isRegistered && (
+
+                              <Alert
+                                variant="warning"
+                                className="mt-3"
+                              >
+
+                                <i
+                                  className="
+                                    bi
+                                    bi-info-circle-fill
+                                    me-2
+                                  "
+                                />
+
+                                {
+                                  hasSubEvent
+                                    ? `You are not registered for ${
+                                        stage.SubEventTitle || "this Sub Event"
+                                      }. Document submission is not allowed.`
+                                    : "You are not registered for this Event. Document submission is not allowed."
+                                }
+
+                              </Alert>
+
+                            )
+                          }
+
+                        {/* =================================
+                            ALREADY SUBMITTED
+
+                            IMPORTANT:
+                            Do NOT show this for an
+                            unregistered SubEvent.
+                        ================================= */}
+
+                    {
+                      isRegistered &&
+                      isAlreadySubmitted &&
+                      !successMessage && (
+
+                        <Alert
+                          variant="success"
+                          className="mt-3"
+                        >
+
+                          <i
+                            className="
+                              bi
+                              bi-check-circle-fill
+                              me-2
+                            "
+                          />
+
+                          You have already submitted the
+                          document.
+
+                        </Alert>
+
+                      )
+                    }
 
 
-                        {/* =============================
+                        {/* =================================
                             UPLOAD SECTION
-                        ============================= */}
+                        ================================= */}
 
                         {
                           isRegistered &&
@@ -1825,9 +1717,10 @@ const visibleStages =
 
                             <>
 
-                              {/* =========================
+
+                              {/* ===========================
                                   STAGE INFORMATION
-                              ========================= */}
+                              =========================== */}
 
                               <div
                                 className="mb-3"
@@ -1902,9 +1795,9 @@ const visibleStages =
                               </div>
 
 
-                              {/* =========================
+                              {/* ===========================
                                   FILE UPLOAD
-                              ========================= */}
+                              =========================== */}
 
                               <Row>
 
@@ -1973,7 +1866,9 @@ const visibleStages =
                                     ===================== */}
 
                                     {
-                                      fileErrors[stage.Id] && (
+                                      fileErrors[
+                                        stage.Id
+                                      ] && (
 
                                         <Alert
                                           variant="danger"
@@ -2133,9 +2028,9 @@ const visibleStages =
                         }
 
 
-                        {/* =============================
+                        {/* =================================
                             SEPARATOR
-                        ============================= */}
+                        ================================= */}
 
                         {
                           stageIndex <
@@ -2250,15 +2145,22 @@ const visibleStages =
 
               {/* =====================================
                   ALL SUBMITTED MESSAGE
+
+                  IMPORTANT:
+
+                  Show ONLY when registered/available
+                  stages all have submissions.
+
+                  Do NOT show this merely because an
+                  unregistered SubEvent exists.
               ===================================== */}
 
-              {
+              {/* {
                 isDataLoaded &&
                 activeStages.length > 0 &&
-                (
-                  successMessage ||
-                  !hasAvailableStage()
-                ) && (
+                areAllStagesSubmitted() &&
+                !hasUnregisteredSubEventStage() &&
+                !successMessage && (
 
                   <div
                     className="
@@ -2269,10 +2171,44 @@ const visibleStages =
 
                     <Alert
                       variant="success"
-                      dismissible={
-                        !!successMessage
-                      }
+                    >
 
+                      <i
+                        className="
+                          bi
+                          bi-check-circle-fill
+                          me-2
+                        "
+                      />
+
+                      You have already submitted the
+                      document.
+
+                    </Alert>
+
+                  </div>
+
+                )
+              } */}
+
+
+              {/* =====================================
+                  SUCCESS MESSAGE
+              ===================================== */}
+
+              {
+                successMessage && (
+
+                  <div
+                    className="
+                      text-center
+                      mt-4
+                    "
+                  >
+
+                    <Alert
+                      variant="success"
+                      dismissible
                       onClose={() =>
                         setSuccessMessage("")
                       }
@@ -2287,8 +2223,7 @@ const visibleStages =
                       />
 
                       {
-                        successMessage ||
-                        "You have already submitted the document."
+                        successMessage
                       }
 
                     </Alert>
@@ -2308,7 +2243,6 @@ const visibleStages =
       </Container>
 
     );
-
   };
 
 

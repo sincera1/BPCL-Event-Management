@@ -5,7 +5,6 @@ import "@pnp/sp/lists";
 import "@pnp/sp/items";
 import "@pnp/sp/attachments";
 
-
 // ======================================================
 // PEOPLE PICKER
 // ======================================================
@@ -16,7 +15,6 @@ export interface IEventOrganiser {
   EMail: string;
 }
 
-
 // ======================================================
 // IMAGE
 // ======================================================
@@ -25,7 +23,6 @@ export interface IEventImage {
   fileName: string;
   serverRelativeUrl: string;
 }
-
 
 // ======================================================
 // EVENT ATTACHMENT
@@ -36,114 +33,104 @@ export interface IEventAttachment {
   ServerRelativeUrl: string;
 }
 
-
 // ======================================================
 // SUB EVENT
 // ======================================================
 
 export interface IExistingSubEvent {
   Id: number;
-
   SubEventTitle: string;
-
   SubEventDescription: string;
-
   MinimumMembersRequired: number;
-
   Event_ID?: number;
-
   Event_Title: string;
-
   SubEventStageStatus: string;
-
   HasStages: boolean;
 }
-
 
 // ======================================================
 // EVENT DETAILS
 // ======================================================
 
 export interface IEventDetails {
-
   Id: number;
-
   EventTitle: string;
-
   EventDescription: string;
 
-
+  // ====================================================
   // EVENT DATE
+  // ====================================================
 
   EventStartDate: string;
-
   EventEndDate: string;
 
-
+  // ====================================================
   // PARTICIPANT DETAILS
+  // ====================================================
 
   EventParticipantType: string;
-
   HasSubEvents: boolean;
 
-
+  // ====================================================
   // RULES
+  // ====================================================
 
   RulesAndRegualtionType: string;
-
   RulesAndRegualtionText: string;
 
-
+  // ====================================================
   // REGISTRATION
+  // ====================================================
 
   RegistrationStartDate: string;
-
   RegistrationEndDate: string;
 
-
+  // ====================================================
   // TEAM DETAILS
+  // ====================================================
 
   MaxTeamMembers: number;
-
   MandatoryMember: number;
 
-
+  // ====================================================
   // EVENT ORGANISER - PEOPLE PICKER
+  // ====================================================
 
   EventOrganiser?: IEventOrganiser;
 
-
+  // ====================================================
   // ORGANIZER DETAILS
+  // ====================================================
 
   EventOrganizerDepartment: string;
-
   EventOrganizerEmail: string;
-
   EventOrganizerPhoneNumber: string;
 
-
+  // ====================================================
   // STATUS
+  // ====================================================
 
   OverAllEventStatus: string;
 
-
+  // ====================================================
   // IMAGES
+  // ====================================================
 
   RulesAndRegualtionImage?: IEventImage;
-
   EventBannerImage?: IEventImage;
 
-
+  // ====================================================
   // SUB EVENTS
+  // ====================================================
 
   SubEvents: IExistingSubEvent[];
 
-
+  // ====================================================
   // ATTACHMENTS
+  // ====================================================
 
   Attachments: IEventAttachment[];
 }
-
 
 // ======================================================
 // ABOUT SERVICE
@@ -151,17 +138,15 @@ export interface IEventDetails {
 
 export default class AboutService {
 
-
   // ====================================================
   // LIST NAMES
   // ====================================================
 
-  private eventListName =
-    "Corp_SL_EventManagement";
+  private eventListName = "Corp_SL_EventManagement";
 
-  private subEventListName =
-    "Corp_SL_SubEventManagement";
+  private subEventListName ="Corp_SL_SubEventManagement";
 
+  private eventParticipantListName = "Corp_SL_EventParticipants";
 
   // ====================================================
   // GET RULES AND REGULATION IMAGE
@@ -178,54 +163,37 @@ export default class AboutService {
         return undefined;
       }
 
-
       /*
-        SharePoint Image Column can return
-        JSON string or object.
-      */
+       * SharePoint Image Column can return
+       * JSON string or object.
+       */
 
       let imageData: any = imageValue;
-
-
       if (typeof imageValue === "string") {
-
         try {
-
-          imageData =
-            JSON.parse(imageValue);
-
+          imageData = JSON.parse(imageValue);
         } catch {
-
           return undefined;
-
         }
-
       }
-
 
       const fileName =
         imageData.fileName ||
         imageData.FileName ||
         "";
 
-
       const serverRelativeUrl =
         imageData.serverRelativeUrl ||
         imageData.ServerRelativeUrl ||
         "";
 
-
       if (!fileName && !serverRelativeUrl) {
         return undefined;
       }
 
-
       return {
-
         fileName,
-
         serverRelativeUrl
-
       };
 
     } catch (error) {
@@ -234,13 +202,9 @@ export default class AboutService {
         "Error getting Rules image:",
         error
       );
-
       return undefined;
-
     }
-
   }
-
 
   // ====================================================
   // GET EVENT BANNER IMAGE
@@ -252,54 +216,33 @@ export default class AboutService {
   ): Promise<IEventImage | undefined> {
 
     try {
-
       if (!imageValue) {
         return undefined;
       }
-
-
       let imageData: any = imageValue;
-
-
       if (typeof imageValue === "string") {
-
         try {
-
-          imageData =
-            JSON.parse(imageValue);
-
+          imageData = JSON.parse(imageValue);
         } catch {
-
           return undefined;
-
         }
-
       }
-
-
       const fileName =
         imageData.fileName ||
         imageData.FileName ||
         "";
-
-
       const serverRelativeUrl =
         imageData.serverRelativeUrl ||
         imageData.ServerRelativeUrl ||
         "";
 
-
       if (!fileName && !serverRelativeUrl) {
         return undefined;
       }
 
-
       return {
-
         fileName,
-
         serverRelativeUrl
-
       };
 
     } catch (error) {
@@ -310,11 +253,8 @@ export default class AboutService {
       );
 
       return undefined;
-
     }
-
   }
-
 
   // ====================================================
   // GET EVENT DETAILS
@@ -326,14 +266,15 @@ export default class AboutService {
 
     try {
 
-      if (!eventId || eventId <= 0) {
+      if (
+        !eventId ||
+        eventId <= 0
+      ) {
 
         throw new Error(
           "Invalid Event ID."
         );
-
       }
-
 
       // ==================================================
       // 1. GET EVENT DETAILS
@@ -347,67 +288,32 @@ export default class AboutService {
           .items
           .getById(eventId)
           .select(
-
             "Id",
-
             "EventTitle",
-
             "EventDescription",
-
             "EventStartDate",
-
             "EventEndDate",
-
             "EventParticipantType",
-
             "HasSubEvents",
-
             "RulesAndRegualtionType",
-
             "RulesAndRegualtionText",
-
             "RegistrationStartDate",
-
             "RegistrationEndDate",
-
             "MaxTeamMembers",
-
             "MandatoryMember",
-
             "EventOrganizerDepartment",
-
             "EventOrganizerEmail",
-
             "EventOrganizerPhoneNumber",
-
             "OverAllEventStatus",
-
-
-            // ==========================================
-            // PEOPLE PICKER
-            // ==========================================
-
             "EventOrganiser/Id",
-
             "EventOrganiser/Title",
-
             "EventOrganiser/EMail",
-
-
-            // ==========================================
-            // IMAGE COLUMNS
-            // ==========================================
-
             "RulesAndRegualtionImage",
-
             "EventBannerImage"
-
           )
           .expand(
             "EventOrganiser"
-          )
-          ();
-
+          )();
 
       // ==================================================
       // 2. GET RULES IMAGE
@@ -415,13 +321,9 @@ export default class AboutService {
 
       const rulesImage =
         await this.getRulesAndRegulationImage(
-
           item.RulesAndRegualtionImage,
-
           item.Id
-
         );
-
 
       // ==================================================
       // 3. GET EVENT BANNER IMAGE
@@ -429,13 +331,9 @@ export default class AboutService {
 
       const eventBannerImage =
         await this.getEventBannerImage(
-
           item.EventBannerImage,
-
           item.Id
-
         );
-
 
       // ==================================================
       // 4. GET SHAREPOINT ITEM ATTACHMENTS
@@ -450,12 +348,10 @@ export default class AboutService {
           .getById(eventId)
           .attachmentFiles();
 
-
       console.log(
         "ALL SHAREPOINT ITEM ATTACHMENTS:",
         attachmentItems
       );
-
 
       // ==================================================
       // 5. CREATE SET OF IMAGE FILES TO EXCLUDE
@@ -464,64 +360,49 @@ export default class AboutService {
       const excludedFileNames =
         new Set<string>();
 
-
       const excludedUrls =
         new Set<string>();
 
-
-      // ================================================
+      // ==================================================
       // RULES IMAGE
-      // ================================================
+      // ==================================================
 
       if (rulesImage) {
-
         if (rulesImage.fileName) {
-
           excludedFileNames.add(
             rulesImage.fileName.toLowerCase()
           );
-
         }
 
-
-        if (rulesImage.serverRelativeUrl) {
+        if (
+          rulesImage.serverRelativeUrl
+        ) {
 
           excludedUrls.add(
             rulesImage.serverRelativeUrl.toLowerCase()
           );
-
         }
-
       }
 
-
-      // ================================================
+      // ==================================================
       // EVENT BANNER IMAGE
-      // ================================================
+      // ==================================================
 
       if (eventBannerImage) {
-
         if (eventBannerImage.fileName) {
-
           excludedFileNames.add(
             eventBannerImage.fileName.toLowerCase()
           );
-
         }
-
 
         if (
           eventBannerImage.serverRelativeUrl
         ) {
-
           excludedUrls.add(
             eventBannerImage.serverRelativeUrl.toLowerCase()
           );
-
         }
-
       }
-
 
       // ==================================================
       // 6. FILTER REAL USER ATTACHMENTS
@@ -530,44 +411,42 @@ export default class AboutService {
       const filteredAttachments =
         attachmentItems.filter(
           (attachment: any) => {
-
             const fileName =
               (
-                attachment.FileName || ""
+                attachment.FileName ||
+                ""
               ).toLowerCase();
-
 
             const fileUrl =
               (
-                attachment.ServerRelativeUrl || ""
+                attachment.ServerRelativeUrl ||
+                ""
               ).toLowerCase();
-
 
             // ============================================
             // EXCLUDE RULES IMAGE BY FILE NAME
             // ============================================
 
             if (
-              excludedFileNames.has(fileName)
+              excludedFileNames.has(
+                fileName
+              )
             ) {
 
               return false;
-
             }
-
 
             // ============================================
             // EXCLUDE RULES/BANNER IMAGE BY URL
             // ============================================
 
             if (
-              excludedUrls.has(fileUrl)
+              excludedUrls.has(
+                fileUrl
+              )
             ) {
-
               return false;
-
             }
-
 
             // ============================================
             // EXCLUDE SHAREPOINT GENERATED IMAGE
@@ -580,19 +459,14 @@ export default class AboutService {
             ) {
 
               return false;
-
             }
-
 
             // ============================================
             // REAL USER ATTACHMENT
             // ============================================
-
             return true;
-
           }
         );
-
 
       // ==================================================
       // 7. MAP ATTACHMENTS
@@ -602,192 +476,68 @@ export default class AboutService {
         IEventAttachment[] =
         filteredAttachments.map(
           (attachment: any) => ({
-
-            FileName:
-              attachment.FileName,
-
-            ServerRelativeUrl:
-              attachment.ServerRelativeUrl
-
+            FileName: attachment.FileName,
+            ServerRelativeUrl: attachment.ServerRelativeUrl
           })
         );
-
 
       // ==================================================
       // 8. GET SUB EVENTS
       // ==================================================
 
-      let subEvents:
-        IExistingSubEvent[] = [];
-
+      let subEvents:IExistingSubEvent[] = [];
 
       if (item.HasSubEvents) {
-
         subEvents =
           await this.getSubEventsByEventId(
             eventId
           );
-
       }
-
 
       // ==================================================
       // 9. RETURN EVENT DETAILS
       // ==================================================
 
       return {
-
-        Id:
-          item.Id,
-
-
-        // ================================================
-        // BASIC DETAILS
-        // ================================================
-
-        EventTitle:
-          item.EventTitle ?? "",
-
-        EventDescription:
-          item.EventDescription ?? "",
-
-
-        // ================================================
-        // EVENT DATE
-        // ================================================
-
-        EventStartDate:
-          item.EventStartDate ?? "",
-
-        EventEndDate:
-          item.EventEndDate ?? "",
-
-
-        // ================================================
-        // PARTICIPANT
-        // ================================================
-
-        EventParticipantType:
-          item.EventParticipantType ?? "",
-
-        HasSubEvents:
-          item.HasSubEvents ?? false,
-
-
-        // ================================================
-        // RULES
-        // ================================================
-
-        RulesAndRegualtionType:
-          item.RulesAndRegualtionType ?? "",
-
-        RulesAndRegualtionText:
-          item.RulesAndRegualtionText ?? "",
-
-
-        // ================================================
-        // REGISTRATION
-        // ================================================
-
-        RegistrationStartDate:
-          item.RegistrationStartDate ?? "",
-
-        RegistrationEndDate:
-          item.RegistrationEndDate ?? "",
-
-
-        // ================================================
-        // TEAM
-        // ================================================
-
-        MaxTeamMembers:
-          item.MaxTeamMembers ?? 0,
-
-        MandatoryMember:
-          item.MandatoryMember ?? 0,
-
-
-        // ================================================
-        // EVENT ORGANISER - PEOPLE PICKER
-        // ================================================
-
-        EventOrganiser:
-
-          item.EventOrganiser
-
+        Id: item.Id,
+        EventTitle:  item.EventTitle ?? "",
+        EventDescription: item.EventDescription ?? "",
+        EventStartDate: item.EventStartDate ?? "",
+        EventEndDate: item.EventEndDate ?? "",
+        EventParticipantType: item.EventParticipantType ?? "",
+        HasSubEvents:  item.HasSubEvents ?? false,
+        RulesAndRegualtionType: item.RulesAndRegualtionType ?? "",
+        RulesAndRegualtionText: item.RulesAndRegualtionText ?? "",
+        RegistrationStartDate: item.RegistrationStartDate ?? "",
+        RegistrationEndDate: item.RegistrationEndDate ?? "",
+        MaxTeamMembers:  item.MaxTeamMembers ?? 0,
+        MandatoryMember: item.MandatoryMember ?? 0,
+        EventOrganiser: item.EventOrganiser
             ? {
 
-                Id:
-                  item.EventOrganiser.Id,
-
-                Title:
-                  item.EventOrganiser.Title ?? "",
-
-                EMail:
-                  item.EventOrganiser.EMail ?? ""
-
+                Id:  item.EventOrganiser.Id,
+                Title:  item.EventOrganiser.Title ?? "",
+                EMail:  item.EventOrganiser.EMail ?? ""
               }
 
             : undefined,
-
 
         // ================================================
         // ORGANIZER DETAILS
         // ================================================
 
-        EventOrganizerDepartment:
-          item.EventOrganizerDepartment ?? "",
-
+        EventOrganizerDepartment: item.EventOrganizerDepartment ?? "",
         EventOrganizerEmail:
           item.EventOrganizerEmail ??
           item.EventOrganiser?.EMail ??
           "",
-
-        EventOrganizerPhoneNumber:
-          item.EventOrganizerPhoneNumber ?? "",
-
-
-        // ================================================
-        // STATUS
-        // ================================================
-
-        OverAllEventStatus:
-          item.OverAllEventStatus ?? "",
-
-
-        // ================================================
-        // RULES IMAGE
-        // ================================================
-
-        RulesAndRegualtionImage:
-          rulesImage,
-
-
-        // ================================================
-        // BANNER IMAGE
-        // ================================================
-
-        EventBannerImage:
-          eventBannerImage,
-
-
-        // ================================================
-        // SUB EVENTS
-        // ================================================
-
-        SubEvents:
-          subEvents,
-
-
-        // ================================================
-        // ATTACHMENTS
-        // ================================================
-
-        Attachments:
-          attachments
-
+        EventOrganizerPhoneNumber: item.EventOrganizerPhoneNumber ?? "",
+        OverAllEventStatus:  item.OverAllEventStatus ?? "",
+        RulesAndRegualtionImage: rulesImage,
+        EventBannerImage:  eventBannerImage,
+        SubEvents: subEvents,
+        Attachments:  attachments
       };
-
 
     } catch (error) {
 
@@ -797,11 +547,155 @@ export default class AboutService {
       );
 
       throw error;
-
     }
-
   }
 
+  // ====================================================
+  // GET EVENT PARTICIPANT COUNTS
+  //
+  // SOURCE:
+  // Corp_SL_EventParticipants
+  //
+  // FILTER:
+  // Event_ID = eventId
+  //
+  // TEAM EVENT:
+  // Teams = number of participant list items
+  // Members = total users in Participant column
+  //
+  // INDIVIDUAL EVENT:
+  // Members = number of participant list items
+  // Teams = 0
+  // ====================================================
+
+  public async getEventParticipantCounts(
+    eventId: number
+  ): Promise<{
+    teams: number;
+    members: number;
+  }> {
+
+    try {
+
+      if (
+        !eventId ||
+        eventId <= 0
+      ) {
+
+        return {
+          teams: 0,
+          members: 0
+        };
+      }
+
+      // ==================================================
+      // GET PARTICIPANTS FOR THIS EVENT
+      //
+      // Participant is a MULTI-PERSON field.
+      // ==================================================
+
+      const participants: any[] =
+        await sp.web.lists
+          .getByTitle(
+            this.eventParticipantListName
+          )
+          .items
+          .select(
+            "Id",
+            "Participant/Id"
+          )
+          .expand(
+            "Participant"
+          )
+          .filter(
+            `Event_IDId eq ${eventId}`
+          )();
+
+      console.log(
+        "EVENT PARTICIPANT ITEMS:",
+        participants
+      );
+
+      // ==================================================
+      // TEAM COUNT
+      //
+      // Every item in Corp_SL_EventParticipants
+      // represents one registered team.
+      // ==================================================
+
+      const teams = participants.length;
+
+      // ==================================================
+      // MEMBER COUNT
+      //
+      // Count all users inside Participant column.
+      // ==================================================
+
+      let members = 0;
+
+      participants.forEach(
+        (participantItem: any) => {
+
+          const participantUsers =
+            participantItem.Participant;
+
+          // =================================================
+          // MULTI-PERSON FIELD
+          // =================================================
+
+          if (
+            Array.isArray(
+              participantUsers
+            )
+          ) {
+
+            members +=
+              participantUsers.length;
+          }
+
+          // =================================================
+          // SAFETY HANDLING
+          //
+          // If SharePoint returns one person object.
+          // =================================================
+
+          else if (
+            participantUsers
+          ) {
+
+            members += 1;
+          }
+        }
+      );
+
+      console.log(
+        "REGISTERED TEAMS:",
+        teams
+      );
+
+      console.log(
+        "REGISTERED MEMBERS:",
+        members
+      );
+
+      return {
+        teams,
+        members
+      };
+
+    } catch (error) {
+
+      console.error(
+        "Error fetching event participant counts:",
+        error
+      );
+
+      return {
+        teams: 0,
+        members: 0
+      };
+    }
+  }
 
   // ====================================================
   // GET ALL SUB EVENTS FOR EVENT
@@ -821,9 +715,7 @@ export default class AboutService {
         throw new Error(
           "Invalid Event ID."
         );
-
       }
-
 
       const items: any[] =
         await sp.web.lists
@@ -833,58 +725,32 @@ export default class AboutService {
           .items
           .filter(
             `Event_IDId eq ${eventId}`
-          )
-          ();
-
+          )();
 
       console.log(
         "SubEvent items:",
         items
       );
 
-
       return items.map(
         (item: any) => ({
-
-          Id:
-            item.Id,
-
-          SubEventTitle:
-            item.SubEventTitle ?? "",
-
-          SubEventDescription:
-            item.SubEventDescription ?? "",
-
-          MinimumMembersRequired:
-            item.MinimumMembersRequired ?? 0,
-
-          Event_ID:
-            item.Event_ID ?? undefined,
-
-          Event_Title:
-            item.Event_Title ?? "",
-
-          SubEventStageStatus:
-            item.SubEventStageStatus ?? "",
-
-          HasStages:
-            item.HasStages ?? false
-
+          Id: item.Id,
+          SubEventTitle: item.SubEventTitle ?? "",
+          SubEventDescription:item.SubEventDescription ?? "",
+          MinimumMembersRequired: item.MinimumMembersRequired ?? 0,
+          Event_ID:  item.Event_ID ?? undefined,
+          Event_Title: item.Event_Title ?? "",
+          SubEventStageStatus: item.SubEventStageStatus ?? "",
+          HasStages: item.HasStages ?? false
         })
       );
 
-
     } catch (error) {
-
       console.error(
         "Error fetching sub events:",
         error
       );
-
       throw error;
-
     }
-
   }
-
 }

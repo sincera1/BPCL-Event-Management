@@ -1,4 +1,3 @@
-
 import { sp } from "@pnp/sp";
 
 import "@pnp/sp/webs";
@@ -15,27 +14,29 @@ import "@pnp/sp/folders";
 export interface IActiveEventStage {
 
   Id: number;
-
   EventId: number;
-
   EventTitle: string;
-
   SubEventId?: number;
-
   SubEventTitle: string;
-
   StageName: string;
-
   StageStartDate: string;
-
   StageEndDate: string;
-
   MaxFileSize: number;
-
   UploadLimit: number;
-
   IsActive: boolean;
 
+}
+
+
+/* =====================================================
+   EVENT PARTICIPANT INFORMATION
+===================================================== */
+
+export interface IEventParticipantInfo {
+  Id: number;
+  TeamId: number;
+  EventParticipantType: string;
+  IsRegistered: boolean;
 }
 
 
@@ -44,13 +45,9 @@ export interface IActiveEventStage {
 ===================================================== */
 
 export interface ISubEventParticipantInfo {
-
   Id: number;
-
   TeamId: number;
-
   EventParticipantType: string;
-
   IsRegistered: boolean;
 
 }
@@ -61,26 +58,19 @@ export interface ISubEventParticipantInfo {
 ===================================================== */
 
 export interface IStageSubmissionStatus {
-
   TeamId: number;
-
   UploadedCount: number;
-
   IsAlreadySubmitted: boolean;
-
+  IsRegisteredForEvent: boolean;
   IsRegisteredForSubEvent: boolean;
 
 }
-
-
 /* =====================================================
    STAGE STATUS MAP
 ===================================================== */
 
 export interface IStageStatusMap {
-
   [stageId: number]: IStageSubmissionStatus;
-
 }
 
 
@@ -95,35 +85,17 @@ export default class StageSubmissionService {
      SHAREPOINT LISTS
   =================================================== */
 
-  private stageListName =
-    "Corp_SL_EventStages";
-
-
-  private eventParticipantListName =
-    "Corp_SL_EventParticipants";
-
-
-  private subEventParticipantListName =
-    "Corp_SL_SubEvent_Participants";
-
-
-  private documentLibraryName =
-    "Corp_SL_EventParticipantDocument";
+  private stageListName = "Corp_SL_EventStages";
+  private eventParticipantListName = "Corp_SL_EventParticipants";
+  private subEventParticipantListName = "Corp_SL_SubEvent_Participants";
+  private documentLibraryName ="Corp_SL_EventParticipantDocument";
 
 
   /* ===================================================
      CURRENT USER CACHE
-
-     IMPORTANT:
-
-     Current user is fetched only once per
-     service instance.
-
-     This improves page loading performance.
   =================================================== */
 
   private currentUserCache: any = null;
-
 
   /* ===================================================
      FORMAT UTC DATE
@@ -134,32 +106,20 @@ export default class StageSubmissionService {
   ): string {
 
     if (!dateString) {
-
       return "";
-
     }
 
-
-    const date =
-      new Date(
-        dateString
-      );
-
+    const date = new Date(dateString);
 
     if (
       isNaN(
         date.getTime()
       )
     ) {
-
       return "";
-
     }
 
-
-    const year =
-      date.getUTCFullYear();
-
+    const year =  date.getUTCFullYear();
 
     const month =
       String(
@@ -169,7 +129,6 @@ export default class StageSubmissionService {
         "0"
       );
 
-
     const day =
       String(
         date.getUTCDate()
@@ -178,9 +137,7 @@ export default class StageSubmissionService {
         "0"
       );
 
-
     return `${year}-${month}-${day}`;
-
   }
 
 
@@ -192,20 +149,13 @@ export default class StageSubmissionService {
     eventId: number
   ): Promise<IActiveEventStage[]> {
 
-
     if (
       !eventId ||
       eventId <= 0
     ) {
-
       return [];
-
     }
 
-
-    /* ===============================================
-       GET STAGES
-    =============================================== */
 
     const items: any[] =
       await sp.web.lists
@@ -214,49 +164,30 @@ export default class StageSubmissionService {
         )
         .items
         .select(
-
           "Id",
-
           "StageStartDate",
-
           "StageEndDate",
-
           "MaxFileSize",
-
           "UploadLimit",
-
           "IsActive",
-
           "Stages",
-
           "EventID/Id",
-
           "EventID/EventTitle",
-
           "SubEventID/Id",
-
           "SubEventID/SubEventTitle"
-
         )
         .expand(
-
           "EventID",
-
           "SubEventID"
-
         )
         .filter(
           `EventIDId eq ${eventId} and IsActive eq 1`
         )();
 
-console.log("doc submission Requested Event ID:", eventId);
-console.log("doc submission All Stages for Event:", items);
+    console.log( "Document Submission Requested Event ID:", eventId);
+
     /* ===============================================
-       TODAY DATE
-
-       FORMAT:
-
-       YYYY-MM-DD
+       TODAY
     =============================================== */
 
     const todayDate =
@@ -266,7 +197,7 @@ console.log("doc submission All Stages for Event:", items);
 
 
     /* ===============================================
-       FILTER ACTIVE DATE RANGE
+       FILTER DATE RANGE
     =============================================== */
 
     const activeStages =
@@ -275,39 +206,27 @@ console.log("doc submission All Stages for Event:", items);
           item: any
         ): boolean => {
 
-
           if (
             !item.StageStartDate ||
             !item.StageEndDate
           ) {
-
             return false;
-
           }
-
 
           const stageStartDate =
             this.formatUTCDate(
               item.StageStartDate
             );
 
-
           const stageEndDate =
             this.formatUTCDate(
               item.StageEndDate
             );
 
-
           return (
-
-            todayDate >=
-            stageStartDate &&
-
-            todayDate <=
-            stageEndDate
-
+            todayDate >= stageStartDate &&
+            todayDate <= stageEndDate
           );
-
         }
       );
 
@@ -317,7 +236,6 @@ console.log("doc submission All Stages for Event:", items);
     =============================================== */
 
     return activeStages.map(
-
       (
         item: any
       ): IActiveEventStage => ({
@@ -327,234 +245,90 @@ console.log("doc submission All Stages for Event:", items);
             item.Id
           ),
 
-
-        EventId:
-
-          item.EventID?.Id ||
-
-          eventId,
-
-
-        EventTitle:
-
-          item.EventID?.EventTitle ||
-
-          "",
-
-
-        SubEventId:
-
-          item.SubEventID?.Id ||
-
-          undefined,
-
-
-        SubEventTitle:
-
-          item.SubEventID?.SubEventTitle ||
-
-          "",
-
-
-        StageName:
-
-          item.Stages ||
-
-          "",
-
-
+        EventId: item.EventID?.Id || eventId,
+        EventTitle: item.EventID?.EventTitle || "",
+        SubEventId:  item.SubEventID?.Id || undefined,
+        SubEventTitle: item.SubEventID?.SubEventTitle ||  "",
+        StageName: item.Stages || "",
         StageStartDate:
-
           this.formatUTCDate(
             item.StageStartDate
           ),
-
-
         StageEndDate:
-
           this.formatUTCDate(
             item.StageEndDate
           ),
 
-
         MaxFileSize:
-
           Number(
             item.MaxFileSize
           ) || 0,
 
-
         UploadLimit:
-
           Number(
             item.UploadLimit
           ) || 0,
 
-
-        IsActive:
-
-          item.IsActive === true
+        IsActive: item.IsActive === true
 
       })
-
     );
-
   }
 
 
   /* ===================================================
      GET CURRENT USER
-
-     CACHED FOR PERFORMANCE
-
-     SharePoint API will not be called again
-     if user is already available.
   =================================================== */
 
   private async getCurrentUser(): Promise<any> {
 
-
-    /* ===============================================
-       RETURN CACHE
-    =============================================== */
-
     if (
       this.currentUserCache
     ) {
-
       return this.currentUserCache;
-
     }
 
 
-    /* ===============================================
-       GET CURRENT USER
-    =============================================== */
-
-    const currentUser =
-      await sp.web.currentUser();
-
-
-    /* ===============================================
-       SAVE CACHE
-    =============================================== */
-
-    this.currentUserCache =
-      currentUser;
-
-
-    console.log(
-      "Current User:",
-      currentUser
-    );
-
+    const currentUser =  await sp.web.currentUser();
+    this.currentUserCache = currentUser;
+    console.log( "Current User:", currentUser);
 
     return currentUser;
-
   }
 
 
   /* ===================================================
-     GET SUB EVENT PARTICIPANT INFORMATION
+     GET EVENT PARTICIPANT INFORMATION
 
-     CONDITIONS:
+     USED ONLY FOR:
 
-     Event_ID = eventId
+     Stage WITHOUT SubEvent
 
-     SubEventID = subEventId
+     IMPORTANT BUSINESS RULE:
 
-     Current User must exist in Participant
+     For a stage WITHOUT SubEvent:
+
+       TeamId = Event Participant item Id
+
+     We DO NOT use TeamID lookup here.
+
+     Example:
+
+       Event Participant item:
+       Id = 125
+
+       TeamId used for document =
+       125
   =================================================== */
 
   private async getEventParticipantInfo(
+
     eventId: number
-  ): Promise<ISubEventParticipantInfo> {
+
+  ): Promise<IEventParticipantInfo> {
+
 
     const currentUser = await this.getCurrentUser();
-
-    if (!currentUser || !currentUser.Id) {
-      throw new Error(
-        "Unable to identify the current logged-in user."
-      );
-    }
-
-    const participantItems: any[] =
-      await sp.web.lists
-        .getByTitle(this.eventParticipantListName)
-        .items
-        .select(
-          "Id",
-          "EventParticipantType",
-          "TeamIDId"
-        )
-        .filter(
-          `Event_IDId eq ${eventId} and ` +
-          `ParticipantId eq ${currentUser.Id}`
-        )
-        .top(1)();
-
-    if (!participantItems || participantItems.length === 0) {
-      return {
-        Id: 0,
-        TeamId: 0,
-        EventParticipantType: "",
-        IsRegistered: false
-      };
-    }
-
-    const participantItem = participantItems[0];
-
-    const teamLookupId =
-      Number(participantItem.TeamIDId) || 0;
-
-    const finalTeamId =
-      teamLookupId > 0
-        ? teamLookupId
-        : Number(participantItem.Id);
-
-    return {
-      Id: Number(participantItem.Id),
-      TeamId: finalTeamId,
-      EventParticipantType:
-        participantItem.EventParticipantType || "",
-      IsRegistered: true
-    };
-  }
-
-
-  private async getSubEventParticipantInfo(
-
-    eventId: number,
-
-    subEventId: number | undefined
-
-  ): Promise<ISubEventParticipantInfo> {
-
-
-    /* ===============================================
-       VALIDATE SUB EVENT
-    =============================================== */
-
-    // if (
-    //   !subEventId ||
-    //   subEventId <= 0
-    // ) {
-
-    //   throw new Error(
-    //     "Sub Event information is not available."
-    //   );
-
-    // }
-
-
-    /* ===============================================
-       CURRENT USER
-
-       Cached user will be returned.
-    =============================================== */
-
-    const currentUser =
-      await this.getCurrentUser();
 
 
     if (
@@ -565,62 +339,183 @@ console.log("doc submission All Stages for Event:", items);
       throw new Error(
         "Unable to identify the current logged-in user."
       );
+    }
 
+    /*
+       IMPORTANT:
+
+       We intentionally DO NOT select TeamID
+       or TeamIDId here.
+
+       For a stage without SubEvent,
+       Event Participant item Id itself
+       becomes TeamId.
+    */
+
+    const participantItems: any[] =
+      await sp.web.lists
+
+        .getByTitle(
+          this.eventParticipantListName
+        )
+        .items
+        .select(
+          "Id",
+          "EventParticipantType"
+        )
+        .filter(
+          `Event_IDId eq ${eventId} and ParticipantId eq ${currentUser.Id}`
+        )
+        .top(1)();
+
+    /* ===============================================
+       USER NOT REGISTERED FOR EVENT
+    =============================================== */
+
+    if (
+      !participantItems ||
+      participantItems.length === 0
+    ) {
+
+      console.log(
+        "User is NOT registered for Event."
+      );
+
+      return {
+        Id: 0,
+        TeamId:  0,
+        EventParticipantType:"",
+        IsRegistered: false
+      };
     }
 
 
     /* ===============================================
-       GET PARTICIPANT RECORD
-
-       PERFORMANCE:
-
-       Only required fields are selected.
-
-       top(1) is used because we only need
-       one matching record.
+       EVENT PARTICIPANT FOUND
     =============================================== */
 
+    const participantItem =  participantItems[0];
+    /*
+       IMPORTANT BUSINESS RULE:
+       Event Participant item Id
+       IS the TeamId for a stage
+       without SubEvent.
+    */
+
+    const finalTeamId =
+      Number(
+        participantItem.Id
+      );
+
+    return {
+      Id:
+        Number(
+          participantItem.Id
+        ),
+
+      TeamId: finalTeamId,
+      EventParticipantType:participantItem.EventParticipantType || "",
+      IsRegistered: true
+
+    };
+  }
+
+
+  /* ===================================================
+     GET SUB EVENT PARTICIPANT INFORMATION
+
+     USED ONLY WHEN STAGE HAS SUB EVENT
+
+     TeamID is a SharePoint Lookup.
+
+     IMPORTANT:
+
+     We retrieve lookup ID using:
+
+       TeamID/Id
+
+     instead of:
+
+       TeamIDId
+
+     This avoids the TeamIDId REST error.
+
+     BUSINESS RULE:
+
+     Team Event:
+       TeamID lookup Id is used.
+
+     Individual Event:
+       If TeamID lookup is blank,
+       SubEvent Participant item Id is used.
+  =================================================== */
+
+  private async getSubEventParticipantInfo(
+
+    eventId: number,
+    subEventId: number
+
+  ): Promise<ISubEventParticipantInfo> {
+
+
+    if (
+      !subEventId ||
+      subEventId <= 0
+    ) {
+
+      return {
+
+        Id: 0,
+        TeamId: 0,
+        EventParticipantType:  "",
+        IsRegistered: false
+
+      };
+    }
+
+    const currentUser =  await this.getCurrentUser();
+
+    if (
+      !currentUser ||
+      !currentUser.Id
+    ) {
+      throw new Error(
+        "Unable to identify the current logged-in user."
+      );
+    }
+
+ 
+
+
+    /*
+       IMPORTANT:
+
+       TeamID is a Lookup.
+
+       Use TeamID/Id instead of TeamIDId.
+    */
+
     const participantItems: any[] =
-
       await sp.web.lists
-
         .getByTitle(
           this.subEventParticipantListName
         )
-
         .items
-
         .select(
-
           "Id",
-
           "EventParticipantType",
-
-          "TeamIDId"
-
+          "TeamID/Id"
         )
-
+        .expand("TeamID")
         .filter(
-
           `Event_IDId eq ${eventId} and ` +
-
           `SubEventIDId eq ${subEventId} and ` +
-
           `ParticipantId eq ${currentUser.Id}`
-
         )
-
-        .top(
-          1
-        )();
-
+        .top(1)();
 
     console.log(
-      "SUB EVENT PARTICIPANT RECORDS"
-    );
-
-
-    console.log(
+      "SUB EVENT PARTICIPANT RESULT:",
       participantItems
     );
 
@@ -634,195 +529,186 @@ console.log("doc submission All Stages for Event:", items);
       participantItems.length === 0
     ) {
 
+      console.log(
+        "User is NOT registered for SubEvent."
+      );
+
+
       return {
 
-        Id: 0,
-
+        Id:  0,
         TeamId: 0,
-
         EventParticipantType: "",
-
         IsRegistered: false
-
       };
-
     }
 
 
+    const participantItem =  participantItems[0];
+
+    console.log(
+      "SUB EVENT PARTICIPANT ITEM:",
+      participantItem
+    );
+
+
     /* ===============================================
-       GET MATCHING RECORD
+       GET LOOKUP TEAM ID
     =============================================== */
 
-    const participantItem =
-      participantItems[0];
+    const teamLookupId =
+      Number(
+        participantItem.TeamID?.Id
+      ) || 0;
 
 
     /* ===============================================
-       TEAM ID
-
-       TEAM EVENT:
-
-       Same TeamID is shared by all
-       team members.
-
-       INDIVIDUAL EVENT:
-
-       If TeamID is blank,
-       Participant Item ID is used.
+       DETERMINE FINAL TEAM ID
     =============================================== */
 
-    const teamId =
-
-      participantItem.TeamIDId ||
-
-      0;
-
+    /*
+       If TeamID lookup has a value:
+          use TeamID lookup Id.
+       Otherwise:
+          use SubEvent Participant item Id.
+       This supports both Team and Individual
+       registrations.
+    */
 
     const finalTeamId =
-
-      teamId > 0
-
-        ?
-
-        Number(
-          teamId
-        )
-
-        :
-
-        Number(
-          participantItem.Id
-        );
-
-
-
-    console.log(
-      "Event ID:",
-      eventId
-    );
-
-
-    console.log(
-      "Sub Event ID:",
-      subEventId
-    );
-
-
-    console.log(
-      "Current User ID:",
-      currentUser.Id
-    );
-
-
-    console.log(
-      "Participant Type:",
-      participantItem.EventParticipantType
-    );
-
-
-    console.log(
-      "Team ID:",
-      finalTeamId
-    );
-
-
-    /* ===============================================
-       RETURN PARTICIPANT INFO
-    =============================================== */
+      teamLookupId > 0
+        ? teamLookupId
+        : Number(
+            participantItem.Id
+          );
 
     return {
-
       Id:
-
         Number(
           participantItem.Id
         ),
-
-
-      TeamId:
-
-        finalTeamId,
-
-
+      TeamId: finalTeamId,
       EventParticipantType:
-
         participantItem.EventParticipantType ||
-
         "",
-
-
-      IsRegistered:
-
-        true
+      IsRegistered:  true
 
     };
-
   }
 
 
   /* ===================================================
      GET EXISTING DOCUMENT COUNT
 
-     CONDITIONS:
+     CHECKS:
 
-     EventID
+       EventID
+       TeamID
+       SubEventID
+       Stage
 
-     SubEventID
-
-     TeamID
-
-
-     PERFORMANCE IMPROVEMENT:
-
-     Only checks whether a document exists.
-
-     top(1) prevents loading all documents.
+     IMPORTANT:
+       TeamID is a Lookup.
+       We use:
+         TeamID/Id
+       instead of:
+         TeamIDId
   =================================================== */
 
   private async getExistingDocumentCount(
 
     eventId: number,
-
     subEventId: number | undefined,
-
-    teamId: number
-
+    teamId: number,
+    stageName?: string
   ): Promise<number> {
 
+    if (
+      !eventId ||
+      eventId <= 0
+    ) {
+      return 0;
+    }
+
+    if (
+      !teamId ||
+      teamId <= 0
+    ) {
+      return 0;
+    }
+
+
+    /*
+       Start with Event ID and Team lookup.
+
+       IMPORTANT:
+
+       TeamID/Id is used because TeamID
+       is a Lookup column.
+    */
 
     let filterText =
       `EventIDId eq ${eventId} and ` +
-      `TeamIDId eq ${teamId}`;
+      `TeamID/Id eq ${teamId}`;
+
+
+    /* ===============================================
+       SUB EVENT
+    =============================================== */
 
     if (
       subEventId &&
       subEventId > 0
     ) {
+
       filterText +=
         ` and SubEventIDId eq ${subEventId}`;
-    }
-    else {
-      filterText +=
-        ` and SubEventIDId eq null`;
+
     }
 
+    else {
+
+      /*
+         No SubEvent:
+         SubEvent lookup must be NULL.
+      */
+
+      filterText += ` and SubEventIDId eq null`;
+
+    }
+
+
+    /* ===============================================
+       STAGE
+    =============================================== */
+
+    if (
+      stageName &&
+      stageName.trim()
+    ) {
+
+      const safeStageName =
+        stageName.replace(
+          /'/g,
+          "''"
+        );
+
+      filterText += ` and Stages eq '${safeStageName}'`;
+    }
 
     console.log(
-      "Document Filter:",
+      "DOCUMENT CHECK FILTER:",
       filterText
     );
 
 
-    /* ===============================================
-       GET ONLY ONE DOCUMENT
-
-       We only need to know:
-
-       Document exists or not.
-    =============================================== */
+    /*
+       IMPORTANT:
+       Do not select TeamIDId.
+       Retrieve lookup ID using TeamID/Id.
+    */
 
     const documents: any[] =
-
       await sp.web.lists
 
         .getByTitle(
@@ -830,499 +716,315 @@ console.log("doc submission All Stages for Event:", items);
         )
 
         .items
-
         .select(
-          "Id"
+          "Id",
+          "FileLeafRef",
+          "Stages",
+          "EventID/Id",
+          "SubEventID/Id",
+          "TeamID/Id"
         )
 
-        .filter(
-          filterText
+        .expand(
+          "EventID",
+          "SubEventID",
+          "TeamID"
         )
-
-        .top(
-          1
-        )();
-
-
-    console.log(
-      "Existing Documents:",
-      documents
-    );
-
-
-    /* ===============================================
-       RETURN
-
-       0 = NO DOCUMENT
-
-       1 = DOCUMENT EXISTS
-    =============================================== */
+        .filter( filterText)
+        .top(1)();
 
     return documents.length;
-
   }
 
 
   /* ===================================================
      GET STAGE SUBMISSION STATUS
 
-     Used for individual stage.
+     CASE 1:
+       NO SUB EVENT
+
+       Event Participant is checked.
+
+       TeamId =
+       Event Participant item Id.
+
+
+     CASE 2:
+       HAS SUB EVENT
+
+       SubEvent Participant is checked.
+
+       TeamId =
+       TeamID lookup Id
+       OR
+       SubEvent Participant item Id.
   =================================================== */
 
-  // public async getStageSubmissionStatus(
+  public async getStageSubmissionStatus(
 
-  //   eventId: number,
-
-  //   stage: IActiveEventStage
-
-  // ): Promise<IStageSubmissionStatus> {
+    eventId: number,
+    stage: IActiveEventStage
+  ): Promise<IStageSubmissionStatus> {
 
 
-  //   /* ===============================================
-  //      VALIDATE EVENT
-  //   =============================================== */
+    if (
+      !eventId ||
+      eventId <= 0
+    ) {
 
-  //   if (
-  //     !eventId ||
-  //     eventId <= 0
-  //   ) {
+      throw new Error(
+        "Invalid Event ID."
+      );
+    }
 
-  //     throw new Error(
-  //       "Invalid Event ID."
-  //     );
+    if (
+      !stage ||
+      !stage.Id
+    ) {
+      throw new Error(
+        "Invalid submission stage."
+      );
+    }
 
-  //   }
+    const subEventId = stage.SubEventId;
+    const hasSubEvent =
+      !!subEventId &&
+      subEventId > 0;
 
+    /* =================================================
+       CASE 1
+       NO SUB EVENT
+    ================================================= */
 
-  //   /* ===============================================
-  //      GET PARTICIPANT INFORMATION
-  //   =============================================== */
+    if (
+      !hasSubEvent
+    ) {
 
-  //   const participantInfo =
+      const eventParticipantInfo =
+        await this.getEventParticipantInfo(
+          eventId
+        );
+      /*
+         User is not registered for EVENT.
 
-  //     await this.getSubEventParticipantInfo(
+         Important:
 
-  //       eventId,
+         This is NOT a SubEvent registration
+         failure.
+      */
 
-  //       stage.SubEventId
+     if (
+            !eventParticipantInfo.IsRegistered
+          ) {
 
-  //     );
+            console.log(
+              "User is NOT registered for Event."
+            );
 
-
-  //   /* ===============================================
-  //      NOT REGISTERED
-  //   =============================================== */
-
-  //   if (
-  //     !participantInfo.IsRegistered
-  //   ) {
-
-  //     return {
-
-  //       TeamId: 0,
-
-  //       UploadedCount: 0,
-
-  //       IsAlreadySubmitted: false,
-
-  //       IsRegisteredForSubEvent: false
-
-  //     };
-
-  //   }
-
-
-  //   /* ===============================================
-  //      CHECK DOCUMENT
-  //   =============================================== */
-
-  //   const uploadedCount =
-
-  //     await this.getExistingDocumentCount(
-
-  //       eventId,
-
-  //       stage.SubEventId!,
-
-  //       participantInfo.TeamId
-
-  //     );
+            return {
+              TeamId: 0,
+              UploadedCount: 0,
+              IsAlreadySubmitted: false,
+              IsRegisteredForEvent: false,
+              IsRegisteredForSubEvent:  false
+            };
+          }
 
 
-  //   /* ===============================================
-  //      RETURN STATUS
-  //   =============================================== */
+      const uploadedCount =  await this.getExistingDocumentCount(
+          eventId,
+          undefined,
+          eventParticipantInfo.TeamId,
+          stage.StageName
+        );
 
-  //   return {
+     return {
+          TeamId: eventParticipantInfo.TeamId,
+          UploadedCount: uploadedCount,
+          IsAlreadySubmitted: uploadedCount > 0,
+          IsRegisteredForEvent: true,
+          IsRegisteredForSubEvent: true
+        };
+    }
 
-  //     TeamId:
-
-  //       participantInfo.TeamId,
-
-
-  //     UploadedCount:
-
-  //       uploadedCount,
-
-
-  //     IsAlreadySubmitted:
-
-  //       uploadedCount > 0,
-
-
-  //     IsRegisteredForSubEvent:
-
-  //       true
-
-  //   };
-
-  // }
-/* ===================================================
-   GET STAGE SUBMISSION STATUS
-
-   RULES:
-   1. Stage WITHOUT SubEvent:
-      - No participant registration check
-      - Stage is available directly
-      - Uploaded document count is checked using EventId + StageId
-
-   2. Stage WITH SubEvent:
-      - Current user must be registered
-      - Existing TeamID logic is retained
-=================================================== */
-
-public async getStageSubmissionStatus(
-  eventId: number,
-  stage: IActiveEventStage
-): Promise<IStageSubmissionStatus> {
-
-  /* ===============================================
-     VALIDATE EVENT
-  =============================================== */
-
-  if (
-    !eventId ||
-    eventId <= 0
-  ) {
-    throw new Error(
-      "Invalid Event ID."
-    );
-  }
-
-
-  /* ===============================================
-     CASE 1:
-     STAGE DOES NOT HAVE A SUB EVENT
-
-     Example:
-     Event 93
-     Stage 1
-     SubEventId = undefined
-
-     This stage should be directly available.
-  =============================================== */
-
-  if (
-    !stage.SubEventId ||
-    stage.SubEventId <= 0
-  ) {
-
-    console.log(
-      "Stage has NO SubEvent. Treating stage as directly available:",
-      {
-        EventId: eventId,
-        StageId: stage.Id,
-        StageName: stage.StageName
-      }
-    );
+    /* =================================================
+       CASE 2
+       HAS SUB EVENT
+    ================================================= */
 
     /*
-      There is no SubEvent participant to check.
-
-      We therefore return the stage as registered/available.
+       TypeScript now knows subEventId is
+       a number because we returned from the
+       no-SubEvent case above.
     */
 
-    const eventParticipantInfo =
-      await this.getEventParticipantInfo(eventId);
+    const participantInfo = await this.getSubEventParticipantInfo(
+        eventId,
+        subEventId
+      );
 
-    if (!eventParticipantInfo.IsRegistered) {
-      return {
+
+    /* ===============================================
+       USER NOT REGISTERED FOR SUB EVENT
+    =============================================== */
+
+    if (
+      !participantInfo.IsRegistered
+    ) {
+
+      console.log(
+        "User is NOT registered for SubEvent:",
+        subEventId
+      );
+    return {
         TeamId: 0,
         UploadedCount: 0,
         IsAlreadySubmitted: false,
-        IsRegisteredForSubEvent: true
+        IsRegisteredForEvent: false,
+        IsRegisteredForSubEvent: false
       };
     }
 
-    const uploadedCount =
-      await this.getExistingDocumentCount(
-        eventId,
-        undefined,
-        eventParticipantInfo.TeamId
+    /* ===============================================
+       CHECK EXISTING DOCUMENT
+    =============================================== */
+
+    const uploadedCount = await this.getExistingDocumentCount(
+       eventId,
+       subEventId,
+       participantInfo.TeamId,
+      stage.StageName
       );
 
-    return {
-      TeamId: eventParticipantInfo.TeamId,
+   return {
+      TeamId:participantInfo.TeamId,
       UploadedCount: uploadedCount,
       IsAlreadySubmitted: uploadedCount > 0,
+      IsRegisteredForEvent: true,
       IsRegisteredForSubEvent: true
     };
   }
 
-
-  /* ===============================================
-     CASE 2:
-     STAGE HAS A SUB EVENT
-
-     Existing registration logic continues.
-  =============================================== */
-
-  const participantInfo =
-    await this.getSubEventParticipantInfo(
-      eventId,
-      stage.SubEventId
-    );
-
-
-  /* ===============================================
-     USER NOT REGISTERED
-  =============================================== */
-
-  if (
-    !participantInfo.IsRegistered
-  ) {
-
-    return {
-      TeamId: 0,
-
-      UploadedCount: 0,
-
-      IsAlreadySubmitted: false,
-
-      IsRegisteredForSubEvent: false
-    };
-  }
-
-
-  /* ===============================================
-     CHECK EXISTING DOCUMENT
-
-     Only applicable when SubEvent exists.
-  =============================================== */
-
-  const uploadedCount =
-    await this.getExistingDocumentCount(
-      eventId,
-      stage.SubEventId,
-      participantInfo.TeamId
-    );
-
-
-  /* ===============================================
-     RETURN STATUS
-  =============================================== */
-
-  return {
-
-    TeamId:
-      participantInfo.TeamId,
-
-    UploadedCount:
-      uploadedCount,
-
-    IsAlreadySubmitted:
-      uploadedCount > 0,
-
-    IsRegisteredForSubEvent:
-      true
-
-  };
-}
-
   /* ===================================================
      GET ALL STAGE SUBMISSION STATUSES
-
-     IMPORTANT PERFORMANCE IMPROVEMENT
-
-     Instead of loading:
-
-       Stage 1 -> wait
-       Stage 2 -> wait
-       Stage 3 -> wait
-
-     All stages are loaded in parallel.
-
-     Promise.all() improves page loading speed.
   =================================================== */
 
   public async getStageSubmissionStatuses(
-
     eventId: number,
-
     stages: IActiveEventStage[]
-
   ): Promise<IStageStatusMap> {
 
-
-    const statusMap: IStageStatusMap =
-      {};
-
-
-    /* ===============================================
-       VALIDATE
-    =============================================== */
-
+    const statusMap:
+      IStageStatusMap = {};
     if (
       !eventId ||
       eventId <= 0 ||
       !stages ||
       stages.length === 0
     ) {
-
       return statusMap;
-
     }
 
-
-    /* ===============================================
-       LOAD CURRENT USER ONCE
-
-       This ensures current user is cached
-       before parallel stage requests begin.
-    =============================================== */
-
     await this.getCurrentUser();
-
-
-    /* ===============================================
-       LOAD ALL STAGES IN PARALLEL
-    =============================================== */
-
     const statusResults =
-
       await Promise.all(
-
         stages.map(
-
           async (
-
-            stage: IActiveEventStage
-
+            stage:
+              IActiveEventStage
           ) => {
 
-
             try {
-
-
               const status =
-
                 await this.getStageSubmissionStatus(
-
                   eventId,
-
                   stage
-
                 );
 
-
               return {
-
-                StageId:
-
-                  stage.Id,
-
-
-                Status:
-
-                  status
-
+                StageId: stage.Id,
+                Status: status
               };
-
-
             }
             catch (
-            error
+              error
             ) {
+              console.error("Unable to get submission status:", error );
+              /*
+                 IMPORTANT:
 
+                 If status lookup fails,
+                 do NOT say already submitted.
 
-              console.error(
+                 We also keep SubEvent registration
+                 false only for stages having a
+                 SubEvent.
+              */
 
-                "Unable to get submission status:",
-
-                error
-
-              );
-
-
+              // const hasSubEvent =
+              //   !!stage.SubEventId &&
+              //   stage.SubEventId > 0;
               return {
-
-                StageId:
-
-                  stage.Id,
-
-
-                Status: {
-
-                  TeamId: 0,
-
+                StageId: stage.Id,
+               Status: {
+                  TeamId:  0,
                   UploadedCount: 0,
-
                   IsAlreadySubmitted: false,
-
+                  IsRegisteredForEvent: false,
                   IsRegisteredForSubEvent: false
-
                 } as IStageSubmissionStatus
-
               };
-
             }
-
           }
-
         )
-
       );
 
-
-    /* ===============================================
-       CREATE STATUS MAP
-    =============================================== */
-
     statusResults.forEach(
-
       (
         result
       ) => {
-
-
-        statusMap[
-          result.StageId
+        statusMap[ result.StageId
         ] =
-
           result.Status;
-
       }
-
     );
 
 
-    return statusMap;
+    console.log(
+      "FINAL STAGE STATUS MAP:",
+      statusMap
+    );
 
+    return statusMap;
   }
 
 
   /* ===================================================
      UPLOAD STAGE DOCUMENTS
+
+     CASE 1:
+       NO SUB EVENT
+
+       TeamId =
+       Event Participant item Id.
+
+       SubEventID is NOT SET.
+
+
+     CASE 2:
+       HAS SUB EVENT
+
+       TeamId =
+       SubEvent TeamID lookup Id
+       OR participant item Id.
+
+       SubEventID IS SET.
   =================================================== */
 
   public async uploadStageDocuments(
-
     eventId: number,
-
     stage: IActiveEventStage,
-
     files: File[]
-
   ): Promise<void> {
 
 
@@ -1338,14 +1040,11 @@ public async getStageSubmissionStatus(
       throw new Error(
         "Invalid Event ID."
       );
-
     }
-
 
     /* ===============================================
        VALIDATE STAGE
     =============================================== */
-
     if (
       !stage ||
       !stage.Id
@@ -1354,26 +1053,7 @@ public async getStageSubmissionStatus(
       throw new Error(
         "Invalid submission stage."
       );
-
     }
-
-
-    /* ===============================================
-       VALIDATE SUB EVENT
-    =============================================== */
-
-    // if (
-    //   !stage.SubEventId ||
-    //   stage.SubEventId <= 0
-    // ) {
-
-    //   throw new Error(
-    //     "Sub Event information is not available."
-    //   );
-
-    // }
-
-
     /* ===============================================
        VALIDATE FILES
     =============================================== */
@@ -1386,63 +1066,176 @@ public async getStageSubmissionStatus(
       throw new Error(
         "Please select at least one document."
       );
-
     }
 
 
-    /* ===============================================
-       GET SUB EVENT PARTICIPANT
-    =============================================== */
+    const subEventId =
+      stage.SubEventId;
 
-    let teamId = 0;
+
+    const hasSubEvent =
+      !!subEventId &&
+      subEventId > 0;
+
+
+    let teamId =
+      0;
+
+
+    /* =================================================
+       CASE 1
+       STAGE WITHOUT SUB EVENT
+    ================================================= */
 
     if (
-      stage.SubEventId &&
-      stage.SubEventId > 0
+      !hasSubEvent
     ) {
-      const participantInfo =
-        await this.getSubEventParticipantInfo(
-          eventId,
-          stage.SubEventId
-        );
 
-      if (!participantInfo.IsRegistered) {
-        throw new Error(
-          "You are not registered for this Sub Event. Document submission is not allowed."
-        );
-      }
 
-      teamId = participantInfo.TeamId;
-    } else {
+      console.log(
+        "UPLOAD: Stage has NO SubEvent."
+      );
+
       const eventParticipantInfo =
-        await this.getEventParticipantInfo(eventId);
+        await this.getEventParticipantInfo(
 
-      if (!eventParticipantInfo.IsRegistered) {
+          eventId
+
+        );
+
+      /* =============================================
+         EVENT REGISTRATION CHECK
+      ============================================= */
+
+      if (
+        !eventParticipantInfo.IsRegistered
+      ) {
+
         throw new Error(
           "You are not registered for this Event. Document submission is not allowed."
         );
       }
 
-      teamId = eventParticipantInfo.TeamId;
+
+      /*
+         IMPORTANT:
+
+         For NO SubEvent:
+
+         TeamId =
+         Event Participant item Id.
+      */
+
+      teamId =
+        eventParticipantInfo.Id;
+
+
+      if (
+        !teamId ||
+        teamId <= 0
+      ) {
+
+        throw new Error(
+          "Unable to determine Event Participant ID for document submission."
+        );
+      }
+
+
+      console.log(
+        "NO SUB EVENT UPLOAD INFORMATION:",
+        {
+          EventId: eventId,
+          EventParticipantId: eventParticipantInfo.Id,
+          TeamID: teamId,
+          SubEventId: null
+        }
+      );
     }
 
 
-    /* ===============================================
-       CHECK ALREADY SUBMITTED
-    =============================================== */
+    /* =================================================
+       CASE 2
+       STAGE WITH SUB EVENT
+    ================================================= */
 
-    const alreadyUploaded =
+    else {
 
-      await this.getExistingDocumentCount(
+      /*
+         Because hasSubEvent is true,
+         subEventId is a valid number here.
+      */
 
-        eventId,
-
-        stage.SubEventId,
-
-        teamId
-
+      console.log(
+        "UPLOAD: Stage HAS SubEvent."
       );
 
+      const participantInfo = await this.getSubEventParticipantInfo(
+          eventId,
+          subEventId
+        );
+
+
+      /* =============================================
+         STOP IF NOT REGISTERED
+      ============================================= */
+      if (
+        !participantInfo.IsRegistered
+      ) {
+
+        /*
+           IMPORTANT:
+           We throw registration error BEFORE
+           checking existing documents.
+           Therefore user will NOT receive:
+             "You have already submitted"
+           when they are not registered.
+        */
+
+        throw new Error(
+          `You are not registered for ${stage.SubEventTitle || "this Sub Event"}. Document submission is not allowed.`
+        );
+      }
+
+      teamId = participantInfo.TeamId;
+
+      if (
+        !teamId ||
+        teamId <= 0
+      ) {
+        throw new Error(
+          "Unable to determine Team ID for document submission."
+        );
+      }
+
+      console.log(
+        "SUB EVENT UPLOAD INFORMATION:",
+        {
+          EventId: eventId,
+          SubEventId: subEventId,
+          SubEventParticipantId: participantInfo.Id,
+          TeamID: teamId
+
+        }
+      );
+    }
+
+    /* =================================================
+       CHECK ALREADY SUBMITTED
+
+       IMPORTANT:
+
+       This check occurs ONLY AFTER the
+       registration check.
+    ================================================= */
+
+    const alreadyUploaded = await this.getExistingDocumentCount(
+        eventId,
+        hasSubEvent
+          ? subEventId
+          : undefined,
+        teamId,
+        stage.StageName
+      );
 
     if (
       alreadyUploaded > 0
@@ -1451,16 +1244,14 @@ public async getStageSubmissionStatus(
       throw new Error(
         "You have already submitted the document."
       );
-
     }
 
 
-    /* ===============================================
+    /* =================================================
        VALIDATE UPLOAD LIMIT
-    =============================================== */
+    ================================================= */
 
     const uploadLimit =
-
       Number(
         stage.UploadLimit
       ) || 0;
@@ -1474,16 +1265,14 @@ public async getStageSubmissionStatus(
       throw new Error(
         `Maximum ${uploadLimit} file(s) are allowed.`
       );
-
     }
 
 
-    /* ===============================================
-       VALIDATE MAX FILE SIZE
-    =============================================== */
+    /* =================================================
+       VALIDATE FILE SIZE
+    ================================================= */
 
     const maxFileSizeMB =
-
       Number(
         stage.MaxFileSize
       ) || 0;
@@ -1493,20 +1282,15 @@ public async getStageSubmissionStatus(
       maxFileSizeMB > 0
     ) {
 
-
       const maxBytes =
-
         maxFileSizeMB *
-
         1024 *
-
         1024;
 
 
       for (
         const file of files
       ) {
-
 
         if (
           file.size >
@@ -1518,45 +1302,31 @@ public async getStageSubmissionStatus(
             `"${file.name}" exceeds the maximum file size of ${maxFileSizeMB} MB.`
 
           );
-
         }
-
       }
-
     }
 
 
-    /* ===============================================
+    /* =================================================
        GET DOCUMENT LIBRARY
-    =============================================== */
+    ================================================= */
 
     const library =
-
       sp.web.lists
-
         .getByTitle(
-
           this.documentLibraryName
-
         );
 
-
-    /* ===============================================
+    /* =================================================
        UPLOAD FILES
-
-       Functionality remains same.
-
-       Files are uploaded one by one
-       to preserve existing behavior.
-    =============================================== */
+    ================================================= */
 
     for (
       const file of files
     ) {
 
-
       console.log(
-        "Uploading:",
+        "Uploading File:",
         file.name
       );
 
@@ -1566,25 +1336,16 @@ public async getStageSubmissionStatus(
       ============================================= */
 
       const uploadResult =
-
         await library
-
           .rootFolder
-
           .files
-
           .addUsingPath(
-
             file.name,
-
             file,
-
             {
-
-              Overwrite: false
-
+              Overwrite:
+                false
             }
-
           );
 
 
@@ -1593,75 +1354,63 @@ public async getStageSubmissionStatus(
       ============================================= */
 
       const uploadedItem =
-
         await uploadResult
-
           .file
-
           .getItem();
 
 
       /* =============================================
-         UPDATE METADATA
+         BUILD METADATA
       ============================================= */
 
-      await uploadedItem.update({
+      if (
+        hasSubEvent
+      ) {
+        /*
+           SUB EVENT DOCUMENT
 
+           EventID
+           SubEventID
+           TeamID lookup
+           Stage
+        */
 
-        EventIDId:
+        await uploadedItem.update({
+          EventIDId: eventId,
+          SubEventIDId: subEventId,
+          TeamIDId: teamId,
+          Stages: stage.StageName
+        });
 
-          eventId,
+      }
 
+      else {
+        /*
+           NO SUB EVENT DOCUMENT
 
-        SubEventIDId:
+           EventID
+           TeamID lookup
+           Stage
 
-          stage.SubEventId,
+           IMPORTANT:
 
+           SubEventIDId is NOT sent.
 
-        TeamIDId:
+           Therefore the SubEvent lookup
+           remains NULL.
+        */
 
-          teamId,
-        Stages: stage.StageName
-
-      });
-
-
-      console.log(
-        "Document Uploaded:",
-        {
-
-
-          FileName:
-
-            file.name,
-
-
-          EventID:
-
-            eventId,
-
-
-          SubEventID:
-
-            stage.SubEventId,
-
-
-          TeamID:
-
-            teamId
-
-        }
-      );
-
+        await uploadedItem.update({
+          EventIDId: eventId,
+          TeamIDId:  teamId,
+          Stages: stage.StageName
+        });
+      }
     }
 
     console.log(
       "DOCUMENT SUBMISSION COMPLETED"
     );
 
-
   }
-
-
 }
-
