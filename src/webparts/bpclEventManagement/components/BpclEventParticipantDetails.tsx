@@ -50,71 +50,71 @@ const BpclEventParticipantDetails: React.FC<
    * Service instance
    */
   const eventService = React.useMemo(() => {
-  return new EventParticipantDetailsService();
-}, []);
+    return new EventParticipantDetailsService();
+  }, []);
 
   /*
    * Load details
    */
- React.useEffect(() => {
+  React.useEffect(() => {
 
-  const loadDetails = async (): Promise<void> => {
+    const loadDetails = async (): Promise<void> => {
 
-    try {
+      try {
 
-      setLoading(true);
-      setError("");
+        setLoading(true);
+        setError("");
 
-      const participantItemId =
-        props.participantItemId;
+        const participantItemId =
+          props.participantItemId;
 
-      if (!participantItemId) {
+        if (!participantItemId) {
+          setError(
+            "Participant / Team ID is missing."
+          );
+          return;
+        }
+
+        const response =
+          await eventService.getParticipantDetails(
+            participantItemId
+          );
+
+        setDetails(response);
+
+      } catch (error) {
+
+        console.error(
+          "Error loading participant details:",
+          error
+        );
+
         setError(
-          "Participant / Team ID is missing."
+          "Unable to load participant details."
         );
-        return;
+
+      } finally {
+
+        setLoading(false);
+
       }
+    };
 
-      const response =
-        await eventService.getParticipantDetails(
-          participantItemId
-        );
+    loadDetails();
 
-      setDetails(response);
-
-    } catch (error) {
-
-      console.error(
-        "Error loading participant details:",
-        error
-      );
-
-      setError(
-        "Unable to load participant details."
-      );
-
-    } finally {
-
-      setLoading(false);
-
-    }
-  };
-
-  loadDetails();
-
-}, [
-  eventService,
-  props.participantItemId
-]);
+  }, [
+    eventService,
+    props.participantItemId
+  ]);
 
   /*
    * Back button
    */
-const handleBack = (): void => {
+  const handleBack = (): void => {
 
-  props.onBack();
+    props.onBack();
 
-};
+  };
 
 
   /*
@@ -185,607 +185,228 @@ const handleBack = (): void => {
   }
 
   const isTeam =
-  details.participantType
-    .toLowerCase() === "team";
+    details.participantType
+      .toLowerCase() === "team";
 
-const isIndividual =
-  details.participantType
-    .toLowerCase() === "individual";
+  const isIndividual =
+    details.participantType
+      .toLowerCase() === "individual";
 
   return (
-  <section className={styles.commonSectionstyle}>
+    <section className={styles.commonSectionstyle}>
 
-  <Row>
-    <Col xs={12}>
+      <Row>
+        <Col xs={12}>
 
-      <div className={styles.bannerContainer}>
+          <div className={styles.bannerContainer}>
 
-        <img
-          src={eventbg1}
-          alt={details.eventTitle}
-          className={styles.bannerImage}
-        />
+            <img
+              src={eventbg1}
+              alt={details.eventTitle}
+              className={styles.bannerImage}
+            />
 
-        <div className={styles.bannerOverlay}>
+            <div className={styles.bannerOverlay}>
 
-          {/* LEFT */}
-          <div className={styles.bannerLeft}>
+              {/* LEFT */}
+              <div className={styles.bannerLeft}>
 
-            <button
-              type="button"
-              className={styles.backBtn}
-              onClick={handleBack}
-              aria-label="Go Back"
-            >
-              <i className="bi bi-chevron-left" />
-            </button>
+                <button
+                  type="button"
+                  className={styles.backBtn}
+                  onClick={handleBack}
+                  aria-label="Go Back"
+                >
+                  <i className="bi bi-chevron-left" />
+                </button>
 
-            <div className={styles.bannerContent}>
+                <div className={styles.bannerContent}>
 
-              <h1>
-                Participant / Team Detail
-              </h1>
+                  <h1>
+                    Participant / Team Detail
+                  </h1>
 
-              <p>
+                  <p>
 
-                {details.participantType === "Team"
-                  ? `Team ID #${details.teamId}`
-                  : `Participant ID #${details.participantItemId}`
-                }
+                    {details.participantType === "Team"
+                      ? `Team ID #${details.teamId}`
+                      : `Participant ID #${details.participantItemId}`
+                    }
 
-                <span className={styles.divider}>
-                  |
-                </span>
+                    <span className={styles.divider}>
+                      |
+                    </span>
 
-                {details.eventTitle}
+                    {details.eventTitle}
 
-              </p>
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              {/* RIGHT */}
+              <div className={styles.statsWrapper}>
+
+                {/* Stages Cleared */}
+                <div className={styles.stageCard}>
+
+                  <div className={styles.stageLabel}>
+                    Stages Cleared
+                  </div>
+
+                  <div className={styles.stageValue}>
+
+                    <span>
+                      {details.stagesCleared}
+                    </span>
+
+                    <span>
+                      / {details.totalStages}
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                {/* Overall Status */}
+                <div className={styles.stageCard}>
+
+                  <div className={styles.stageLabel}>
+                    Overall Status
+                  </div>
+
+                  <div className={styles.stageValue}>
+
+                    <i className="bi bi-check-circle-fill" />
+
+                    <strong>
+                      {details.overallStatus || "Registered"}
+                    </strong>
+
+                  </div>
+
+                </div>
+
+
+                {/* Send Mail */}
+                <button
+                  type="button"
+                  className={styles.mailButton}
+                  onClick={handleSendMail}
+                >
+
+                  <span className={styles.mailIcon}>
+                    <i className="bi bi-envelope" />
+                  </span>
+
+                  <span>
+                    Send Mail
+                  </span>
+
+                </button>
+
+              </div>
 
             </div>
 
           </div>
 
-
-          {/* RIGHT */}
-          <div className={styles.statsWrapper}>
-
-            {/* Stages Cleared */}
-            <div className={styles.stageCard}>
-
-              <div className={styles.stageLabel}>
-                Stages Cleared
-              </div>
-
-              <div className={styles.stageValue}>
-
-                <span>
-                  {details.stagesCleared}
-                </span>
-
-                <span>
-                  / {details.totalStages}
-                </span>
-
-              </div>
-
-            </div>
-
-
-            {/* Overall Status */}
-            <div className={styles.stageCard}>
-
-              <div className={styles.stageLabel}>
-                Overall Status
-              </div>
-
-              <div className={styles.stageValue}>
-
-                <i className="bi bi-check-circle-fill" />
-
-                <strong>
-                  {details.overallStatus || "Registered"}
-                </strong>
-
-              </div>
-
-            </div>
-
-
-            {/* Send Mail */}
-            <button
-              type="button"
-              className={styles.mailButton}
-              onClick={handleSendMail}
-            >
-
-              <span className={styles.mailIcon}>
-                <i className="bi bi-envelope" />
-              </span>
-
-              <span>
-                Send Mail
-              </span>
-
-            </button>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </Col>
-  </Row>
+        </Col>
+      </Row>
       <Container fluid>
         <Row className="mb-4">
           {/* <Col md={4}> */}
-      <Col xs={12} lg={4}>
+          <Col xs={12} lg={4}>
 
-  {/* TEAM INFORMATION - ONLY FOR TEAM */}
-  {isTeam && (
+            {/* TEAM INFORMATION - ONLY FOR TEAM */}
+            {isTeam && (
 
-    <div className={`${styles.card} p-3 mt-4`}>
+              <div className={`${styles.card} p-3 mt-4`}>
 
-      {/* Header */}
-      <div className={styles.header}>
+                {/* Header */}
+                <div className={styles.header}>
 
-        <div className={styles.teamInfoIconBox}>
-          <i className="bi bi-card-checklist fs-3" />
-        </div>
-
-        <h5 className={styles.eventTitle}>
-          Team Information
-        </h5>
-
-      </div>
-
-
-      {/* Information */}
-      <div className={styles.infoList}>
-
-        {/* Team ID */}
-        <div className={styles.infoItem}>
-
-          <i
-            className={`bi bi-card-list ${styles.icon}`}
-          />
-
-          <div>
-
-            <div className={styles.infoLabel}>
-              Team ID
-            </div>
-
-            <div className={styles.infoValue}>
-              {details.teamId || "-"}
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* Team Leader */}
-        <div className={styles.infoItem}>
-
-          <i
-            className={`bi bi-person ${styles.icon}`}
-          />
-
-          <div>
-
-            <div className={styles.infoLabel}>
-              Team Leader
-            </div>
-
-            <div className={styles.infoValue}>
-              {details.teamLeaderName || "-"}
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* Team Members */}
-        <div className={styles.infoItem}>
-
-          <i
-            className={`bi bi-people ${styles.icon}`}
-          />
-
-          <div>
-
-            <div className={styles.infoLabel}>
-              Team Members
-            </div>
-
-            <div className={styles.infoValue}>
-
-              {details.teamMembers.length} Member
-              {details.teamMembers.length !== 1
-                ? "s"
-                : ""
-              }
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* Event Name */}
-        <div className={styles.infoItem}>
-
-          <i
-            className={`bi bi-calendar-event ${styles.icon}`}
-          />
-
-          <div>
-
-            <div className={styles.infoLabel}>
-              Event Name
-            </div>
-
-            <div className={styles.infoValue}>
-              {details.eventTitle || "-"}
-            </div>
-
-          </div>
-
-        </div>
-
-
-        {/* Registered Date */}
-        <div className={styles.infoItem}>
-
-          <i
-            className={`bi bi-calendar-check ${styles.icon}`}
-          />
-
-          <div>
-
-            <div className={styles.infoLabel}>
-              Registered Date
-            </div>
-
-            <div className={styles.infoValue}>
-              {formatDate(details.registeredDate)}
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  )}
-
-
-  {/* TEAM MEMBERS - ONLY FOR TEAM */}
-  {isTeam && (
-
-    <div className={`${styles.card} p-3 ${isTeam ? "mt-3" : "mt-4"}`}>
-
-      <div className={styles.header}>
-
-        <div className={styles.teamInfoIconBox}>
-          <i className="bi bi-people fs-3" />
-        </div>
-
-        <h5 className={styles.eventTitle}>
-          Team Members
-        </h5>
-
-      </div>
-
-      <div className={styles.teamMembersList}>
-
-        {details.teamMembers.length > 0 ? (
-
-          details.teamMembers.map((member, index) => (
-
-            <div
-              key={member.id}
-              className={styles.teamMemberItem}
-            >
-
-              <div className={styles.memberLeft}>
-
-                <div className={styles.memberNumber}>
-                  {index + 1}
-                </div>
-
-                <div>
-
-                  <div className={styles.memberName}>
-                    {member.name}
+                  <div className={styles.teamInfoIconBox}>
+                    <i className="bi bi-card-checklist fs-3" />
                   </div>
 
-                  {member.email && (
-                    <div className={styles.memberEmail}>
-                      {member.email}
+                  <h5 className={styles.eventTitle}>
+                    Team Information
+                  </h5>
+
+                </div>
+
+
+                {/* Information */}
+                <div className={styles.infoList}>
+
+                  {/* Team ID */}
+                  <div className={styles.infoItem}>
+
+                    <i
+                      className={`bi bi-card-list ${styles.icon}`}
+                    />
+
+                    <div>
+
+                      <div className={styles.infoLabel}>
+                        Team ID
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {details.teamId || "-"}
+                      </div>
+
                     </div>
-                  )}
 
-                </div>
+                  </div>
 
-              </div>
 
-              {member.isTeamLeader && (
+                  {/* Team Leader */}
+                  <div className={styles.infoItem}>
 
-                <span className={styles.teamLeadBadge}>
-                  Team Lead
-                </span>
+                    <i
+                      className={`bi bi-person ${styles.icon}`}
+                    />
 
-              )}
-
-            </div>
-
-          ))
-
-        ) : (
-
-          <div className={styles.noData}>
-            No team members found.
-          </div>
-
-        )}
-
-      </div>
-
-    </div>
-
-  )}
+                    <div>
 
+                      <div className={styles.infoLabel}>
+                        Team Leader
+                      </div>
 
-  {/* PARTICIPANT INFORMATION - ONLY FOR INDIVIDUAL */}
- {isIndividual && (
+                      <div className={styles.infoValue}>
+                        {details.teamLeaderName || "-"}
+                      </div>
 
-  <div className={`${styles.card} p-3 mt-4`}>
-  {/* Header */}
-  <div className={styles.header}>
-    <div className={styles.teamInfoIconBox}>
-      <i className="bi bi-person fs-3" />
-    </div>
+                    </div>
 
-    <h5 className={styles.eventTitle}>
-      Participant Information
-    </h5>
-  </div>
+                  </div>
 
-  {/* Information */}
-  <div className={styles.infoList}>
 
-    {/* Participant ID */}
-    <div className={styles.infoItem}>
-      <div>
-        <div className={styles.infoLabel}>
-          Participant ID
-        </div>
+                  {/* Team Members */}
+                  <div className={styles.infoItem}>
 
-        <div className={styles.infoValue}>
-          {details.participantItemId || "-"}
-        </div>
-      </div>
-    </div>
+                    <i
+                      className={`bi bi-people ${styles.icon}`}
+                    />
 
-    {/* Participant Name */}
-    <div className={styles.infoItem}>
-      <div>
-        <div className={styles.infoLabel}>
-          Participant Name
-        </div>
+                    <div>
 
-        <div className={styles.infoValue}>
-          {details.participantName || "-"}
-        </div>
-      </div>
-    </div>
+                      <div className={styles.infoLabel}>
+                        Team Members
+                      </div>
 
-    {/* Email */}
-    <div className={styles.infoItem}>
-      <div>
-        <div className={styles.infoLabel}>
-          Email ID
-        </div>
+                      <div className={styles.infoValue}>
 
-        <div className={styles.infoValue}>
-          {details.participantEmail || "-"}
-        </div>
-      </div>
-    </div>
-
-    {/* Contact Number */}
-    <div className={styles.infoItem}>
-      <div>
-        <div className={styles.infoLabel}>
-          Contact Number
-        </div>
-
-        <div className={styles.infoValue}>
-           {details.contactNumber || "-"}
-        </div>
-      </div>
-    </div>
-
-    {/* Registered Date */}
-    <div className={styles.infoItem}>
-      <div>
-        <div className={styles.infoLabel}>
-          Registered Date
-        </div>
-
-        <div className={styles.infoValue}>
-          {formatDate(details.registeredDate)}
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-)}
-</Col>
-    {/* =====================================================
-    RIGHT SIDE - SUB EVENTS & STAGES
-====================================================== */}
-
-<Col xs={12} lg={8}>
-
-  <div className={`${styles.card} p-3 mt-4`}>
-
-    {/* HEADER */}
-    <div className={styles.header}>
-
-      <div className={styles.teamInfoIconBox}>
-        <i className="bi bi-calendar4-event fs-3" />
-      </div>
-
-      <h5 className={styles.eventTitle}>
-        Sub-Events & Stages
-      </h5>
-
-    </div>
-
-
-    {/* =====================================================
-        CASE 1:
-        SUB EVENTS EXIST
-    ====================================================== */}
-
-    {details.subEvents &&
-    details.subEvents.length > 0 ? (
-
-      <Accordion
-        defaultActiveKey="0"
-        className={styles.accordion}
-      >
-
-        {details.subEvents.map(
-          (subEvent, subEventIndex) => (
-
-            <Accordion.Item
-              key={subEvent.id}
-              eventKey={String(subEventIndex)}
-              className={styles.accordionItem}
-            >
-
-              {/* SUB EVENT HEADER */}
-
-              <Accordion.Header>
-
-                <div className={styles.accordionTitle}>
-
-                  <span>
-                    {subEvent.title}
-                  </span>
-
-                  {subEvent.status && (
-
-                    <span
-                      className={`${styles.statusBadge} ${
-                        subEvent.status.toLowerCase() ===
-                        "qualified"
-                          ? styles.qualified
-                          : subEvent.status.toLowerCase() ===
-                            "not qualified"
-                          ? styles.notQualified
-                          : subEvent.status.toLowerCase() ===
-                            "results pending"
-                          ? styles.resultsPending
-                          : subEvent.status.toLowerCase() ===
-                            "winner"
-                          ? styles.winner
-                          : subEvent.status.toLowerCase() ===
-                            "stage in progress"
-                          ? styles.stageInProgress
-                          : styles.registered
-                      }`}
-                    >
-                      {subEvent.status}
-                    </span>
-
-                  )}
-
-                </div>
-
-              </Accordion.Header>
-
-
-              <Accordion.Body
-                className={styles.accordionBody}
-              >
-
-                {/* ==========================================
-                    SUB EVENT WITHOUT STAGES
-                =========================================== */}
-
-                {!subEvent.hasStages && (
-
-                  <div className={styles.stage}>
-
-                    <div className={styles.stageDetails}>
-
-                      <div className={styles.detailItem}>
-
-                        <i
-                          className={`bi bi-people ${styles.detailIcon}`}
-                        />
-
-                        <div
-                          className={styles.detailContent}
-                        >
-
-                          <div
-                            className={styles.detailLabel}
-                          >
-                            Participants
-                          </div>
-
-                          <div
-                            className={styles.detailValue}
-                          >
-
-                            {subEvent.participants &&
-                            subEvent.participants.length > 0 ? (
-
-                              subEvent.participants.map(
-                                (participant, index) => (
-
-                                  <React.Fragment
-                                    key={participant.id}
-                                  >
-
-                                    {index + 1}.{" "}
-                                    {participant.name}
-
-                                    {index <
-                                      subEvent.participants.length -
-                                        1 && (
-                                      <br />
-                                    )}
-
-                                  </React.Fragment>
-
-                                )
-                              )
-
-                            ) : (
-
-                              <span
-                                className={styles.noData}
-                              >
-                                No participants found.
-                              </span>
-
-                            )}
-
-                          </div>
-
-                        </div>
+                        {details.teamMembers.length} Member
+                        {details.teamMembers.length !== 1
+                          ? "s"
+                          : ""
+                        }
 
                       </div>
 
@@ -793,148 +414,377 @@ const isIndividual =
 
                   </div>
 
-                )}
+
+                  {/* Event Name */}
+                  <div className={styles.infoItem}>
+
+                    <i
+                      className={`bi bi-calendar-event ${styles.icon}`}
+                    />
+
+                    <div>
+
+                      <div className={styles.infoLabel}>
+                        Event Name
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {details.eventTitle || "-"}
+                      </div>
+
+                    </div>
+
+                  </div>
 
 
-                {/* ==========================================
-                    SUB EVENT WITH STAGES
-                =========================================== */}
+                  {/* Registered Date */}
+                  <div className={styles.infoItem}>
 
-                {subEvent.hasStages &&
-                subEvent.stages &&
-                subEvent.stages.length > 0 && (
+                    <i
+                      className={`bi bi-calendar-check ${styles.icon}`}
+                    />
 
-                  <>
+                    <div>
 
-                    {subEvent.stages.map(
-                      (stage, stageIndex) => (
+                      <div className={styles.infoLabel}>
+                        Registered Date
+                      </div>
 
-                        <div
-                          key={`${subEvent.id}-${stage.stageName}`}
-                          className={styles.stage}
-                        >
+                      <div className={styles.infoValue}>
+                        {formatDate(details.registeredDate)}
+                      </div>
 
-                          {/* STAGE HEADER */}
+                    </div>
 
-                          <div
-                            className={styles.stageTitle}
-                          >
+                  </div>
 
-                            <span
-                              className={styles.stageCircle}
-                            >
-                              <span />
-                            </span>
+                </div>
 
-                            <span>
-                              {stage.stageName}
-                            </span>
+              </div>
 
-                            <span
-                              className={`${styles.statusBadge} ${
-                                stage.status?.toLowerCase() ===
-                                "qualified"
-                                  ? styles.qualified
-                                  : stage.status?.toLowerCase() ===
-                                    "not qualified"
-                                  ? styles.notQualified
-                                  : stage.status?.toLowerCase() ===
-                                    "results pending"
-                                  ? styles.resultsPending
-                                  : stage.status?.toLowerCase() ===
-                                    "winner"
-                                  ? styles.winner
-                                  : styles.registered
-                              }`}
-                            >
-                              {stage.status ||
-                                "Registered"}
-                            </span>
+            )}
+
+
+            {/* TEAM MEMBERS - ONLY FOR TEAM */}
+            {isTeam && (
+
+              <div className={`${styles.card} p-3 ${isTeam ? "mt-3" : "mt-4"}`}>
+
+                <div className={styles.header}>
+
+                  <div className={styles.teamInfoIconBox}>
+                    <i className="bi bi-people fs-3" />
+                  </div>
+
+                  <h5 className={styles.eventTitle}>
+                    Team Members
+                  </h5>
+
+                </div>
+
+                <div className={styles.teamMembersList}>
+
+                  {details.teamMembers.length > 0 ? (
+
+                    details.teamMembers.map((member, index) => (
+
+                      <div
+                        key={member.id}
+                        className={styles.teamMemberItem}
+                      >
+
+                        <div className={styles.memberLeft}>
+
+                          <div className={styles.memberNumber}>
+                            {index + 1}
+                          </div>
+
+                          <div>
+
+                            <div className={styles.memberName}>
+                              {member.name}
+                            </div>
+
+                            {member.email && (
+                              <div className={styles.memberEmail}>
+                                {member.email}
+                              </div>
+                            )}
 
                           </div>
 
+                        </div>
 
-                          {/* STAGE DETAILS */}
+                        {member.isTeamLeader && (
 
-                          <div
-                            className={styles.stageDetails}
-                          >
+                          <span className={styles.teamLeadBadge}>
+                            Team Lead
+                          </span>
 
-                            {/* PARTICIPANTS */}
+                        )}
 
-                            <div
-                              className={styles.detailItem}
-                            >
+                      </div>
 
-                              <i
-                                className={`bi bi-people ${styles.detailIcon}`}
-                              />
+                    ))
 
-                              <div
-                                className={
-                                  styles.detailContent
-                                }
+                  ) : (
+
+                    <div className={styles.noData}>
+                      No team members found.
+                    </div>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            )}
+
+
+            {/* PARTICIPANT INFORMATION - ONLY FOR INDIVIDUAL */}
+            {isIndividual && (
+
+              <div className={`${styles.card} p-3 mt-4`}>
+                {/* Header */}
+                <div className={styles.header}>
+                  <div className={styles.teamInfoIconBox}>
+                    <i className="bi bi-person fs-3" />
+                  </div>
+
+                  <h5 className={styles.eventTitle}>
+                    Participant Information
+                  </h5>
+                </div>
+
+                {/* Information */}
+                <div className={styles.infoList}>
+
+                  {/* Participant ID */}
+                  <div className={styles.infoItem}>
+                    <div>
+                      <div className={styles.infoLabel}>
+                        Participant ID
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {details.participantItemId || "-"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Participant Name */}
+                  <div className={styles.infoItem}>
+                    <div>
+                      <div className={styles.infoLabel}>
+                        Participant Name
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {details.participantName || "-"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div className={styles.infoItem}>
+                    <div>
+                      <div className={styles.infoLabel}>
+                        Email ID
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {details.participantEmail || "-"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contact Number */}
+                  <div className={styles.infoItem}>
+                    <div>
+                      <div className={styles.infoLabel}>
+                        Contact Number
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {details.contactNumber || "-"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Registered Date */}
+                  <div className={styles.infoItem}>
+                    <div>
+                      <div className={styles.infoLabel}>
+                        Registered Date
+                      </div>
+
+                      <div className={styles.infoValue}>
+                        {formatDate(details.registeredDate)}
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
+          </Col>
+          {/* =====================================================
+    RIGHT SIDE - SUB EVENTS & STAGES
+====================================================== */}
+
+          <Col xs={12} lg={8}>
+
+            <div className={`${styles.card} p-3 mt-4`}>
+
+              {/* HEADER */}
+              <div className={styles.header}>
+
+                <div className={styles.teamInfoIconBox}>
+                  <i className="bi bi-calendar4-event fs-3" />
+                </div>
+
+                <h5 className={styles.eventTitle}>
+                  Sub-Events & Stages
+                </h5>
+
+              </div>
+
+
+              {/* =====================================================
+        CASE 1:
+        SUB EVENTS EXIST
+    ====================================================== */}
+
+              {details.subEvents &&
+                details.subEvents.length > 0 ? (
+
+                <Accordion
+                  defaultActiveKey="0"
+                  className={styles.accordion}
+                >
+
+                  {details.subEvents.map(
+                    (subEvent, subEventIndex) => (
+
+                      <Accordion.Item
+                        key={subEvent.id}
+                        eventKey={String(subEventIndex)}
+                        className={styles.accordionItem}
+                      >
+
+                        {/* SUB EVENT HEADER */}
+
+                        <Accordion.Header>
+
+                          <div className={styles.accordionTitle}>
+
+                            <span>
+                              {subEvent.title}
+                            </span>
+
+                            {subEvent.status && (
+
+                              <span
+                                className={`${styles.statusBadge} ${subEvent.status.toLowerCase() ===
+                                  "qualified"
+                                  ? styles.qualified
+                                  : subEvent.status.toLowerCase() ===
+                                    "not qualified"
+                                    ? styles.notQualified
+                                    : subEvent.status.toLowerCase() ===
+                                      "results pending"
+                                      ? styles.resultsPending
+                                      : subEvent.status.toLowerCase() ===
+                                        "winner"
+                                        ? styles.winner
+                                        : subEvent.status.toLowerCase() ===
+                                          "stage in progress"
+                                          ? styles.stageInProgress
+                                          : styles.registered
+                                  }`}
                               >
+                                {subEvent.status}
+                              </span>
 
-                                <div
-                                  className={
-                                    styles.detailLabel
-                                  }
-                                >
-                                  Participants
-                                </div>
+                            )}
 
-                                <div
-                                  className={
-                                    styles.detailValue
-                                  }
-                                >
+                          </div>
 
-                                  {stage.participants &&
-                                  stage.participants.length >
-                                    0 ? (
+                        </Accordion.Header>
 
-                                    stage.participants.map(
-                                      (
-                                        participant,
-                                        index
-                                      ) => (
 
-                                        <React.Fragment
-                                          key={
-                                            participant.id
-                                          }
-                                        >
+                        <Accordion.Body
+                          className={styles.accordionBody}
+                        >
 
-                                          {index + 1}.{" "}
-                                          {
-                                            participant.name
-                                          }
+                          {/* ==========================================
+                    SUB EVENT WITHOUT STAGES
+                =========================================== */}
 
-                                          {index <
-                                            stage.participants
-                                              .length -
-                                              1 && (
-                                            <br />
-                                          )}
+                          {!subEvent.hasStages && (
 
-                                        </React.Fragment>
+                            <div className={styles.stage}>
 
-                                      )
-                                    )
+                              <div className={styles.stageDetails}>
 
-                                  ) : (
+                                <div className={styles.detailItem}>
 
-                                    <span
-                                      className={
-                                        styles.noData
-                                      }
+                                  <i
+                                    className={`bi bi-people ${styles.detailIcon}`}
+                                  />
+
+                                  <div
+                                    className={styles.detailContent}
+                                  >
+
+                                    <div
+                                      className={styles.detailLabel}
                                     >
-                                      No participants
-                                      found.
-                                    </span>
+                                      Participants
+                                    </div>
 
-                                  )}
+                                    <div
+                                      className={styles.detailValue}
+                                    >
+
+                                      {subEvent.participants &&
+                                        subEvent.participants.length > 0 ? (
+
+                                        subEvent.participants.map(
+                                          (participant, index) => (
+
+                                            <React.Fragment
+                                              key={participant.id}
+                                            >
+
+                                              {index + 1}.{" "}
+                                              {participant.name}
+
+                                              {index <
+                                                subEvent.participants.length -
+                                                1 && (
+                                                  <br />
+                                                )}
+
+                                            </React.Fragment>
+
+                                          )
+                                        )
+
+                                      ) : (
+
+                                        <span
+                                          className={styles.noData}
+                                        >
+                                          No participants found.
+                                        </span>
+
+                                      )}
+
+                                    </div>
+
+                                  </div>
 
                                 </div>
 
@@ -942,62 +792,442 @@ const isIndividual =
 
                             </div>
 
+                          )}
 
-                            {/* DOCUMENT */}
+
+                          {/* ==========================================
+                    SUB EVENT WITH STAGES
+                =========================================== */}
+
+                          {subEvent.hasStages &&
+                            subEvent.stages &&
+                            subEvent.stages.length > 0 && (
+
+                              <>
+
+                                {subEvent.stages.map(
+                                  (stage, stageIndex) => (
+
+                                    <div
+                                      key={`${subEvent.id}-${stage.stageName}`}
+                                      className={styles.stage}
+                                    >
+
+                                      {/* STAGE HEADER */}
+
+                                      <div
+                                        className={styles.stageTitle}
+                                      >
+
+                                        <span
+                                          className={styles.stageCircle}
+                                        >
+                                          <span />
+                                        </span>
+
+                                        <span>
+                                          {stage.stageName}
+                                        </span>
+
+                                        <span
+                                          className={`${styles.statusBadge} ${stage.status?.toLowerCase() ===
+                                            "qualified"
+                                            ? styles.qualified
+                                            : stage.status?.toLowerCase() ===
+                                              "not qualified"
+                                              ? styles.notQualified
+                                              : stage.status?.toLowerCase() ===
+                                                "results pending"
+                                                ? styles.resultsPending
+                                                : stage.status?.toLowerCase() ===
+                                                  "winner"
+                                                  ? styles.winner
+                                                  : styles.registered
+                                            }`}
+                                        >
+                                          {stage.status ||
+                                            "Registered"}
+                                        </span>
+
+                                      </div>
+
+
+                                      {/* STAGE DETAILS */}
+
+                                      <div
+                                        className={styles.stageDetails}
+                                      >
+
+                                        {/* PARTICIPANTS */}
+
+                                        <div
+                                          className={styles.detailItem}
+                                        >
+
+                                          <i
+                                            className={`bi bi-people ${styles.detailIcon}`}
+                                          />
+
+                                          <div
+                                            className={
+                                              styles.detailContent
+                                            }
+                                          >
+
+                                            <div
+                                              className={
+                                                styles.detailLabel
+                                              }
+                                            >
+                                              Participants
+                                            </div>
+
+                                            <div
+                                              className={
+                                                styles.detailValue
+                                              }
+                                            >
+
+                                              {stage.participants &&
+                                                stage.participants.length >
+                                                0 ? (
+
+                                                stage.participants.map(
+                                                  (
+                                                    participant,
+                                                    index
+                                                  ) => (
+
+                                                    <React.Fragment
+                                                      key={
+                                                        participant.id
+                                                      }
+                                                    >
+
+                                                      {index + 1}.{" "}
+                                                      {
+                                                        participant.name
+                                                      }
+
+                                                      {index <
+                                                        stage.participants
+                                                          .length -
+                                                        1 && (
+                                                          <br />
+                                                        )}
+
+                                                    </React.Fragment>
+
+                                                  )
+                                                )
+
+                                              ) : (
+
+                                                <span
+                                                  className={
+                                                    styles.noData
+                                                  }
+                                                >
+                                                  No participants
+                                                  found.
+                                                </span>
+
+                                              )}
+
+                                            </div>
+
+                                          </div>
+
+                                        </div>
+
+
+                                        {/* DOCUMENT */}
+
+                                        <div
+                                          className={styles.detailItem}
+                                        >
+
+                                          <i
+                                            className={`bi bi-file-earmark-text ${styles.detailIcon}`}
+                                          />
+
+                                          <div
+                                            className={
+                                              styles.detailContent
+                                            }
+                                          >
+
+                                            <div
+                                              className={
+                                                styles.detailLabel
+                                              }
+                                            >
+                                              Submitted Documents
+                                            </div>
+
+                                            {stage.documents && stage.documents.length > 0 ? (
+
+                                              <div>
+                                                {stage.documents.map((document) => (
+
+                                                  <div
+                                                    key={document.id}
+                                                    className={styles.document}
+                                                  >
+
+                                                    <a
+                                                      href={document.url}
+                                                      target="_blank"
+                                                      rel="noopener noreferrer"
+                                                    >
+
+                                                      <i className="bi bi-file-earmark-pdf" />
+
+                                                      {" "}
+
+                                                      {document.name || "View Document"}
+
+                                                    </a>
+
+                                                  </div>
+
+                                                ))}
+                                              </div>
+
+                                            ) : (
+
+                                              <div
+                                                className={styles.detailValue}
+                                              >
+                                                No document submitted.
+                                              </div>
+
+                                            )}
+
+                                          </div>
+
+                                        </div>
+
+                                        {/* Date */}
+                                        <div className={styles.detailItem}>
+                                          <i
+                                            className={`bi bi-calendar3 ${styles.detailIcon}`}
+                                          />
+
+                                          <div className={styles.detailContent}>
+                                            <div className={styles.detailLabel}>
+                                              Document Submitted on
+                                            </div>
+
+                                            <div className={styles.detailValue}>
+                                              {stage.createDate
+                                                ? formatDate(stage.createDate)
+                                                : "-"}
+                                            </div>
+                                          </div>
+                                        </div>
+
+
+                                        {/* STATUS */}
+
+                                        <div
+                                          className={styles.detailItem}
+                                        >
+
+                                          <i
+                                            className={`bi bi-check-circle-fill ${styles.statusIcon}`}
+                                          />
+
+                                          <div
+                                            className={
+                                              styles.detailContent
+                                            }
+                                          >
+
+                                            <div
+                                              className={
+                                                styles.detailLabel
+                                              }
+                                            >
+                                              Status
+                                            </div>
+
+                                            <div
+                                              className={
+                                                styles.detailValue
+                                              }
+                                            >
+                                              {stage.status ||
+                                                "Registered"}
+                                            </div>
+
+                                          </div>
+
+                                        </div>
+
+                                      </div>
+
+                                    </div>
+
+                                  )
+                                )}
+
+                              </>
+
+                            )}
+
+
+                          {subEvent.hasStages &&
+                            (!subEvent.stages ||
+                              subEvent.stages.length === 0) && (
+
+                              <div className={styles.noData}>
+                                No stages found.
+                              </div>
+
+                            )}
+
+                        </Accordion.Body>
+
+                      </Accordion.Item>
+
+                    )
+                  )}
+
+                </Accordion>
+
+
+              ) : details.eventStages &&
+                details.eventStages.length > 0 ? (
+
+                /* =====================================================
+                   CASE 2:
+                   NO SUB EVENTS
+                   BUT DIRECT EVENT STAGES EXIST
+                ====================================================== */
+
+                <>
+
+                  {details.eventStages.map(
+                    (stage, stageIndex) => (
+
+                      <div
+                        key={stage.id}
+                        className={styles.stage}
+                      >
+
+                        {/* STAGE HEADER */}
+
+                        <div className={styles.stageTitle}>
+
+                          <span
+                            className={styles.stageCircle}
+                          >
+                            <span />
+                          </span>
+
+                          <span>
+                            {stage.stageName}
+                          </span>
+
+                          <span
+                            className={`${styles.statusBadge} ${stage.status?.toLowerCase() ===
+                              "qualified"
+                              ? styles.qualified
+                              : stage.status?.toLowerCase() ===
+                                "not qualified"
+                                ? styles.notQualified
+                                : stage.status?.toLowerCase() ===
+                                  "results pending"
+                                  ? styles.resultsPending
+                                  : stage.status?.toLowerCase() ===
+                                    "winner"
+                                    ? styles.winner
+                                    : styles.registered
+                              }`}
+                          >
+                            {stage.status ||
+                              "Registered"}
+                          </span>
+
+                        </div>
+
+
+                        {/* STAGE DETAILS */}
+
+                        <div
+                          className={styles.stageDetails}
+                        >
+
+                          {/* PARTICIPANTS */}
+
+                          <div
+                            className={styles.detailItem}
+                          >
+
+                            <i
+                              className={`bi bi-people ${styles.detailIcon}`}
+                            />
 
                             <div
-                              className={styles.detailItem}
+                              className={
+                                styles.detailContent
+                              }
                             >
-
-                              <i
-                                className={`bi bi-file-earmark-text ${styles.detailIcon}`}
-                              />
 
                               <div
                                 className={
-                                  styles.detailContent
+                                  styles.detailLabel
+                                }
+                              >
+                                Participants
+                              </div>
+
+                              <div
+                                className={
+                                  styles.detailValue
                                 }
                               >
 
-                                <div
-                                  className={
-                                    styles.detailLabel
-                                  }
-                                >
-                                  Submitted Documents
-                                </div>
+                                {stage.participants &&
+                                  stage.participants.length > 0 ? (
 
-                                {stage.documentUrl ? (
+                                  stage.participants.map(
+                                    (
+                                      participant,
+                                      index
+                                    ) => (
 
-                                  <a
-                                    href={
-                                      stage.documentUrl
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={
-                                      styles.document
-                                    }
-                                  >
+                                      <React.Fragment
+                                        key={
+                                          participant.id
+                                        }
+                                      >
 
-                                    <i className="bi bi-file-earmark-pdf" />
+                                        {index + 1}.{" "}
+                                        {participant.name}
 
-                                    {" "}
+                                        {index <
+                                          stage.participants
+                                            .length -
+                                          1 && (
+                                            <br />
+                                          )}
 
-                                    {stage.documentName ||
-                                      "View Document"}
+                                      </React.Fragment>
 
-                                  </a>
+                                    )
+                                  )
 
                                 ) : (
 
-                                  <div
+                                  <span
                                     className={
-                                      styles.detailValue
+                                      styles.noData
                                     }
                                   >
-                                    No document submitted.
-                                  </div>
+                                    No participants found.
+                                  </span>
 
                                 )}
 
@@ -1005,59 +1235,128 @@ const isIndividual =
 
                             </div>
 
-                               {/* Date */}
-                             <div className={styles.detailItem}>
-                          <i
-                            className={`bi bi-calendar3 ${styles.detailIcon}`}
-                          />
-
-                          <div className={styles.detailContent}>
-                            <div className={styles.detailLabel}>
-                              Document Submitted on
-                            </div>
-
-                            <div className={styles.detailValue}>
-                              {stage.createDate
-                                ? formatDate(stage.createDate)
-                                : "-"}
-                            </div>
                           </div>
-                        </div>
 
 
-                            {/* STATUS */}
+                          {/* DOCUMENT */}
+
+                          <div
+                            className={styles.detailItem}
+                          >
+
+                            <i
+                              className={`bi bi-file-earmark-text ${styles.detailIcon}`}
+                            />
 
                             <div
-                              className={styles.detailItem}
+                              className={styles.detailContent}
                             >
 
-                              <i
-                                className={`bi bi-check-circle-fill ${styles.statusIcon}`}
-                              />
+                              <div
+                                className={styles.detailLabel}
+                              >
+                                Submitted Documents
+                              </div>
+
+                              {stage.documents &&
+                                stage.documents.length > 0 ? (
+
+                                <div className={styles.documentList}>
+
+                                  {stage.documents.map(
+                                    (document) => (
+
+                                      <div
+                                        key={document.id}
+                                        className={styles.documentItem}
+                                      >
+
+                                        <i
+                                          className="bi bi-file-earmark-pdf"
+                                        />
+
+                                        <a
+                                          href={document.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className={styles.document}
+                                        >
+                                          {document.name ||
+                                            "View Document"}
+                                        </a>
+
+                                      </div>
+
+                                    )
+                                  )}
+
+                                </div>
+
+                              ) : (
+
+                                <div
+                                  className={styles.detailValue}
+                                >
+                                  No document submitted.
+                                </div>
+
+                              )}
+
+                            </div>
+
+                          </div>
+
+                          {/* Date */}
+                          <div className={styles.detailItem}>
+                            <i
+                              className={`bi bi-calendar3 ${styles.detailIcon}`}
+                            />
+
+                            <div className={styles.detailContent}>
+                              <div className={styles.detailLabel}>
+                                Document Submitted on
+                              </div>
+
+                              <div className={styles.detailValue}>
+                                {stage.createDate
+                                  ? formatDate(stage.createDate)
+                                  : "-"}
+                              </div>
+                            </div>
+                          </div>
+
+
+                          {/* STATUS */}
+
+                          <div
+                            className={styles.detailItem}
+                          >
+
+                            <i
+                              className={`bi bi-check-circle-fill ${styles.statusIcon}`}
+                            />
+
+                            <div
+                              className={
+                                styles.detailContent
+                              }
+                            >
 
                               <div
                                 className={
-                                  styles.detailContent
+                                  styles.detailLabel
                                 }
                               >
+                                Status
+                              </div>
 
-                                <div
-                                  className={
-                                    styles.detailLabel
-                                  }
-                                >
-                                  Status
-                                </div>
-
-                                <div
-                                  className={
-                                    styles.detailValue
-                                  }
-                                >
-                                  {stage.status ||
-                                    "Registered"}
-                                </div>
-
+                              <div
+                                className={
+                                  styles.detailValue
+                                }
+                              >
+                                {stage.status ||
+                                  "Registered"}
                               </div>
 
                             </div>
@@ -1066,321 +1365,30 @@ const isIndividual =
 
                         </div>
 
-                      )
-                    )}
-
-                  </>
-
-                )}
-
-
-                {subEvent.hasStages &&
-                (!subEvent.stages ||
-                  subEvent.stages.length === 0) && (
-
-                  <div className={styles.noData}>
-                    No stages found.
-                  </div>
-
-                )}
-
-              </Accordion.Body>
-
-            </Accordion.Item>
-
-          )
-        )}
-
-      </Accordion>
-
-
-    ) : details.eventStages &&
-      details.eventStages.length > 0 ? (
-
-      /* =====================================================
-         CASE 2:
-         NO SUB EVENTS
-         BUT DIRECT EVENT STAGES EXIST
-      ====================================================== */
-
-      <>
-
-        {details.eventStages.map(
-          (stage, stageIndex) => (
-
-            <div
-              key={stage.id}
-              className={styles.stage}
-            >
-
-              {/* STAGE HEADER */}
-
-              <div className={styles.stageTitle}>
-
-                <span
-                  className={styles.stageCircle}
-                >
-                  <span />
-                </span>
-
-                <span>
-                  {stage.stageName}
-                </span>
-
-                <span
-                  className={`${styles.statusBadge} ${
-                    stage.status?.toLowerCase() ===
-                    "qualified"
-                      ? styles.qualified
-                      : stage.status?.toLowerCase() ===
-                        "not qualified"
-                      ? styles.notQualified
-                      : stage.status?.toLowerCase() ===
-                        "results pending"
-                      ? styles.resultsPending
-                      : stage.status?.toLowerCase() ===
-                        "winner"
-                      ? styles.winner
-                      : styles.registered
-                  }`}
-                >
-                  {stage.status ||
-                    "Registered"}
-                </span>
-
-              </div>
-
-
-              {/* STAGE DETAILS */}
-
-              <div
-                className={styles.stageDetails}
-              >
-
-                {/* PARTICIPANTS */}
-
-                <div
-                  className={styles.detailItem}
-                >
-
-                  <i
-                    className={`bi bi-people ${styles.detailIcon}`}
-                  />
-
-                  <div
-                    className={
-                      styles.detailContent
-                    }
-                  >
-
-                    <div
-                      className={
-                        styles.detailLabel
-                      }
-                    >
-                      Participants
-                    </div>
-
-                    <div
-                      className={
-                        styles.detailValue
-                      }
-                    >
-
-                      {stage.participants &&
-                      stage.participants.length > 0 ? (
-
-                        stage.participants.map(
-                          (
-                            participant,
-                            index
-                          ) => (
-
-                            <React.Fragment
-                              key={
-                                participant.id
-                              }
-                            >
-
-                              {index + 1}.{" "}
-                              {participant.name}
-
-                              {index <
-                                stage.participants
-                                  .length -
-                                  1 && (
-                                <br />
-                              )}
-
-                            </React.Fragment>
-
-                          )
-                        )
-
-                      ) : (
-
-                        <span
-                          className={
-                            styles.noData
-                          }
-                        >
-                          No participants found.
-                        </span>
-
-                      )}
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                {/* DOCUMENT */}
-
-                <div
-                  className={styles.detailItem}
-                >
-
-                  <i
-                    className={`bi bi-file-earmark-text ${styles.detailIcon}`}
-                  />
-
-                  <div
-                    className={
-                      styles.detailContent
-                    }
-                  >
-
-                    <div
-                      className={
-                        styles.detailLabel
-                      }
-                    >
-                      Submitted Documents
-                    </div>
-
-                    {stage.documentUrl ? (
-
-                      <a
-                        href={
-                          stage.documentUrl
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={
-                          styles.document
-                        }
-                      >
-
-                        <i className="bi bi-file-earmark-pdf" />
-
-                        {" "}
-
-                        {stage.documentName ||
-                          "View Document"}
-
-                      </a>
-
-                    ) : (
-
-                      <div
-                        className={
-                          styles.detailValue
-                        }
-                      >
-                        No document submitted.
                       </div>
 
-                    )}
+                    )
+                  )}
 
-                  </div>
+                </>
 
+
+              ) : (
+
+                /* =====================================================
+                   CASE 3:
+                   NO SUB EVENTS AND NO DIRECT STAGES
+                ====================================================== */
+
+                <div className={styles.noData}>
+                  No sub-events and stages are available for this event.
                 </div>
 
-                   {/* Date */}
-                             <div className={styles.detailItem}>
-                          <i
-                            className={`bi bi-calendar3 ${styles.detailIcon}`}
-                          />
-
-                          <div className={styles.detailContent}>
-                            <div className={styles.detailLabel}>
-                              Document Submitted on
-                            </div>
-
-                            <div className={styles.detailValue}>
-                              {stage.createDate
-                                ? formatDate(stage.createDate)
-                                : "-"}
-                            </div>
-                          </div>
-                        </div>
-
-
-                {/* STATUS */}
-
-                <div
-                  className={styles.detailItem}
-                >
-
-                  <i
-                    className={`bi bi-check-circle-fill ${styles.statusIcon}`}
-                  />
-
-                  <div
-                    className={
-                      styles.detailContent
-                    }
-                  >
-
-                    <div
-                      className={
-                        styles.detailLabel
-                      }
-                    >
-                      Status
-                    </div>
-
-                    <div
-                      className={
-                        styles.detailValue
-                      }
-                    >
-                      {stage.status ||
-                        "Registered"}
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
+              )}
 
             </div>
 
-          )
-        )}
-
-      </>
-
-
-    ) : (
-
-      /* =====================================================
-         CASE 3:
-         NO SUB EVENTS AND NO DIRECT STAGES
-      ====================================================== */
-
-      <div className={styles.noData}>
-        No sub-events and stages are available for this event.
-      </div>
-
-    )}
-
-  </div>
-
-</Col>
+          </Col>
         </Row>
       </Container>
     </section>

@@ -33,6 +33,7 @@ import {
 interface IBpclEventManagementState {
   showCreateEvent: boolean;
   showEventDetails: boolean;
+  editSource: "Main" | "EventDetails" | null;
   showCancelModal: boolean;
   searchText: string;
   selectedEvent: IEventItem | null;
@@ -71,6 +72,7 @@ export default class BpclEventManagement
     this.state = {
       showCreateEvent: false,
       showEventDetails: false,
+      editSource: null,
       showCancelModal: false,
       searchText: '',
       selectedEvent: null,
@@ -145,7 +147,8 @@ export default class BpclEventManagement
 
     this.setState({
       showCreateEvent: true,
-      selectedEventId: null
+      selectedEventId: null,
+       editSource: null
     });
 
   };
@@ -156,7 +159,8 @@ export default class BpclEventManagement
 
     this.setState({
       showCreateEvent: true,
-      selectedEventId: event.id
+      selectedEventId: event.id,
+      editSource: "Main"
     });
 
   };
@@ -168,7 +172,8 @@ export default class BpclEventManagement
 
     this.setState({
       showEventDetails: false,
-      showCreateEvent: true
+      showCreateEvent: true,
+      editSource: "EventDetails"
     });
   };
 
@@ -448,7 +453,7 @@ export default class BpclEventManagement
         showParticipantDetails: false,
         selectedParticipantItemId: null,
         showEventDetails: true,
-        
+
         participantDetailsFromEventDetails: false
       });
     } else {
@@ -566,6 +571,7 @@ export default class BpclEventManagement
           context={this.props.context}
           eventId={this.state.selectedEventId || undefined}
           isEditMode={this.state.selectedEventId !== null}
+          editSource={this.state.editSource || undefined}
         />
       );
     }

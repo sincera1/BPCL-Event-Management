@@ -5,4 +5,5 @@ export interface ICreateEventProps {
     context: WebPartContext;
     eventId?: number;
     isEditMode?: boolean;
+    editSource?: "Main" | "EventDetails";
 }

@@ -46,7 +46,7 @@ const rulesTypes: string[] = [
   "Text"
 ];
 
-const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, isEditMode }) => {
+const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, isEditMode, editSource }) => {
 
   const [eventTitle, setEventTitle] = useState<string>("");
   const [eventDescription, setEventDescription] = useState<string>("");
@@ -115,7 +115,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
   const [validationErrors, setValidationErrors] =
     useState<Record<string, string>>({});
-
+  const [, setEventStatus] = useState<"Draft" | "Created" | "">("");
 
   const handleHasSubEventsChange = (
     value: boolean
@@ -219,36 +219,23 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
     });
   };
 
-
-
-  const handleSubmit = async (
-    status: "Draft" | "Created"
+  const handleUpdate = async (
+    status?: "Draft" | "Created"
   ): Promise<void> => {
-
     try {
-
-
-
       // ==========================================
-      // 1. VALIDATE ONLY WHEN SUBMIT IS CLICKED
+      // 1. VALIDATE UPDATE
       // ==========================================
+      // Draft should save without mandatory validation.
+      // Created / Update should go through validation.
 
-      if (status === "Created") {
-
+      if (status !== "Draft") {
         const errors = validateCreateEvent({
+          eventTitle,
+          eventDescription,
+          eventBannerImage,
 
-          eventTitle:
-            eventTitle,
-
-          eventDescription:
-            eventDescription,
-
-          eventBannerImage:
-            eventBannerImage,
-
-          // IMPORTANT FOR EDIT VALIDATION
-          isEditMode:
-            isEditMode,
+          isEditMode: true,
 
           hasExistingEventBannerImage:
             !!existingEventBannerImage,
@@ -256,126 +243,98 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
           hasExistingRulesImage:
             !!existingRulesImage,
 
-          eventStartDate:
-            eventStartDate,
+          eventStartDate,
+          eventEndDate,
 
-          eventEndDate:
-            eventEndDate,
+          registrationStartDate,
+          registrationEndDate,
 
-          registrationStartDate:
-            registrationStartDate,
+          eventOwnerId,
+          eventOrganizerDepartment,
+          eventOrganizerEmail,
+          eventOrganizerPhoneNumber,
 
-          registrationEndDate:
-            registrationEndDate,
+          rulesType,
+          rulesAndRegualtionText,
+          rulesAndRegualtionImage,
 
-          eventOwnerId:
-            eventOwnerId,
+          hasSubEvents,
+          subEvents,
 
-          eventOrganizerDepartment:
-            eventOrganizerDepartment,
-
-          eventOrganizerEmail:
-            eventOrganizerEmail,
-
-          eventOrganizerPhoneNumber:
-            eventOrganizerPhoneNumber,
-
-          rulesType:
-            rulesType,
-
-          rulesAndRegualtionText:
-            rulesAndRegualtionText,
-
-          rulesAndRegualtionImage:
-            rulesAndRegualtionImage,
-
-          hasSubEvents:
-            hasSubEvents,
-
-          subEvents:
-            subEvents,
-
-          participantType:
-            participantType,
-
-          maxTeamMembers:
-            maxTeamMembers,
-
-          mandatoryMember:
-            mandatoryMember
-
+          participantType,
+          maxTeamMembers,
+          mandatoryMember
         });
 
+        setValidationErrors(errors);
 
-        // ==========================================
-        // STORE VALIDATION ERRORS
-        // ==========================================
-
-        setValidationErrors(
-          errors
-        );
-
-
-        // ==========================================
-        // STOP IF VALIDATION FAILED
-        // ==========================================
-
-        if (
-          Object.keys(errors).length > 0
-        ) {
-
+        if (Object.keys(errors).length > 0) {
           console.log(
-            "Validation failed:",
+            "Update validation failed:",
             errors
           );
-
-
-
           return;
-
         }
-
+      } else {
+        // Clear any previous validation errors
+        setValidationErrors({});
       }
 
+      // ==========================================
+      // 2. CHECK EVENT ID
+      // ==========================================
+
+      if (!eventId) {
+        throw new Error(
+          "Event ID is missing in Edit Mode."
+        );
+      }
 
       // ==========================================
-      // 2. CREATE EVENT SERVICE
+      // 3. CREATE SERVICE
       // ==========================================
 
       const eventService =
         new CreateEventService(context);
 
+      console.log(
+        "========== UPDATE EVENT =========="
+      );
+
+      console.log(
+        "Updating Event ID:",
+        eventId
+      );
+
+      console.log(
+        "Update Status:",
+        status
+      );
 
       // ==========================================
-      // 3. PREPARE MAIN EVENT DATA
+      // 4. UPDATE MAIN EVENT
       // ==========================================
 
-      const eventData = {
+      const updateEventData = {
+        EventTitle: eventTitle,
 
-        EventTitle:
-          eventTitle,
+        EventDescription: eventDescription,
 
-        EventDescription:
-          eventDescription,
+        EventStartDate: eventStartDate,
 
-        EventStartDate:
-          eventStartDate,
+        EventEndDate: eventEndDate,
 
-        EventEndDate:
-          eventEndDate,
+        EventParticipantType: participantType,
 
-        EventParticipantType:
-          participantType,
+        HasSubEvents: hasSubEvents,
 
-        HasSubEvents:
-          hasSubEvents,
-        NoofSubEvents: hasSubEvents ? subEvents.length : 0,
+        NoofSubEvents: hasSubEvents
+          ? subEvents.length
+          : 0,
 
-        EventBannerImage:
-          eventBannerImage,
+        EventBannerImage: eventBannerImage,
 
-        RulesAndRegualtionType:
-          rulesType,
+        RulesAndRegualtionType: rulesType,
 
         RulesAndRegualtionText:
           rulesAndRegualtionText,
@@ -407,385 +366,253 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
         EventOrganizerPhoneNumber:
           eventOrganizerPhoneNumber,
 
-        Attachments:
-          attachments,
-
-        OverAllEventStatus:
-          status
-
+        Attachments: attachments
       };
 
+      console.log(
+        "Update Event Data:",
+        updateEventData
+      );
+
+      await eventService.updateEvent(
+        eventId,
+        updateEventData,
+        status
+      );
 
       // ==========================================
-      // 4. CREATE / UPDATE MAIN EVENT
+      // 5. HANDLE SUBEVENTS
       // ==========================================
 
-      let savedEventId: number;
+      const currentSubEventIds =
+        subEvents
+          .filter(
+            (subEvent) =>
+              subEvent.sharePointId !== undefined
+          )
+          .map(
+            (subEvent) =>
+              subEvent.sharePointId!
+          );
 
+      // ==========================================
+      // 6. DELETE REMOVED SUBEVENTS
+      // ==========================================
+
+      const deletedSubEventIds =
+        originalSubEventIds.filter(
+          (originalId) =>
+            currentSubEventIds.indexOf(
+              originalId
+            ) === -1
+        );
+
+      for (
+        const deletedId of deletedSubEventIds
+      ) {
+        await eventService.deleteSubEvent(
+          deletedId
+        );
+      }
+
+      // ==========================================
+      // 7. UPDATE EXISTING / CREATE NEW SUBEVENTS
+      // ==========================================
+
+      if (
+        hasSubEvents &&
+        subEvents.length > 0
+      ) {
+        for (
+          const subEvent of subEvents
+        ) {
+          const subEventData = {
+            SubEventTitle:
+              subEvent.title,
+
+            SubEventDescription:
+              subEvent.description,
+
+            MinimumMembersRequired:
+              subEvent.mandatoryMembers
+          };
+
+          // Existing subevent
+          if (subEvent.sharePointId) {
+            await eventService.updateSubEvent(
+              subEvent.sharePointId,
+              subEventData
+            );
+          }
+
+          // New subevent
+          else {
+            await eventService.createSingleSubEvent(
+              eventId,
+              eventTitle,
+              subEventData
+            );
+          }
+        }
+      }
+
+      // ==========================================
+      // 8. SUCCESS
+      // ==========================================
+
+      setSuccessMessage(
+        status === "Draft"
+          ? "Event Saved Successfully"
+          : "Event Updated Successfully"
+      );
+
+      setIsSubmitted(true);
+
+    } catch (error) {
+      console.error(
+        "Error updating event:",
+        error
+      );
+
+      setIsSubmitted(false);
+    }
+  };
+
+
+  const handleSubmit = async (
+    status: "Draft" | "Created"
+  ): Promise<void> => {
+    try {
+      // ==========================================
+      // VALIDATION
+      // Submit -> Validate in BOTH Create and Edit mode
+      // Draft  -> Do not validate
+      // ==========================================
+      if (status === "Created") {
+        const errors = validateCreateEvent({
+          eventTitle,
+          eventDescription,
+          eventBannerImage,
+          isEditMode,
+          hasExistingEventBannerImage: !!existingEventBannerImage,
+          hasExistingRulesImage: !!existingRulesImage,
+          eventStartDate,
+          eventEndDate,
+          registrationStartDate,
+          registrationEndDate,
+          eventOwnerId,
+          eventOrganizerDepartment,
+          eventOrganizerEmail,
+          eventOrganizerPhoneNumber,
+          rulesType,
+          rulesAndRegualtionText,
+          rulesAndRegualtionImage,
+          hasSubEvents,
+          subEvents,
+          participantType,
+          maxTeamMembers,
+          mandatoryMember
+        });
+
+        setValidationErrors(errors);
+
+        // Stop here if validation fails
+        if (Object.keys(errors).length > 0) {
+          console.log("Validation failed:", errors);
+          return;
+        }
+      }
 
       // ==========================================
       // EDIT MODE
       // ==========================================
-
       if (isEditMode) {
-
         if (!eventId) {
-
-          throw new Error(
-            "Event ID is missing in Edit Mode."
-          );
-
+          throw new Error("Event ID is missing in Edit Mode.");
         }
 
+        // Draft -> save as Draft
+        // Submit -> update existing Draft as Created
+        await handleUpdate(status);
 
-        console.log(
-          "========== UPDATE EVENT =========="
+        setSuccessMessage(
+          status === "Draft"
+            ? "Event Saved Successfully"
+            : "Event Created Successfully"
         );
 
-        console.log(
-          "Updating Event ID:",
-          eventId
-        );
+        setIsSubmitted(true);
 
-
-        // ------------------------------------------
-        // UPDATE MAIN EVENT
-        // ------------------------------------------
-
-        await eventService.updateEvent(
-          eventId,
-          eventData
-        );
-
-
-        savedEventId =
-          eventId;
-
-
-        console.log(
-          "Main Event updated successfully. Event ID:",
-          savedEventId
-        );
-
-
-
-
-
-        // ==========================================
-        // 6. UPDATE / DELETE / CREATE SUBEVENTS
-        // ==========================================
-
-        console.log(
-          "========== EDIT SUBEVENTS =========="
-        );
-
-
-        // ------------------------------------------
-        // Current existing SharePoint sub-event IDs
-        // ------------------------------------------
-
-        const currentSubEventIds =
-          subEvents
-            .filter(
-              (subEvent) =>
-                subEvent.sharePointId !==
-                undefined
-            )
-            .map(
-              (subEvent) =>
-                subEvent.sharePointId!
-            );
-
-
-        console.log(
-          "Original Subevent IDs:",
-          originalSubEventIds
-        );
-
-
-        console.log(
-          "Current Subevent IDs:",
-          currentSubEventIds
-        );
-
-
-        // ------------------------------------------
-        // DELETE REMOVED EXISTING SUBEVENTS
-        // ------------------------------------------
-
-        const deletedSubEventIds =
-          originalSubEventIds.filter(
-            (originalId) =>
-              currentSubEventIds.indexOf(originalId) === -1
-          );
-
-
-        console.log(
-          "Subevents to delete:",
-          deletedSubEventIds
-        );
-
-
-        for (
-          const deletedId
-          of deletedSubEventIds
-        ) {
-
-          await eventService.deleteSubEvent(
-            deletedId
-          );
-
-
-          console.log(
-            "Subevent deleted:",
-            deletedId
-          );
-
-        }
-
-
-        // ------------------------------------------
-        // UPDATE EXISTING / CREATE NEW SUBEVENTS
-        // ------------------------------------------
-
-        if (
-          hasSubEvents &&
-          subEvents.length > 0
-        ) {
-
-          for (
-            const subEvent
-            of subEvents
-          ) {
-
-            const subEventData = {
-
-              SubEventTitle:
-                subEvent.title,
-
-              SubEventDescription:
-                subEvent.description,
-
-              MinimumMembersRequired:
-                subEvent.mandatoryMembers
-
-            };
-
-
-            // ======================================
-            // EXISTING SUBEVENT
-            // ======================================
-
-            if (
-              subEvent.sharePointId
-            ) {
-
-              console.log(
-                "Updating existing Subevent:",
-                subEvent.sharePointId
-              );
-
-
-              await eventService.updateSubEvent(
-                subEvent.sharePointId,
-                subEventData
-              );
-
-
-              console.log(
-                "Subevent updated:",
-                subEvent.sharePointId
-              );
-
-            }
-
-
-            // ======================================
-            // NEW SUBEVENT
-            // ======================================
-
-            else {
-
-              console.log(
-                "Creating new Subevent:",
-                subEvent.title
-              );
-
-
-              const newSubEventId =
-                await eventService.createSingleSubEvent(
-                  savedEventId,
-                  eventTitle,
-                  subEventData
-                );
-
-
-              console.log(
-                "New Subevent created:",
-                newSubEventId
-              );
-
-            }
-
-          }
-
-        }
-
-
-        // ------------------------------------------
-        // If user changed HasSubEvents to false
-        // all original subevents have already
-        // been deleted above.
-        // ------------------------------------------
-
+        return;
       }
 
-
       // ==========================================
-      // CREATE MODE
+      // CREATE NEW EVENT
       // ==========================================
+      const eventService = new CreateEventService(context);
 
-      else {
+      const eventData = {
+        EventTitle: eventTitle,
+        EventDescription: eventDescription,
+        EventStartDate: eventStartDate,
+        EventEndDate: eventEndDate,
+        EventParticipantType: participantType,
+        HasSubEvents: hasSubEvents,
+        NoofSubEvents: hasSubEvents ? subEvents.length : 0,
+        EventBannerImage: eventBannerImage,
+        RulesAndRegualtionType: rulesType,
+        RulesAndRegualtionText: rulesAndRegualtionText,
+        RulesAndRegualtionImage: rulesAndRegualtionImage,
+        RegistrationStartDate: registrationStartDate,
+        RegistrationEndDate: registrationEndDate,
+        MaxTeamMembers: maxTeamMembers,
+        MandatoryMember: mandatoryMember,
+        EventOrganiser: eventOwnerId,
+        EventOrganizerDepartment: eventOrganizerDepartment,
+        EventOrganizerEmail: eventOrganizerEmail,
+        EventOrganizerPhoneNumber: eventOrganizerPhoneNumber,
+        Attachments: attachments,
+        OverAllEventStatus: status
+      };
 
-        console.log(
-          "========== CREATE EVENT =========="
-        );
-
-        console.log(
-          "Creating new Event"
-        );
-
-
-        // ------------------------------------------
-        // CREATE MAIN EVENT
-        // ------------------------------------------
-
-        eventData.NoofSubEvents =
-          hasSubEvents
-            ? subEvents.length
-            : 0;
-
-        savedEventId =
-          await eventService.createEvent(
-            eventData
-          );
-
-
-        console.log(
-          "Main Event created successfully. Event ID:",
-          savedEventId
-        );
-
-
-        // ------------------------------------------
-        // CREATE SUBEVENTS
-        // ------------------------------------------
-
-        if (
-          hasSubEvents &&
-          subEvents.length > 0
-        ) {
-
-          console.log(
-            "Subevents to save:",
-            subEvents
-          );
-
-
-          const subEventData =
-            subEvents.map(
-              (subEvent) => ({
-
-                SubEventTitle:
-                  subEvent.title,
-
-                SubEventDescription:
-                  subEvent.description,
-
-                MinimumMembersRequired:
-                  subEvent.mandatoryMembers
-
-              })
-            );
-
-
-          console.log(
-            "Mapped Subevent Data:",
-            subEventData
-          );
-
-
-          await eventService.createSubEvents(
-            savedEventId,
-            eventTitle,
-            subEventData
-          );
-
-
-          console.log(
-            "All subevents saved successfully."
-          );
-
-        }
-
-      }
-
-
-      // ==========================================
-      // 7. SUCCESS
-      // ==========================================
+      const savedEventId = await eventService.createEvent(eventData);
 
       console.log(
-        "Event and subevents saved successfully."
+        "Main Event created successfully. Event ID:",
+        savedEventId
       );
 
+      // ==========================================
+      // CREATE SUBEVENTS
+      // ==========================================
+      if (hasSubEvents && subEvents.length > 0) {
+        const subEventData = subEvents.map((subEvent) => ({
+          SubEventTitle: subEvent.title,
+          SubEventDescription: subEvent.description,
+          MinimumMembersRequired: subEvent.mandatoryMembers
+        }));
 
+        await eventService.createSubEvents(
+          savedEventId,
+          eventTitle,
+          subEventData
+        );
+      }
+
+      // ==========================================
+      // SUCCESS
+      // ==========================================
       setSuccessMessage(
-
-        isEditMode
-
-          ? "Event Updated Successfully"
-
-          : status === "Draft"
-
-            ? "Event Saved Successfully"
-
-            : "Event Created Successfully"
-
+        status === "Draft"
+          ? "Event Saved Successfully"
+          : "Event Created Successfully"
       );
 
-
-      setIsSubmitted(
-        true
-      );
-
-
-
+      setIsSubmitted(true);
 
     } catch (error) {
-
-      console.error(
-
-        isEditMode
-
-          ? "Error updating event:"
-
-          : "Error creating event:",
-
-        error
-
-      );
-
-
-      setIsSubmitted(
-        false
-      );
-
-
-
-
+      console.error("Error saving event:", error);
     }
-
   };
 
   const removeFile = (index: number): void => {
@@ -840,6 +667,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
       const eventDetails =
         await eventService.getEventDetails(id);
+      setEventStatus(eventDetails.OverAllEventStatus || "");
 
       console.log(
         "Event Details Loaded:",
@@ -2534,10 +2362,15 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                   </Row>
 
+
+
+                  {/* ================= ACTION BUTTONS ================= */}
+
                   {/* ================= ACTION BUTTONS ================= */}
 
                   <div className="d-flex justify-content-end gap-2 mt-4">
 
+                    {/* Cancel - Always visible */}
                     <Button
                       type="button"
                       className={styles.cancelBtn}
@@ -2547,22 +2380,67 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                       Cancel
                     </Button>
 
-                    <Button
-                      type="button"
-                      className={styles.cancelBtn}
-                      onClick={() => handleSubmit("Draft")}
-                    >
-                      <i className="bi bi-file-earmark-text me-2"></i>
-                      Draft
-                    </Button>
-                    <Button
-                      type="button"
-                      className={styles.submitBtn}
-                      onClick={() => handleSubmit("Created")}
-                    >
-                      <i className="bi bi-check-circle me-2"></i>
-                      Submit
-                    </Button>
+                    {/* ================= CREATE MODE ================= */}
+                    {!isEditMode && (
+                      <>
+                        {/* Draft */}
+                        <Button
+                          type="button"
+                          className={styles.cancelBtn}
+                          onClick={() => handleSubmit("Draft")}
+                        >
+                          <i className="bi bi-file-earmark-text me-2"></i>
+                          Draft
+                        </Button>
+
+                        {/* Submit */}
+                        <Button
+                          type="button"
+                          className={styles.submitBtn}
+                          onClick={() => handleSubmit("Created")}
+                        >
+                          <i className="bi bi-check-circle me-2"></i>
+                          Submit
+                        </Button>
+                      </>
+                    )}
+
+                    {/* ================= EDIT FROM MAIN SCREEN ================= */}
+                    {isEditMode && editSource === "Main" && (
+                      <>
+                        {/* Draft */}
+                        <Button
+                          type="button"
+                          className={styles.cancelBtn}
+                          onClick={() => handleSubmit("Draft")}
+                        >
+                          <i className="bi bi-file-earmark-text me-2"></i>
+                          Draft
+                        </Button>
+
+                        {/* Submit */}
+                        <Button
+                          type="button"
+                          className={styles.submitBtn}
+                          onClick={() => handleSubmit("Created")}
+                        >
+                          <i className="bi bi-check-circle me-2"></i>
+                          Submit
+                        </Button>
+                      </>
+                    )}
+
+                    {/* ================= EDIT FROM EVENT DETAILS ================= */}
+                    {isEditMode && editSource === "EventDetails" && (
+                      <Button
+                        type="button"
+                        className={styles.submitBtn}
+                        onClick={() => handleUpdate()}
+                      >
+                        <i className="bi bi-check-circle me-2"></i>
+                        Update
+                      </Button>
+                    )}
 
                   </div>
                 </>
@@ -2576,7 +2454,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
       </Container>
 
-      
+
 
     </section >
   );

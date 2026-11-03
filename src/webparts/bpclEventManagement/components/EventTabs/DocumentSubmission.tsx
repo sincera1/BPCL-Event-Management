@@ -1696,7 +1696,9 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                     >
 
                       {/* {stage.Stages} */}
-                      stage 1
+                      {stage.Stages
+                        ? stage.Stages.replace("Stage", "Stage ")
+                        : `Stage ${stageIndex + 1}`}
 
                     </div>
 

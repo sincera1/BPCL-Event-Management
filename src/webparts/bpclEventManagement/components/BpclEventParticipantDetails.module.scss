@@ -538,6 +538,7 @@
   padding: 10px 30px !important;
   width: 100%;
   font-weight: 600;
+
   :hover {
     background: #0247aa !important;
     color: #fff !important;
@@ -620,6 +621,7 @@
   font-weight: 500;
   font-size: 12px;
 }
+
 /***** End team information card *****/
 
 /***** Event & Stages Card *****/
@@ -698,22 +700,27 @@
   color: #ef5350;
   background: #ffe3e3;
 }
+
 .resultsPending {
   color: #e8b200;
   background: #fdf3d5;
 }
+
 .registered {
   color: #0054ad;
   background: #009ee942;
 }
+
 .winner {
   color: #fff;
   background: #15ca4c;
 }
+
 .stageInProgress {
   color: #0669f8;
   background: #90cce929;
 }
+
 /* ACCORDION BODY */
 
 .accordionBody {
@@ -776,10 +783,7 @@
   min-height: 93px;
   display: grid;
   grid-template-columns:
-    1.3fr
-    1.25fr
-    1fr
-    0.65fr;
+    1.3fr 1.25fr 1fr 0.65fr;
   // align-items: center;
 
   // padding: 8px 12px 8px 20px;
@@ -1277,4 +1281,31 @@
     font-size: 7px;
   }
 }
+
 /***** End team members card *****/
+
+
+.documentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.documentItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.documentItem i {
+  font-size: 16px;
+}
+
+.document {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.document:hover {
+  text-decoration: underline;
+}

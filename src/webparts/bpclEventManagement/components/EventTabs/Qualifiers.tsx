@@ -1667,11 +1667,7 @@ const Qualifiers: React.FC<IQualifiersProps> = ({
                             }
                             title="View Details"
                             aria-label="View Details"
-                            onClick={() =>
-                              handleView(
-                                item.Id
-                              )
-                            }
+                            onClick={() => handleView(Number(item.TeamIDId || item.Id))}
                           >
 
                             <i className="bi bi-eye-fill" />

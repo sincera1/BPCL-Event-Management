@@ -697,47 +697,31 @@ export default class CreateEventService {
 
     public async updateEvent(
         eventId: number,
-        eventData: ICreateEvent
+        eventData: Omit<ICreateEvent, "OverAllEventStatus">,
+        status?: "Draft" | "Created"
     ): Promise<void> {
-
         try {
-
-            console.log(
-                "Updating Event:",
-                eventId
-            );
-
+            console.log("Updating Event:", eventId);
 
             await sp.web.lists
                 .getByTitle(this.listTitle)
                 .items
                 .getById(eventId)
                 .update({
+                    EventTitle: eventData.EventTitle,
+                    EventDescription: eventData.EventDescription,
 
-                    EventTitle:
-                        eventData.EventTitle,
+                    EventStartDate: this.formatSharePointDate(
+                        eventData.EventStartDate
+                    ),
 
-                    EventDescription:
-                        eventData.EventDescription,
+                    EventEndDate: this.formatSharePointDate(
+                        eventData.EventEndDate
+                    ),
 
-                    EventStartDate:
-                        this.formatSharePointDate(
-                            eventData.EventStartDate
-                        ),
-
-                    EventEndDate:
-                        this.formatSharePointDate(
-                            eventData.EventEndDate
-                        ),
-
-
-                    EventParticipantType:
-                        eventData.EventParticipantType,
-
-                    HasSubEvents:
-                        eventData.HasSubEvents,
-                    NoofSubEvents:
-                        eventData.NoofSubEvents,
+                    EventParticipantType: eventData.EventParticipantType,
+                    HasSubEvents: eventData.HasSubEvents,
+                    NoofSubEvents: eventData.NoofSubEvents,
 
                     RulesAndRegualtionType:
                         eventData.RulesAndRegualtionType,
@@ -750,21 +734,15 @@ export default class CreateEventService {
                             eventData.RegistrationStartDate
                         ),
 
-
                     RegistrationEndDate:
                         this.formatSharePointDate(
                             eventData.RegistrationEndDate
                         ),
 
+                    MaxTeamMembers: eventData.MaxTeamMembers,
+                    MandatoryMember: eventData.MandatoryMember,
 
-                    MaxTeamMembers:
-                        eventData.MaxTeamMembers,
-
-                    MandatoryMember:
-                        eventData.MandatoryMember,
-
-                    EventOrganiserId:
-                        eventData.EventOrganiser,
+                    EventOrganiserId: eventData.EventOrganiser,
 
                     EventOrganizerDepartment:
                         eventData.EventOrganizerDepartment,
@@ -773,84 +751,62 @@ export default class CreateEventService {
                         eventData.EventOrganizerEmail,
 
                     EventOrganizerPhoneNumber:
-                        eventData.EventOrganizerPhoneNumber,
-
-                    OverAllEventStatus:
-                        eventData.OverAllEventStatus
-
+                        eventData.EventOrganizerPhoneNumber
                 });
 
+            // Update status ONLY when explicitly passed
+            if (status) {
+                await sp.web.lists
+                    .getByTitle(this.listTitle)
+                    .items
+                    .getById(eventId)
+                    .update({
+                        OverAllEventStatus: status
+                    });
+            }
 
-            /* =================================================
-               UPDATE EVENT BANNER
-               
-               Only upload when a NEW file is selected.
-            ================================================= */
-
+            // Update Event Banner Image only if a new image is selected
             if (eventData.EventBannerImage) {
-
                 await this.uploadImageColumn(
                     eventId,
                     eventData.EventBannerImage,
                     "EventBannerImage"
                 );
-
             }
 
-
-            /* =================================================
-               UPDATE RULES IMAGE
-               
-               Only upload when a NEW file is selected.
-            ================================================= */
-
+            // Update Rules & Regulations Image only if a new image is selected
             if (eventData.RulesAndRegualtionImage) {
-
                 await this.uploadImageColumn(
                     eventId,
                     eventData.RulesAndRegualtionImage,
                     "RulesAndRegualtionImage"
                 );
-
             }
 
-
-            /* =================================================
-               NEW ATTACHMENTS
-            ================================================= */
-
+            // Upload new attachments only
             if (
                 eventData.Attachments &&
                 eventData.Attachments.length > 0
             ) {
-
                 await this.uploadNewAttachments(
                     eventId,
                     eventData.Attachments
                 );
-
             }
-
 
             console.log(
                 "Event updated successfully:",
                 eventId
             );
-
-
         } catch (error) {
-
             console.error(
                 "Error updating event:",
                 error
             );
 
             throw error;
-
         }
-
     }
-
 
     /* =========================================================
        UPDATE SUB EVENT
