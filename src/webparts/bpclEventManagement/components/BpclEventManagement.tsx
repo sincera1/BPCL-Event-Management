@@ -148,7 +148,7 @@ export default class BpclEventManagement
     this.setState({
       showCreateEvent: true,
       selectedEventId: null,
-       editSource: null
+      editSource: null
     });
 
   };
@@ -177,6 +177,35 @@ export default class BpclEventManagement
     });
   };
 
+  // private handleViewEventClick = (
+  //   event: IEventItem
+  // ): void => {
+
+  //   const loggedInUserEmail: string =
+  //     this.props.context.pageContext.user.email.toLowerCase();
+
+  //   const authorEmail: string =
+  //     event.authorEmail?.toLowerCase() || "";
+
+  //   // Author → open Event Details inside the application
+  //   if (authorEmail === loggedInUserEmail) {
+
+  //     this.handleViewEvent(event);
+
+  //     return;
+  //   }
+
+  //   // Other users → open Event Registration in new tab
+  //   const registrationUrl =
+  //     `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${event.id}`;
+
+  //   window.open(
+  //     registrationUrl,
+  //     "_blank",
+  //     "noopener,noreferrer"
+  //   );
+  // };
+
   private handleViewEventClick = (
     event: IEventItem
   ): void => {
@@ -184,18 +213,33 @@ export default class BpclEventManagement
     const loggedInUserEmail: string =
       this.props.context.pageContext.user.email.toLowerCase();
 
-    const authorEmail: string =
+    // Created By
+    const authorEmail =
       event.authorEmail?.toLowerCase() || "";
 
-    // Author → open Event Details inside the application
-    if (authorEmail === loggedInUserEmail) {
+    // Single EventOrganiser
+    const eventOrganiserEmail =
+      event.eventOrganiserEmail?.toLowerCase() || "";
+
+    // Multiple Organiser users
+    const organiserEmails =
+      event.organiserEmails || [];
+
+    // Check all three fields
+    const isEventOwner =
+      authorEmail === loggedInUserEmail ||
+      eventOrganiserEmail === loggedInUserEmail ||
+      organiserEmails.includes(loggedInUserEmail);
+
+    // Event owner → Internal Event Details
+    if (isEventOwner) {
 
       this.handleViewEvent(event);
 
       return;
     }
 
-    // Other users → open Event Registration in new tab
+    // Other users → Event Registration in new tab
     const registrationUrl =
       `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${event.id}`;
 
@@ -205,7 +249,6 @@ export default class BpclEventManagement
       "noopener,noreferrer"
     );
   };
-
   private handleViewEvent = (event: IEventItem): void => {
 
     this.setState({

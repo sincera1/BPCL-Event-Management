@@ -52,6 +52,7 @@ export interface ICreateEvent {
     MandatoryMember: number;
 
     EventOrganiser: number;
+    Organisers?: string[];
 
     EventOrganizerDepartment: string;
     EventOrganizerEmail: string;
@@ -135,7 +136,7 @@ export interface IEventDetails {
     MandatoryMember: number;
 
     EventOrganiser: number;
-
+    Organisers: string[];
     EventOrganizerName: string;
     EventOrganizerDepartment: string;
     EventOrganizerEmail: string;
@@ -184,24 +185,27 @@ export default class CreateEventService {
 
         try {
 
+            const filteredOrganisers = (eventData.Organisers || [])
+                .filter((email) =>
+                    email &&
+                    email.trim().toLowerCase() !==
+                    (eventData.EventOrganizerEmail || "").trim().toLowerCase()
+                );
+
+            const organiserIds = await this.getOrganiserUserIds(
+                filteredOrganisers
+            );
+
             const result = await sp.web.lists
                 .getByTitle(this.listTitle)
                 .items
                 .add({
 
-                    EventTitle:
-                        eventData.EventTitle,
-
-                    EventDescription:
-                        eventData.EventDescription,
+                    EventTitle: eventData.EventTitle,
+                    EventDescription: eventData.EventDescription,
+                    EventStartDate: this.formatSharePointDate(eventData.EventStartDate),
 
 
-
-
-                    EventStartDate:
-                        this.formatSharePointDate(
-                            eventData.EventStartDate
-                        ),
 
                     EventEndDate:
                         this.formatSharePointDate(
@@ -242,6 +246,9 @@ export default class CreateEventService {
 
                     EventOrganiserId:
                         eventData.EventOrganiser,
+                    OrganiserId: {
+                        results: organiserIds
+                    },
 
                     EventOrganizerDepartment:
                         eventData.EventOrganizerDepartment,
@@ -408,11 +415,6 @@ export default class CreateEventService {
 
         try {
 
-            console.log(
-                "Loading Event Details for ID:",
-                eventId
-            );
-
 
             /* =================================================
                1. GET MAIN EVENT
@@ -439,6 +441,9 @@ export default class CreateEventService {
                     "EventOrganiserId",
                     "EventOrganiser/Id",
                     "EventOrganiser/Title",
+                    "Organiser/Id",
+                    "Organiser/Title",
+                    "Organiser/EMail",
                     "EventOrganizerDepartment",
                     "EventOrganizerEmail",
                     "EventOrganizerPhoneNumber",
@@ -447,7 +452,8 @@ export default class CreateEventService {
                     "RulesAndRegualtionImage"
                 )
                 .expand(
-                    "EventOrganiser"
+                    "EventOrganiser",
+                    "Organiser"
                 )();
 
 
@@ -507,7 +513,9 @@ export default class CreateEventService {
             const eventOrganiserName =
                 event.EventOrganiser?.Title ||
                 "";
-
+            const organisers: string[] = (event.Organiser || [])
+                .map((user: any) => user.EMail || "")
+                .filter((email: string) => email !== "");
 
             /* =================================================
                7. RETURN COMPLETE EVENT
@@ -568,6 +576,7 @@ export default class CreateEventService {
 
                 EventOrganiser:
                     eventOrganiserId,
+                Organisers: organisers,
 
                 EventOrganizerName:
                     eventOrganiserName,
@@ -703,6 +712,17 @@ export default class CreateEventService {
         try {
             console.log("Updating Event:", eventId);
 
+            const filteredOrganisers = (eventData.Organisers || [])
+                .filter((email) =>
+                    email &&
+                    email.trim().toLowerCase() !==
+                    (eventData.EventOrganizerEmail || "").trim().toLowerCase()
+                );
+
+            const organiserIds = await this.getOrganiserUserIds(
+                filteredOrganisers
+            );
+
             await sp.web.lists
                 .getByTitle(this.listTitle)
                 .items
@@ -743,6 +763,9 @@ export default class CreateEventService {
                     MandatoryMember: eventData.MandatoryMember,
 
                     EventOrganiserId: eventData.EventOrganiser,
+                    OrganiserId: {
+                        results: organiserIds
+                    },
 
                     EventOrganizerDepartment:
                         eventData.EventOrganizerDepartment,
@@ -1447,7 +1470,35 @@ export default class CreateEventService {
 
     }
 
+    /* =========================================================
+   GET ORGANISER SHAREPOINT USER IDS
+========================================================= */
 
+    private async getOrganiserUserIds(
+        organiserEmails: string[]
+    ): Promise<number[]> {
+
+        if (!organiserEmails || organiserEmails.length === 0) {
+            return [];
+        }
+
+        const uniqueEmails = Array.from(
+            new Set(
+                organiserEmails
+                    .filter((email) => email && email.trim() !== "")
+                    .map((email) => email.trim().toLowerCase())
+            )
+        );
+
+        const userIds: number[] = [];
+
+        for (const email of uniqueEmails) {
+            const user = await sp.web.ensureUser(email);
+            userIds.push(user.data.Id);
+        }
+
+        return userIds;
+    }
 
     private formatSharePointDate(
         dateValue?: string | null

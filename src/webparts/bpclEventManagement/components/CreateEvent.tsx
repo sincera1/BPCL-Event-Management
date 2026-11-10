@@ -87,6 +87,13 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
   const [eventOrganizerPhoneNumber, setEventOrganizerPhoneNumber] =
     useState<string>("");
+  const [selectedOrganisers, setSelectedOrganisers] =
+    useState<string[]>([]);
+  const [selectedEventOwnerEmail, setSelectedEventOwnerEmail] =
+    useState<string>("");
+
+  const [organiserPickerKey, setOrganiserPickerKey] =
+    useState<number>(0);
 
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -356,6 +363,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
         EventOrganiser:
           eventOwnerId,
+        Organisers: selectedOrganisers,
 
         EventOrganizerDepartment:
           eventOrganizerDepartment,
@@ -568,6 +576,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
         MaxTeamMembers: maxTeamMembers,
         MandatoryMember: mandatoryMember,
         EventOrganiser: eventOwnerId,
+        Organisers: selectedOrganisers,
         EventOrganizerDepartment: eventOrganizerDepartment,
         EventOrganizerEmail: eventOrganizerEmail,
         EventOrganizerPhoneNumber: eventOrganizerPhoneNumber,
@@ -779,6 +788,12 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
       setEventOrganizerPhoneNumber(
         eventDetails.EventOrganizerPhoneNumber || ""
       );
+
+      setSelectedOrganisers(
+        eventDetails.Organisers || []
+      );
+
+      setOrganiserPickerKey((prev) => prev + 1);
 
 
       /* =====================================================
@@ -1720,59 +1735,52 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                                 </Col>
 
 
-                                {/* Mandatory Members */}
-                                <Col xs={12}>
+                                {!(
+                                  participantType === "Individual" &&
+                                  hasSubEvents
+                                ) && (
+                                    <Col xs={12}>
+                                      <Form.Group className={styles.inputGroup}>
+                                        <Form.Label className={styles.inputLabel}>
+                                          Mandatory Members Subevent
+                                        </Form.Label>
 
-                                  <Form.Group
-                                    className={styles.inputGroup}
-                                  >
+                                        <Form.Control
+                                          type="number"
+                                          min={0}
+                                          className={styles.inputField}
+                                          value={subEvent.mandatoryMembers}
+                                          onChange={(e) => {
+                                            const value = Number(e.target.value);
 
-                                    <Form.Label
-                                      className={styles.inputLabel}
-                                    >
-                                      Mandatory Members (Individual/Team)
-                                    </Form.Label>
+                                            handleSubEventChange(
+                                              subEvent.id,
+                                              "mandatoryMembers",
+                                              value
+                                            );
 
-                                    <Form.Control
-                                      type="number"
-                                      min={0}
-                                      className={styles.inputField}
-                                      value={subEvent.mandatoryMembers}
-                                      onChange={(e) => {
+                                            if (value > 0) {
+                                              clearValidationError(
+                                                `subEvent_${index}_mandatoryMembers`
+                                              );
+                                            }
+                                          }}
+                                        />
 
-                                        const value =
-                                          Number(e.target.value);
-
-                                        handleSubEventChange(
-                                          subEvent.id,
-                                          "mandatoryMembers",
-                                          value
-                                        );
-
-                                        if (value > 0) {
-                                          clearValidationError(
-                                            `subEvent_${index}_mandatoryMembers`
-                                          );
-                                        }
-
-                                      }}
-                                    />
-
-                                    {validationErrors[
-                                      `subEvent_${index}_mandatoryMembers`
-                                    ] && (
-                                        <div className={styles.validationError}>
-                                          {
-                                            validationErrors[
-                                            `subEvent_${index}_mandatoryMembers`
-                                            ]
-                                          }
-                                        </div>
-                                      )}
-
-                                  </Form.Group>
-
-                                </Col>
+                                        {validationErrors[
+                                          `subEvent_${index}_mandatoryMembers`
+                                        ] && (
+                                            <div className={styles.validationError}>
+                                              {
+                                                validationErrors[
+                                                `subEvent_${index}_mandatoryMembers`
+                                                ]
+                                              }
+                                            </div>
+                                          )}
+                                      </Form.Group>
+                                    </Col>
+                                  )}
 
                               </Row>
 
@@ -1927,7 +1935,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                           <Form.Group className={styles.inputGroup}>
 
                             <Form.Label className={styles.inputLabel}>
-                              Maximum Members Per Team{" "}
+                              Maximum Member Allowed In Team{" "}
                               <span className={styles.required}>*</span>
                             </Form.Label>
 
@@ -2036,10 +2044,6 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                           onChange={async (items) => {
 
-
-
-
-
                             if (!items || items.length === 0) {
 
                               setEventOwnerId(0);
@@ -2047,64 +2051,38 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                               setEventOrganizerEmail("");
                               setEventOrganizerDepartment("");
                               setEventOrganizerPhoneNumber("");
+                              setSelectedEventOwnerEmail("");
+                              setOrganiserPickerKey((prev) => prev + 1);
 
                               return;
                             }
 
-
                             const selectedUser = items[0];
 
-
-
-
                             try {
-
-
-
 
                               const selectedUserEmail =
                                 selectedUser.secondaryText || "";
 
-
-
-
                               if (!selectedUserEmail) {
-
-
-
                                 return;
                               }
 
-
-
+                              setSelectedEventOwnerEmail(selectedUserEmail.trim().toLowerCase());
 
                               const spUser =
-                                await sp.web.ensureUser(
-                                  selectedUserEmail
-                                );
-
-
-
-
-
+                                await sp.web.ensureUser(selectedUserEmail);
 
                               const sharePointUserId =
                                 spUser.data.Id;
 
-
-
-                              setEventOwnerId(
-                                sharePointUserId
-                              );
+                              setEventOwnerId(sharePointUserId);
 
                               clearValidationError("eventOwnerId");
 
                               const graphUserPrincipalName =
                                 (spUser.data as any).UserPrincipalName ||
                                 selectedUserEmail;
-
-
-
 
                               const eventService =
                                 new CreateEventService(context);
@@ -2114,38 +2092,33 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                                   graphUserPrincipalName
                                 );
 
-                              console.log(
-                                "Event Owner Graph Details:",
-                                ownerDetails
+                              // Email
+                              const ownerEmail = ownerDetails.email || "";
+
+                              setEventOrganizerEmail(ownerEmail);
+
+                              // Remove Event Owner from Organiser selection
+                              setSelectedOrganisers((prev) =>
+                                prev.filter(
+                                  (email) =>
+                                    email.toLowerCase() !==
+                                    selectedUserEmail.toLowerCase() &&
+                                    email.toLowerCase() !==
+                                    ownerEmail.toLowerCase()
+                                )
                               );
 
+                              setOrganiserPickerKey((prev) => prev + 1);
 
-                              // ==========================================
-                              // 8. Email
-                              // ==========================================
-
-                              setEventOrganizerEmail(
-                                ownerDetails.email || ""
-                              );
-
-
-                              // ==========================================
-                              // 9. Department
-                              // ==========================================
-
+                              // Department
                               setEventOrganizerDepartment(
                                 ownerDetails.department || ""
                               );
 
-
-                              // ==========================================
-                              // 10. Phone Number
-                              // ==========================================
-
+                              // Phone Number
                               setEventOrganizerPhoneNumber(
                                 ownerDetails.phoneNumber || ""
                               );
-
 
                               console.log(
                                 "Event Owner details populated successfully."
@@ -2265,6 +2238,80 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                     </Col>
 
+                  </Row>
+
+                  <Row>
+                    <Col xs={12} md={3}>
+                      <Form.Group className={styles.inputGroup}>
+                        <Form.Label className={styles.inputLabel}>
+                          Organiser
+                        </Form.Label>
+
+                        <div className={styles.organiserPicker}>
+                          <PeoplePicker
+                            key={organiserPickerKey}
+                            context={peoplePickerContext}
+                            titleText=""
+                            personSelectionLimit={10}
+                            principalTypes={[PrincipalType.User]}
+                            defaultSelectedUsers={selectedOrganisers}
+                            showtooltip={false}
+                            required={false}
+                            disabled={false}
+                            searchTextLimit={2}
+                            resolveDelay={500}
+                            ensureUser={true}
+                            webAbsoluteUrl={context.pageContext.web.absoluteUrl}
+                            placeholder="Select Organisers"
+                            onChange={(items) => {
+
+                              const ownerEmails = [
+                                selectedEventOwnerEmail,
+                                eventOrganizerEmail
+                              ]
+                                .map(email => email.trim().toLowerCase())
+                                .filter(email => email !== "");
+
+                              const organiserEmails = (items || [])
+                                .map(item => (item.secondaryText || "").trim())
+                                .filter(email => email !== "");
+
+                              const isOwnerSelected = organiserEmails.some(email =>
+                                ownerEmails.includes(email.toLowerCase())
+                              );
+
+                              if (isOwnerSelected) {
+
+                                setValidationErrors(prev => ({
+                                  ...prev,
+                                  organisers:
+                                    "Event Owner cannot be selected as an Organiser. Please select another user."
+                                }));
+
+                                setSelectedOrganisers(
+                                  organiserEmails.filter(
+                                    email => !ownerEmails.includes(email.toLowerCase())
+                                  )
+                                );
+
+                                setOrganiserPickerKey(prev => prev + 1);
+
+                                return;
+                              }
+
+                              setSelectedOrganisers(organiserEmails);
+                              clearValidationError("organisers");
+                            }}
+                          />
+                        </div>
+
+                        {validationErrors.organisers && (
+                          <div className={styles.validationError}>
+                            {validationErrors.organisers}
+                          </div>
+                        )}
+                      </Form.Group>
+                    </Col>
                   </Row>
 
                   {/* ================= ATTACHMENTS ================= */}

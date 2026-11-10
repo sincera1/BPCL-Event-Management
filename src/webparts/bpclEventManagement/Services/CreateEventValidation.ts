@@ -136,10 +136,10 @@ export const validateCreateEvent = (
     }
 
 
-   
 
 
-    
+
+
 
 
     // =========================================================
@@ -396,16 +396,32 @@ export const validateCreateEvent = (
                 // Mandatory Members
                 // ---------------------------------------------
 
-                if (
-                    subEvent.mandatoryMembers <= 0
-                ) {
+                if (subEvent.mandatoryMembers <= 0) {
 
                     errors[
                         `subEvent_${index}_mandatoryMembers`
                     ] =
                         `Please enter the "Mandatory Members" for Subevent ${index + 1}.`;
+
                 }
 
+                // ---------------------------------------------
+                // Mandatory Members cannot exceed Maximum
+                // Members Per Team
+                // ---------------------------------------------
+
+                if (
+                    data.participantType === "Team" &&
+                    data.maxTeamMembers > 0 &&
+                    subEvent.mandatoryMembers > data.maxTeamMembers
+                ) {
+
+                    errors[
+                        `subEvent_${index}_mandatoryMembers`
+                    ] =
+                        `Mandatory Members for Subevent ${index + 1} cannot be greater than Maximum Members Per Team (${data.maxTeamMembers}).`;
+
+                }
             }
         );
     }

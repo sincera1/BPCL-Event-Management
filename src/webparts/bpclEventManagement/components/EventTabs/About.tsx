@@ -123,8 +123,8 @@ const About: React.FC<IAboutProps> = ({
             participantCounts
           ] = await Promise.all([
 
-            service.getEventDetails( eventId ),
-            service.getEventParticipantCounts( eventId)
+            service.getEventDetails(eventId),
+            service.getEventParticipantCounts(eventId)
 
           ]);
 
@@ -132,21 +132,21 @@ const About: React.FC<IAboutProps> = ({
           // SET EVENT DETAILS
           // ==================================================
 
-          setEventDetails( response );
+          setEventDetails(response);
 
           // ==================================================
           // SET REGISTERED MEMBERS
           // ==================================================
 
-          setRegisteredMemberCount( participantCounts.members );
+          setRegisteredMemberCount(participantCounts.members);
 
           // ==================================================
           // SET REGISTERED TEAMS
           // ==================================================
 
-          setRegisteredTeamCount( participantCounts.teams);
+          setRegisteredTeamCount(participantCounts.teams);
         } catch (error) {
-          console.error( "Error loading event details:", error );
+          console.error("Error loading event details:", error);
 
           setEventDetails(null);
           setRegisteredMemberCount(0);
@@ -270,52 +270,52 @@ const About: React.FC<IAboutProps> = ({
   // ====================================================
 
   const handleShareEvent = (): void => {
-      setShowShareModal(true);
-    };
+    setShowShareModal(true);
+  };
 
   // ====================================================
-// EVENT REGISTRATION URL
-// ====================================================
+  // EVENT REGISTRATION URL
+  // ====================================================
 
-const eventRegistrationUrl =
-  eventId
-    ? `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${eventId}`
-    : "";
+  const eventRegistrationUrl =
+    eventId
+      ? `https://bharatpetroleum.sharepoint.com/sites/dev-corporate-publishing-hub/SitePages/EventRegistration.aspx?EventID=${eventId}`
+      : "";
 
-// ====================================================
-// COPY EVENT LINK
-// ====================================================
+  // ====================================================
+  // COPY EVENT LINK
+  // ====================================================
 
-const handleCopyEventLink =
-  async (): Promise<void> => {
+  const handleCopyEventLink =
+    async (): Promise<void> => {
 
-    try {
+      try {
 
-      if (!eventRegistrationUrl) {
-        console.error(
-          "Event ID is not available."
+        if (!eventRegistrationUrl) {
+          console.error(
+            "Event ID is not available."
+          );
+          return;
+        }
+        await navigator.clipboard.writeText(
+          eventRegistrationUrl
         );
-        return;
+        setLinkCopied(true);
+
+        // Change back to "Copy link"
+        // after 2 seconds
+        setTimeout(() => {
+          setLinkCopied(false);
+        }, 2000);
+
+      } catch (error) {
+
+        console.error(
+          "Unable to copy event link:",
+          error
+        );
       }
-      await navigator.clipboard.writeText(
-        eventRegistrationUrl
-      );
-      setLinkCopied(true);
-
-      // Change back to "Copy link"
-      // after 2 seconds
-      setTimeout(() => {
-      setLinkCopied(false);
-      }, 2000);
-
-    } catch (error) {
-
-      console.error(
-        "Unable to copy event link:",
-        error
-      );
-    }
-  };
+    };
 
   // ====================================================
   // RENDER
@@ -585,7 +585,7 @@ const handleCopyEventLink =
 
                   {
                     eventDetails.OverAllEventStatus ===
-                    "Created"
+                      "Created"
                       ? "Registration Opened"
                       : "Registration Closed"
                   }
@@ -1139,82 +1139,45 @@ const handleCopyEventLink =
                   MAXIMUM MEMBERS
               ================================================= */}
 
-              <div
-                className={
-                  styles.eventDetailsinfoItem
-                }
-              >
+              {!isIndividualEvent && (
+                <div className={styles.eventDetailsinfoItem}>
 
-                <div
-                  className={
-                    styles.left
-                  }
-                >
+                  <div className={styles.left}>
+                    <i className={`bi bi-people ${styles.icon}`} />
 
-                  <i
-                    className={
-                      `bi bi-people ${styles.icon}`
-                    }
-                  />
+                    <span>
+                      Maximum Members In Team
+                    </span>
+                  </div>
 
-                  <span>
-                    Maximum Members In Team
+                  <span className={styles.value}>
+                    {eventDetails.MaxTeamMembers || 0}
                   </span>
 
                 </div>
-
-                <span
-                  className={
-                    styles.value
-                  }
-                >
-                  {
-                    eventDetails.MaxTeamMembers ||
-                    0
-                  }
-                </span>
-
-              </div>
+              )}
 
               {/* =================================================
                   MANDATORY MEMBERS
               ================================================= */}
 
-              <div
-                className={
-                  styles.eventDetailsinfoItem
-                }
-              >
+              {!isIndividualEvent && (
+                <div className={styles.eventDetailsinfoItem}>
 
-                <div
-                  className={
-                    styles.left
-                  }
-                >
+                  <div className={styles.left}>
+                    <i className={`bi bi-people ${styles.icon}`} />
 
-                  <i
-                    className={
-                      `bi bi-people ${styles.icon}`
-                    }
-                  />
+                    <span>
+                      Mandatory Members In Team
+                    </span>
+                  </div>
 
-                  <span>
-                    Mandatory Members In Team
+                  <span className={styles.value}>
+                    {eventDetails.MandatoryMember || 0}
                   </span>
 
                 </div>
-
-                <span
-                  className={
-                    styles.value
-                  }
-                >
-                  {
-                    registeredMemberCount
-                  }
-                </span>
-
-              </div>
+              )}
 
             </div>
 
@@ -1292,20 +1255,20 @@ const handleCopyEventLink =
             }
           >
 
-        <input
-          type="text"
-          className={
-            styles.shareLinkInput
-          }
-          value={
-            eventRegistrationUrl
-          }
-          readOnly
-          onFocus={
-            (e) =>
-              e.target.select()
-          }
-        />
+            <input
+              type="text"
+              className={
+                styles.shareLinkInput
+              }
+              value={
+                eventRegistrationUrl
+              }
+              readOnly
+              onFocus={
+                (e) =>
+                  e.target.select()
+              }
+            />
 
             <Button
               className={

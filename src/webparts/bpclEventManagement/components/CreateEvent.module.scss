@@ -613,3 +613,38 @@ textarea.inputField {
   padding: 10px 12px !important;
   box-sizing: border-box;
 }
+
+
+//Organiser start
+.organiserPicker {
+  width: 100%;
+
+  :global(.ms-BasePicker) {
+    width: 100%;
+  }
+
+  :global(.ms-BasePicker-text) {
+    min-height: 40px;
+    height: auto !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    overflow: visible !important;
+    padding: 4px 8px;
+    box-sizing: border-box;
+  }
+
+  :global(.ms-BasePicker-items) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    gap: 4px;
+  }
+
+  :global(.ms-BasePicker-input) {
+    min-width: 100px;
+  }
+}
+
+//Organiser End

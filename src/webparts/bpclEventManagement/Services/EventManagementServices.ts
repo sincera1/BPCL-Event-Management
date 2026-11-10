@@ -16,6 +16,8 @@ export interface IEventItem {
     subEvents: number;
     eventOwner: string;
     authorEmail: string;
+    organiserEmails: string[];
+    eventOrganiserEmail: string;
     eventFromDate: string;
     eventToDate: string;
     registrationFromDate: string;
@@ -193,11 +195,17 @@ export default class EventService {
                         "NoofSubEvents",
                         "EventOrganiser/Title",
                         "EventOrganiser/EMail",
+                        "Organiser/Id",
+                        "Organiser/Title",
+                        "Organiser/EMail",
+                        "EventOrganiser/Title",
+                        "EventOrganiser/EMail",
                         "Author/EMail",
                         "OverAllEventStatus"
                     )
                     .expand(
                         "EventOrganiser",
+                        "Organiser",
                         "Author"
                     )
                     .orderBy(
@@ -290,16 +298,28 @@ export default class EventService {
                                 item.EventTitle || "",
                             hasSubEvents: item.HasSubEvents === true,
                             hasStages: item.HasStages === true,
-                            subEvents:item.NoofSubEvents || 0,
-                                
+                            subEvents: item.NoofSubEvents || 0,
 
-                            eventOwner:
-                                item.EventOrganiser?.Title || "",
-                            authorEmail:item.Author?.EMail || "",
-                            eventFromDate:
-                                this.formatDisplayDate(
-                                    item.EventStartDate
-                                ),
+
+                            eventOwner: item.EventOrganiser?.Title || "",
+
+                            authorEmail: item.Author?.EMail || "",
+                            
+                            organiserEmails: Array.isArray(item.Organiser)
+                                ? item.Organiser
+                                    .map((person: any) =>
+                                        person?.EMail?.toLowerCase() || ""
+                                    )
+                                    .filter((email: string) => email !== "")
+                                : [],
+
+                            eventOrganiserEmail: item.EventOrganiser?.EMail?.toLowerCase() || "",
+                               
+
+                            eventFromDate: this.formatDisplayDate(item.EventStartDate),
+
+
+
 
                             eventToDate:
                                 this.formatDisplayDate(
