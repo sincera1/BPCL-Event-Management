@@ -2241,7 +2241,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                   </Row>
 
                   <Row>
-                    <Col xs={12} md={3}>
+                    <Col xs={12} md={12}>
                       <Form.Group className={styles.inputGroup}>
                         <Form.Label className={styles.inputLabel}>
                           Organiser
