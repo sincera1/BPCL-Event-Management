@@ -1204,19 +1204,18 @@ export default class BpclEventManagement
                             {/* Event Date */}
 
                             <td>
-
                               <div className="text-nowrap">
-
-                                {event.eventFromDate}
-
+                                {event.eventFromDate === event.eventToDate
+                                  ? event.eventFromDate
+                                  : (
+                                    <>
+                                      {event.eventFromDate}
+                                      <div className="text-muted small">
+                                        to {event.eventToDate}
+                                      </div>
+                                    </>
+                                  )}
                               </div>
-
-                              <div className="text-muted small">
-
-                                to {event.eventToDate}
-
-                              </div>
-
                             </td>
 
 

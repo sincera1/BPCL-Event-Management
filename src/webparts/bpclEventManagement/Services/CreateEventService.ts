@@ -707,7 +707,8 @@ export default class CreateEventService {
     public async updateEvent(
         eventId: number,
         eventData: Omit<ICreateEvent, "OverAllEventStatus">,
-        status?: "Draft" | "Created"
+        status?: "Draft" | "Created",
+        removedAttachmentNames: string[] = []
     ): Promise<void> {
         try {
             console.log("Updating Event:", eventId);
@@ -804,6 +805,22 @@ export default class CreateEventService {
                     eventData.RulesAndRegualtionImage,
                     "RulesAndRegualtionImage"
                 );
+            }
+
+            // Upload new attachments only
+            // Delete existing attachments marked for removal
+            if (
+                removedAttachmentNames &&
+                removedAttachmentNames.length > 0
+            ) {
+                for (const fileName of removedAttachmentNames) {
+
+                    await this.deleteEventAttachment(
+                        eventId,
+                        fileName
+                    );
+
+                }
             }
 
             // Upload new attachments only

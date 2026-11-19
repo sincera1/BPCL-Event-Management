@@ -1721,7 +1721,7 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                       }
                     >
 
-                      Start Date & Time
+                      Start Date
 
                       <span
                         className={
@@ -1788,7 +1788,7 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                       }
                     >
 
-                      End Date & Time
+                      End Date
 
                       <span
                         className={

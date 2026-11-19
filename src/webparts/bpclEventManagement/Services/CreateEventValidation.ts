@@ -396,7 +396,10 @@ export const validateCreateEvent = (
                 // Mandatory Members
                 // ---------------------------------------------
 
-                if (subEvent.mandatoryMembers <= 0) {
+                if (
+                    data.participantType === "Team" &&
+                    subEvent.mandatoryMembers <= 0
+                ) {
 
                     errors[
                         `subEvent_${index}_mandatoryMembers`

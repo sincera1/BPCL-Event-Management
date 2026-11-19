@@ -23,22 +23,12 @@ export interface IWinnerPerson {
 
 export interface IWinnerParticipant {
 
-  // Corp_SL_EventParticipants ID
+  
   Id: number;
-
-  // Team / Individual
   EventParticipantType: string;
-
-  // Team Leader
   TeamLeader: IWinnerPerson | null;
-
-  // Participants / Team Members
   Participant: IWinnerPerson[];
-
-  // Main participant/team status
   ParticipantOrTeamStatus: string;
-
-  // Created
   Created: string;
 }
 
@@ -106,22 +96,13 @@ export interface IWinnerStage {
 export interface IWinnerStageStatus {
 
   Id: number;
-
   Event_IDId: number;
-
   SubEventIDId: number;
-
-  // Lookup to Corp_SL_EventParticipants
   TeamIDId: number;
-
   TeamLeader: IWinnerPerson | null;
-
   Participant: IWinnerPerson[];
-
   Stage: string;
-
   Status: string;
-
   EventParticipantType: string;
 }
 

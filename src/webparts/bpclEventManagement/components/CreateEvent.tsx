@@ -108,6 +108,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
   const [existingAttachments, setExistingAttachments] =
     useState<{ FileName: string; ServerRelativeUrl: string }[]>([]);
+  const [removedExistingAttachmentNames, setRemovedExistingAttachmentNames] =
+    useState<string[]>([]);
 
   const [existingEventBannerImage, setExistingEventBannerImage] =
     useState<string>("");
@@ -123,6 +125,15 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
   const [validationErrors, setValidationErrors] =
     useState<Record<string, string>>({});
   const [, setEventStatus] = useState<"Draft" | "Created" | "">("");
+
+  // Get today's date for date picker minimum
+  const today = new Date();
+
+  const minDate = [
+    today.getFullYear(),
+    String(today.getMonth() + 1).padStart(2, "0"),
+    String(today.getDate()).padStart(2, "0")
+  ].join("-");
 
   const handleHasSubEventsChange = (
     value: boolean
@@ -385,7 +396,8 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
       await eventService.updateEvent(
         eventId,
         updateEventData,
-        status
+        status,
+        removedExistingAttachmentNames
       );
 
       // ==========================================
@@ -625,9 +637,12 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
   };
 
   const removeFile = (index: number): void => {
-    const updatedFiles = selectedFiles.filter((_, i) => i !== index);
+    const updatedFiles = selectedFiles.filter(
+      (_, i) => i !== index
+    );
 
     setSelectedFiles(updatedFiles);
+    setAttachments(updatedFiles);
 
     if (updatedFiles.length === 0) {
       const fileInput = document.getElementById(
@@ -640,6 +655,19 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
     }
   };
 
+  const removeExistingAttachment = (fileName: string): void => {
+    setExistingAttachments((previousAttachments) =>
+      previousAttachments.filter(
+        (attachment) => attachment.FileName !== fileName
+      )
+    );
+
+    setRemovedExistingAttachmentNames((previousNames) =>
+      previousNames.includes(fileName)
+        ? previousNames
+        : [...previousNames, fileName]
+    );
+  };
 
   const currentUserEmail =
     context.pageContext.user.email;
@@ -872,6 +900,9 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
       setExistingAttachments(
         eventDetails.Attachments || []
       );
+
+      setRemovedExistingAttachmentNames([]);
+
 
 
       console.log(
@@ -1311,29 +1342,31 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                         />
 
                         {/* Existing image - Edit mode */}
+
                         {isEditMode &&
                           existingEventBannerImage &&
                           !eventBannerImage && (
 
-                            <div className="mt-1 text-muted">
+                            <div className="mt-1">
 
-                              Existing file:{" "}
+                              <a
+                                href={existingEventBannerImage}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.fileName}
+                              >
+                                <i className="bi bi-image me-2"></i>
 
-                              <strong>
                                 {decodeURIComponent(
-                                  existingEventBannerImage
-                                    .split("/")
-                                    .pop() || ""
-                                ).replace(
-                                  /^\d+_\d+_/,
-                                  ""
-                                )}
-                              </strong>
+                                  existingEventBannerImage.split("/").pop() || ""
+                                ).replace(/^\d+_\d+_/, "")}
+
+                               
+                              </a>
 
                             </div>
 
                           )}
-
                         {/* Newly selected image */}
                         {eventBannerImage && (
 
@@ -1371,6 +1404,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                         <Form.Control
                           type="date"
+                          min={minDate}
                           className={styles.inputField}
                           value={eventStartDate}
                           onChange={(e) => {
@@ -1405,6 +1439,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                         <Form.Control
                           type="date"
+                          min={minDate}
                           className={styles.inputField}
                           value={eventEndDate}
                           disabled={!eventStartDate}
@@ -1526,25 +1561,28 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                         />
 
                         {/* Existing image */}
+                        {/* Existing image - Edit mode */}
                         {isEditMode &&
                           rulesType === "Image" &&
                           existingRulesImage &&
                           !rulesAndRegualtionImage && (
 
-                            <div className="mt-1 text-muted">
+                            <div className="mt-1">
 
-                              Existing file:{" "}
+                              <a
+                                href={existingRulesImage}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.fileName}
+                              >
+                                <i className="bi bi-image me-2"></i>
 
-                              <strong>
                                 {decodeURIComponent(
-                                  existingRulesImage
-                                    .split("/")
-                                    .pop() || ""
-                                ).replace(
-                                  /^\d+_\d+_/,
-                                  ""
-                                )}
-                              </strong>
+                                  existingRulesImage.split("/").pop() || ""
+                                ).replace(/^\d+_\d+_/, "")}
+
+                                
+                              </a>
 
                             </div>
 
@@ -1862,6 +1900,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                         <Form.Control
                           type="date"
+                          min={minDate}
                           className={styles.inputField}
                           value={registrationStartDate}
                           onChange={(e) => {
@@ -1900,6 +1939,7 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
 
                         <Form.Control
                           type="date"
+                          min={minDate}
                           className={styles.inputField}
                           value={registrationEndDate}
                           disabled={!registrationStartDate}
@@ -2355,19 +2395,51 @@ const CreateEvent: React.FC<ICreateEventProps> = ({ onBack, context, eventId, is
                         />
 
                         {/* Existing attachments in Edit mode */}
+                        {/* Existing attachments in Edit mode */}
                         {isEditMode &&
                           existingAttachments.length > 0 && (
 
-                            <div className="mt-1 text-muted">
+                            <div className="mt-2">
 
-                              Existing attachment(s):{" "}
 
-                              {existingAttachments
-                                .map(
-                                  (attachment) =>
-                                    attachment.FileName
-                                )
-                                .join(", ")}
+
+                              {existingAttachments.map((attachment) => (
+
+                                <div
+                                  className={styles.filePreview}
+                                  key={attachment.FileName}
+                                >
+
+                                  <div className={styles.fileIcon}>
+                                    <i className="bi bi-file-earmark"></i>
+                                  </div>
+
+                                  <a
+                                    href={attachment.ServerRelativeUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className={styles.fileName}
+                                    title={attachment.FileName}
+                                  >
+                                    {attachment.FileName}
+                                  </a>
+
+                                  <button
+                                    type="button"
+                                    className={styles.removeFileBtn}
+                                    onClick={() =>
+                                      removeExistingAttachment(
+                                        attachment.FileName
+                                      )
+                                    }
+                                    title="Remove attachment"
+                                  >
+                                    <i className="bi bi-x-circle-fill"></i>
+                                  </button>
+
+                                </div>
+
+                              ))}
 
                             </div>
 
