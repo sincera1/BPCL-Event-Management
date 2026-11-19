@@ -15,6 +15,7 @@ export interface IEventDetails {
   EventTitle: string;
   EventStartDate: string;
   EventEndDate: string;
+  RegistrationEndDate: string;
   HasSubEvents: boolean;
 }
 
@@ -105,6 +106,7 @@ export default class DocumentSubmissionService {
           "EventTitle",
           "EventStartDate",
           "EventEndDate",
+          "RegistrationEndDate",
           "HasSubEvents"
         )
         .get();
@@ -122,6 +124,8 @@ export default class DocumentSubmissionService {
 
         EventEndDate:
           eventItem.EventEndDate || "",
+        RegistrationEndDate:
+          eventItem.RegistrationEndDate || "",
 
         HasSubEvents:
           eventItem.HasSubEvents || ""

@@ -812,6 +812,23 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
 
     }
 
+    const registrationEndDate = new Date(
+      eventDetails.RegistrationEndDate
+    );
+
+    if (isNaN(registrationEndDate.getTime())) {
+      return "Invalid Event Registration End Date.";
+    }
+
+    if (
+      stageStartDate <= registrationEndDate ||
+      stageEndDate <= registrationEndDate
+    ) {
+      return (
+        `${stage.Stages}: ` +
+        "Stage Start Date and End Date must be after Event Registration End Date."
+      );
+    }
 
     const eventStartDate =
       new Date(
@@ -1736,8 +1753,21 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
 
                     <Form.Control
                       type="date"
-                      value={
-                        stage.StageStartDate
+                      value={stage.StageStartDate}
+                      min={
+                        stageIndex === 0
+                          ? eventDetails
+                            ? getDateAfter(
+                              formatDateTimeForInput(
+                                eventDetails.RegistrationEndDate
+                              )
+                            )
+                            : ""
+                          : section.Stages[stageIndex - 1].StageEndDate
+                            ? getDateAfter(
+                              section.Stages[stageIndex - 1].StageEndDate
+                            )
+                            : ""
                       }
                       max={
                         eventDetails
@@ -1748,23 +1778,17 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                           )
                           : ""
                       }
-                      onChange={
-                        (
-                          e: React.ChangeEvent<
-                            HTMLInputElement
-                          >
-                        ): void =>
-
-                          updateStageField(
-                            sectionIndex,
-                            stageIndex,
-                            "StageStartDate",
-                            e.target.value
-                          )
+                      onChange={(
+                        e: React.ChangeEvent<HTMLInputElement>
+                      ): void =>
+                        updateStageField(
+                          sectionIndex,
+                          stageIndex,
+                          "StageStartDate",
+                          e.target.value
+                        )
                       }
-                      className={
-                        styles.inputField
-                      }
+                      className={styles.inputField}
                     />
 
                   </Form.Group>
@@ -1803,17 +1827,12 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
 
                     <Form.Control
                       type="date"
-                      value={
-                        stage.StageEndDate
-                      }
+                      value={stage.StageEndDate}
                       min={
                         stage.StageStartDate
-                          ? getDateAfter(
-                            stage.StageStartDate
-                          )
+                          ? getDateAfter(stage.StageStartDate)
                           : ""
                       }
-
                       max={
                         eventDetails
                           ? getDateBefore(
@@ -1823,23 +1842,17 @@ const DocumentSubmission: React.FC<IDocumentSubmissionProps> = ({ eventId, conte
                           )
                           : ""
                       }
-                      onChange={
-                        (
-                          e: React.ChangeEvent<
-                            HTMLInputElement
-                          >
-                        ): void =>
-
-                          updateStageField(
-                            sectionIndex,
-                            stageIndex,
-                            "StageEndDate",
-                            e.target.value
-                          )
+                      onChange={(
+                        e: React.ChangeEvent<HTMLInputElement>
+                      ): void =>
+                        updateStageField(
+                          sectionIndex,
+                          stageIndex,
+                          "StageEndDate",
+                          e.target.value
+                        )
                       }
-                      className={
-                        styles.inputField
-                      }
+                      className={styles.inputField}
                     />
 
                   </Form.Group>
